@@ -192,3 +192,7 @@ dist
 .svelte-kit
 /rest-api/nbproject/private/
 /rest-api/nbproject
+/frontend/.angular
+/frontend/.vscode
+/rest-api/.github
+/rest-api/.vscode
