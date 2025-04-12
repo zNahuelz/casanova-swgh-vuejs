@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\WorkerType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Doctor extends Model
+class Worker extends Model
 {
     protected $fillable = [
         'name',
@@ -16,16 +16,19 @@ class Doctor extends Model
         'email',
         'phone',
         'address',
-        'user_id'
+        'hiring_date',
+        'user_id',
+        'position'
     ];
+
+    protected $casts = [
+        'position' => WorkerType::class,
+        'hiring_date' => 'date'
+    ];
+
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function appointments(): HasMany
-    {
-        return $this->hasMany(Appointment::class);
     }
 }

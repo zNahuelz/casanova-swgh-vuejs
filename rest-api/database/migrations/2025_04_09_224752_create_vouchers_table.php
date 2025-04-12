@@ -17,6 +17,8 @@ return new class extends Migration
             $table->double('total');
             $table->double('igv');
             $table->boolean('paid');
+            $table->string('set',15); //Serie de Boleta. B604
+            $table->string('correlative',15); //Correlativo. 008069
             $table->unsignedBigInteger('voucher_type');
             $table->foreign('voucher_type')->references('id')->on('voucher_types');
             $table->unsignedBigInteger('patient_id');

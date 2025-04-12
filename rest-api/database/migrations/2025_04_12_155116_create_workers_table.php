@@ -12,19 +12,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('patients', function (Blueprint $table) {
+
+        Schema::create('workers', function (Blueprint $table) {
             $table->id();
             $table->string('name',30);
             $table->string('paternal_surname',30);
             $table->string('maternal_surname',30);
             $table->string('dni',15)->unique();
             $table->string('email',50)->default('EMAIL@DOMINIO.COM');
-            $table->string('phone',15)->default('000000000');
+            $table->string('phone',15)->default('999000111');
             $table->string('address',100)->default('---');
+            $table->date('hiring_date');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->string('position',20)->default('ENFERMERA');
             $table->softDeletes();
             $table->timestamps();
         });
-        DB::statement('ALTER SEQUENCE patients_id_seq INCREMENT BY 10 START WITH 100');
+        DB::statement('ALTER SEQUENCE workers_id_seq INCREMENT BY 10 START WITH 100');
+        DB::statement("ALTER TABLE workers ADD CONSTRAINT workers_position_check CHECK(position IN('SECRETARIA','ENFERMERA'))");
     }
 
     /**
@@ -32,6 +38,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('patients');
+        Schema::dropIfExists('workers');
+        DB::statement('DROP TYPE IF EXISTS worker_type');
     }
 };

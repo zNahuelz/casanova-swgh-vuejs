@@ -18,8 +18,10 @@ return new class extends Migration
             $table->double('subtotal');
             $table->unsignedBigInteger('voucher_id');
             $table->foreign('voucher_id')->references('id')->on('vouchers');
-            $table->unsignedBigInteger('medicine_id');
+            $table->unsignedBigInteger('medicine_id')->nullable();
             $table->foreign('medicine_id')->references('id')->on('medicines');
+            $table->unsignedBigInteger('treatment_id')->nullable();
+            $table->foreign('treatment_id')->references('id')->on('treatments');
             $table->softDeletes();
             $table->timestamps();
         });

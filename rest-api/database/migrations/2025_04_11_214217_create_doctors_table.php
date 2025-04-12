@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -16,7 +17,7 @@ return new class extends Migration
             $table->string('name',30);
             $table->string('paternal_surname',30);
             $table->string('maternal_surname',30);
-            $table->string('dni',15);
+            $table->string('dni',15)->unique();
             $table->string('email',50)->default('EMAIL@DOMINIO.COM');
             $table->string('phone',15)->default('999000111');
             $table->string('address',100)->default('---');
@@ -25,6 +26,7 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
         });
+        DB::statement('ALTER SEQUENCE doctors_id_seq INCREMENT BY 10 START WITH 100');
     }
 
     /**

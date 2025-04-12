@@ -24,12 +24,23 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $user = Auth::guard('api')->user();
         return response()->json([
             'auth' => [
                 'token' => $token,
                 'type' => 'Bearer'
             ]
         ]);
+    }
+
+    public function profile()
+    {
+        $user = auth()->user();
+        if(!$user)
+        {
+            return response()->json([
+                'message' => 'Error! Token expirado o invalido.',
+            ],401);
+        }
+        return response()->json($user->load('role'));
     }
 }
