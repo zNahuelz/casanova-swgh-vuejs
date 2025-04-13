@@ -1,0 +1,124 @@
+:root {
+  /* Color System */
+  /* Primary Colors */
+  --mat-sys-primary: #3C9547;
+  --mat-sys-on-primary: #FFFFFF;
+  --mat-sys-primary-container: #BAF0B6;
+  --mat-sys-on-primary-container: #002106;
+  --mat-sys-primary-fixed: #BAF0B6;
+  --mat-sys-primary-fixed-dim: #82DA89;
+  --mat-sys-on-primary-fixed: #002106;
+  --mat-sys-on-primary-fixed-variant: #00531C;
+
+  /* Secondary Colors */
+  --mat-sys-secondary: #81967E;
+  --mat-sys-on-secondary: #FFFFFF;
+  --mat-sys-secondary-container: #D5E8CF;
+  --mat-sys-on-secondary-container: #032108;
+  --mat-sys-secondary-fixed: #D5E8CF;
+  --mat-sys-secondary-fixed-dim: #B9CCB4;
+  --mat-sys-on-secondary-fixed: #032108;
+  --mat-sys-on-secondary-fixed-variant: #2F4E30;
+
+  /* Tertiary Colors */
+  --mat-sys-tertiary: #6399A1;
+  --mat-sys-on-tertiary: #FFFFFF;
+  --mat-sys-tertiary-container: #BCEBF1;
+  --mat-sys-on-tertiary-container: #1F4D53;
+  --mat-sys-tertiary-fixed: #BCEBF1;
+  --mat-sys-tertiary-fixed-dim: #A1CED5;
+  --mat-sys-on-tertiary-fixed: #001F23;
+  --mat-sys-on-tertiary-fixed-variant: #1F4D53;
+
+  /* Error Colors */
+  --mat-sys-error: #e51c4c;
+  --mat-sys-on-error: #FFFFFF;
+  --mat-sys-error-container: #FFDAD6;
+  --mat-sys-on-error-container: #410002;
+
+  /* Neutral Colors */
+  --mat-sys-background: #F8F9F8;
+  --mat-sys-on-background: #1A1C19;
+  --mat-sys-surface: #F8F9F8;
+  --mat-sys-on-surface: #1A1C19;
+  --mat-sys-surface-variant: #DEE5D9;
+  --mat-sys-on-surface-variant: #424940;
+  --mat-sys-outline: #72796F;
+  --mat-sys-outline-variant: #C2C9BD;
+  --mat-sys-shadow: #000000;
+  --mat-sys-scrim: #000000;
+  --mat-sys-inverse-surface: #2E312C;
+  --mat-sys-inverse-on-surface: #F0F2E9;
+  --mat-sys-inverse-primary: #82DA89;
+  --mat-sys-surface-dim: #D8DAD8;
+  --mat-sys-surface-bright: #F8F9F8;
+  --mat-sys-surface-container-lowest: #FFFFFF;
+  --mat-sys-surface-container-low: #F2F4F2;
+  --mat-sys-surface-container: #ECEEEC;
+  --mat-sys-surface-container-high: #E6E9E6;
+  --mat-sys-surface-container-highest: #E1E3E0;
+  --mat-sys-neutral: #8F918C;
+  --mat-sys-neutral10: #1A1C19;
+  --mat-sys-neutral-variant: #8C9388;
+  --mat-sys-neutral-variant20: #2D302B;
+
+  /* Shape System */
+  --mat-sys-corner-extra-small: 4px;
+  --mat-sys-corner-small: 8px;
+  --mat-sys-corner-medium: 12px;
+  --mat-sys-corner-large: 16px;
+  --mat-sys-corner-extra-large: 28px;
+  --mat-sys-corner-full: 9999px;
+
+  /* Elevation */
+  --mat-sys-level0: none;
+  --mat-sys-level1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+  --mat-sys-level2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+  --mat-sys-level3: 0px 4px 8px 3px rgba(0, 0, 0, 0.15);
+  --mat-sys-level4: 0px 6px 10px 4px rgba(0, 0, 0, 0.15);
+  --mat-sys-level5: 0px 8px 12px 6px rgba(0, 0, 0, 0.15);
+
+  /* State Layer Opacities */
+  --mat-sys-hover-state-layer-opacity: 0.08;
+  --mat-sys-focus-state-layer-opacity: 0.12;
+  --mat-sys-pressed-state-layer-opacity: 0.12;
+  --mat-sys-dragged-state-layer-opacity: 0.16;
+}
+
+/* Dark Theme Variant */
+.dark-theme {
+  --mat-sys-primary: #82DA89;
+  --mat-sys-on-primary: #003911;
+  --mat-sys-primary-container: #00531C;
+  --mat-sys-on-primary-container: #BAF0B6;
+  --mat-sys-secondary: #B9CCB4;
+  --mat-sys-on-secondary: #18371B;
+  --mat-sys-secondary-container: #2F4E30;
+  --mat-sys-on-secondary-container: #D5E8CF;
+  --mat-sys-tertiary: #A1CED5;
+  --mat-sys-on-tertiary: #00363C;
+  --mat-sys-tertiary-container: #1F4D53;
+  --mat-sys-on-tertiary-container: #BCEBF1;
+  --mat-sys-error: #FFB4AB;
+  --mat-sys-on-error: #690005;
+  --mat-sys-error-container: #93000A;
+  --mat-sys-on-error-container: #FFDAD6;
+  --mat-sys-background: #111411;
+  --mat-sys-on-background: #E1E3E0;
+  --mat-sys-surface: #111411;
+  --mat-sys-on-surface: #E1E3E0;
+  --mat-sys-surface-variant: #424940;
+  --mat-sys-on-surface-variant: #C2C9BD;
+  --mat-sys-inverse-surface: #E1E3E0;
+  --mat-sys-inverse-on-surface: #2E312C;
+  --mat-sys-surface-dim: #111411;
+  --mat-sys-surface-bright: #373A36;
+  --mat-sys-surface-container-lowest: #0C0F0C;
+  --mat-sys-surface-container-low: #191C19;
+  --mat-sys-surface-container: #1D201D;
+  --mat-sys-surface-container-high: #272A27;
+  --mat-sys-surface-container-highest: #323532;
+}
+
+
+
