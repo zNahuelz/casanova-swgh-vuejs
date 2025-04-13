@@ -1,69 +1,69 @@
-<main class="d-flex justify-content-center align-items-center bg-secondary-subtle"
-      style="height: 100vh; overflow: hidden;">
-  <div class="container-fluid px-0">
-    <div class="row justify-content-center mx-0">
-      <div class="card col-12 col-md-3 col-lg-3 border-success px-0">
-        <div class="card-header bg-success bg-gradient text-white text-center fw-bold p-2">
-          <i class="bi bi-person-bounding-box"></i> INICIO DE SESIÓN
-        </div>
-        <div class="card-body">
-          <form class="form flex flex-center" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-            <div class="container text-center mb-3">
-              <img ngSrc="assets/images/logo_transparent.png" width="160" height="160" priority>
-            </div>
-            <div class="row ms-3 me-3">
-              <mat-form-field class="form-field mb-2" appearance="outline">
-                <mat-label>Usuario</mat-label>
-                <input type="text" matInput formControlName="username"/>
-                @if (loginForm.get('username')?.hasError('required')) {
-                  <mat-error>Debe ingresar su usuario.</mat-error>
-                }
-                @if (loginForm.get('username')?.hasError('minlength') || loginForm.get('username')?.hasError('maxlength')) {
-                  <mat-error>Su usuario debe tener entre 5 y 20 carácteres.</mat-error>
-                }
-              </mat-form-field>
-            </div>
-            <div class="row ms-3 me-3">
-              <mat-form-field class="form-field" appearance="outline">
-                <mat-label>Contraseña</mat-label>
-                <input type="password" matInput formControlName="password"/>
-                @if (loginForm.get('password')?.hasError('required')) {
-                  <mat-error>Debe ingresar su contraseña.</mat-error>
-                }
-                @if (loginForm.get('password')?.hasError('minlength') || loginForm.get('password')?.hasError('maxlength')) {
-                  <mat-error>La contraseña debe tener entre 5 y 20 carácteres.</mat-error>
-                }
-              </mat-form-field>
-            </div>
-            <div class="row me-3 ms-3 mb-2">
-              <mat-checkbox formControlName="rememberMe">Recuérdame</mat-checkbox>
-            </div>
-            <div class="row me-3 ms-3">
-              <div class="col text-center">
-                <button mat-fab extended [disabled]="submitting" class="me-3 text-dark"  type="button">
-                  <mat-icon>restart_alt</mat-icon>
-                  Limpiar
-                </button>
-                <button mat-fab extended [disabled]="loginForm.invalid || submitting" class="text-dark" type="submit">
-                  <mat-icon>login</mat-icon>
-                  @if (submitting) {
-                    Cargando...
-                  } @else {
-                    Continuar
-                  }
-                </button>
-
-              </div>
-            </div>
-            <div class="row mt-2 text-center">
-              <span class="text-danger" >¿Olvidó su contraseña? Click aquí</span>
-            </div>
-          </form>
-        </div>
-          <div class="card-footer text-dark text-center">
-            Por favor, ingrese sus credenciales de acceso.
-          </div>
+<main class="h-screen flex justify-center items-center bg-slate-200">
+  <div class="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow-lg sm:p-6 md:p-8">
+    <form class="space-y-6" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="flex items-center justify-center">
+        <img ngSrc="assets/images/logo_white.png" width="160" height="160" priority>
       </div>
-    </div>
+      <div class="mb-4">
+        <label class="block mb-2 text-sm font-medium text-gray-900 ">Nombre de Usuario</label>
+        <div class="flex">
+  <span
+    class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border rounded-e-0 border-gray-300 border-e-0 rounded-s-md ">
+<svg class="w-6 h-6 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+     fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd"
+        d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z"
+        clip-rule="evenodd"/>
+</svg>
+  </span>
+          <input type="text" formControlName="username"
+                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-none rounded-e-lg focus:ring-green-800 focus:border-green-800 block w-full p-2.5 ">
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="block mb-2 text-sm font-medium text-gray-900 ">Contraseña</label>
+        <div class="flex">
+  <span
+    class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border rounded-e-0 border-gray-300 border-e-0 rounded-s-md ">
+<svg class="w-6 h-6 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+     fill="none" viewBox="0 0 24 24">
+  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"/>
+</svg>
+  </span>
+          <input type="password" formControlName="password"
+                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-none rounded-e-lg focus:ring-green-800 focus:border-green-800 block w-full p-2.5 ">
+        </div>
+      </div>
+      <div class="flex items-start">
+        <div class="flex items-start">
+          <div class="flex items-center h-5">
+            <input type="checkbox" formControlName="rememberMe"
+                   class="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300"
+            />
+          </div>
+          <label class="ms-2 text-sm font-medium text-gray-900">Recuérdame</label>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <button type="button" [disabled]="submitting" (click)="clear()"
+                class="px-5 py-2.5 text-sm font-medium text-white inline-flex items-center bg-blue-600 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center justify-center disabled:bg-gray-600 disabled:cursor-not-allowed">
+          Limpiar
+        </button>
+
+        <button type="submit" [disabled]="loginForm.invalid || submitting"
+                class="px-5 py-2.5 text-sm font-medium text-white inline-flex items-center bg-green-600 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center justify-center disabled:bg-gray-600 disabled:cursor-not-allowed">
+          @if (submitting) {
+            Cargando...
+          } @else {
+            Iniciar Sesión
+          }
+        </button>
+      </div>
+      <div class="text-sm font-medium text-gray-500">
+        ¿Olvido su contraseña? <a class="text-blue-700 hover:underline" (click)="goToRecovery()">Click aquí</a>
+      </div>
+    </form>
+
   </div>
 </main>
