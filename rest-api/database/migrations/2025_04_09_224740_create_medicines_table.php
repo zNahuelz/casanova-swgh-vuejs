@@ -26,6 +26,8 @@ return new class extends Migration
             $table->boolean('salable')->default(false); //Vendible SI/NO
             $table->unsignedBigInteger('presentation');
             $table->foreign('presentation')->references('id')->on('presentations');
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

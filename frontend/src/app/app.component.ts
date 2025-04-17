@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import {Component, inject} from '@angular/core';
+import {NavigationEnd, Router, RouterOutlet} from '@angular/router';
 import {initFlowbite} from 'flowbite';
 import {FlowbiteService} from './services/flowbite.service';
 
@@ -10,7 +10,18 @@ import {FlowbiteService} from './services/flowbite.service';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'frontend';
 
-  constructor(flowbite: FlowbiteService) { }
+  private router = inject(Router);
+
+  //Cada vez que termina de actualizarse el DOM luego de finalizar el ruteo
+  //se inicializa flowbite.
+  ngAfterViewInit() {
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        setTimeout(() => {
+          initFlowbite();
+        });
+      }
+    });
+  }
 }

@@ -23,6 +23,11 @@ return new class extends Migration
             $table->foreign('voucher_type')->references('id')->on('voucher_types');
             $table->unsignedBigInteger('patient_id');
             $table->foreign('patient_id')->references('id')->on('patients');
+            $table->unsignedBigInteger('payment_type_id');
+            $table->foreign('payment_type_id')->references('id')->on('payment_types');
+            $table->string('payment_serial')->nullable(); //Hash que arroja POS o Yape Id.
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

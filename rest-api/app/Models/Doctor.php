@@ -16,7 +16,9 @@ class Doctor extends Model
         'email',
         'phone',
         'address',
-        'user_id'
+        'user_id',
+        'created_by',
+        'updated_by'
     ];
 
     public function user(): BelongsTo
@@ -27,5 +29,27 @@ class Doctor extends Model
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
+    }
+
+    public function availabilities(): HasMany
+    {
+        return $this->hasMany(DoctorAvailability::class);
+    }
+
+    public function unavailabilities(): HasMany
+    {
+        return $this->hasMany(DoctorUnavailability::class);
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        //Wip...
+        return $this->belongsTo(User::class,'created_by');
+    }
+
+    public function updatedBy(): BelongsTo
+    {
+        //Wip...
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

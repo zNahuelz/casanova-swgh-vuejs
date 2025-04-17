@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Patient extends Model
@@ -14,7 +15,9 @@ class Patient extends Model
         'dni',
         'email',
         'phone',
-        'address'
+        'address',
+        'created_by',
+        'updated_by'
     ];
 
     public function vouchers(): HasMany
@@ -25,5 +28,17 @@ class Patient extends Model
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        //Wip...
+        return $this->belongsTo(User::class,'created_by');
+    }
+
+    public function updatedBy(): BelongsTo
+    {
+        //Wip...
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

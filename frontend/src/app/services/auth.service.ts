@@ -15,10 +15,15 @@ export class AuthService {
   private cookieService = inject(CookieService);
   private router = inject(Router);
 
-  login(username: string, password: string, rememberMe: boolean){
+  login(username: string, password: string, rememberMe: boolean) {
     return this.http.post<any>(`${this.API_URL}/login`, {username, password}).pipe(tap(response => {
         if (response.auth.token) {
           this.setToken(response.auth.token, rememberMe);
+          this.cookieService.delete('USER_DATA', '/');
+        }
+        if (response.userData) {
+          this.setUserData(JSON.stringify(response.userData), rememberMe);
+          console.log(this.getUserData());
         }
       })
     );
@@ -29,8 +34,17 @@ export class AuthService {
     this.cookieService.set('AUTH_TOKEN', token, {expires: expires, path: '/'});
   }
 
+  private setUserData(userData: string, rememberMe: boolean): void {
+    const expires = rememberMe ? 7 : undefined;
+    this.cookieService.set('USER_DATA', userData, {expires: expires, path: '/'});
+  }
+
   getToken(): string | null {
     return this.cookieService.get('AUTH_TOKEN');
+  }
+
+  getUserData(): any {
+    return JSON.parse(this.cookieService.get('USER_DATA'));
   }
 
   decodeToken(token: string): any {
@@ -54,6 +68,7 @@ export class AuthService {
 
   logout(): void {
     this.cookieService.delete('AUTH_TOKEN', '/');
+    this.cookieService.delete('USER_DATA', '/');
     this.redirectToLogin();
   }
 
@@ -63,11 +78,23 @@ export class AuthService {
   }
 
   redirectToUnauthorized() {
-    this.router.navigate(['/testing']);
+    const userRole = this.getTokenDetails().role;
+    if (userRole === 'ADMINISTRADOR') {
+      this.router.navigate(['/a']);
+    }
+    if (userRole === 'DOCTOR') {
+      this.router.navigate(['/d']);
+    }
+    if (userRole === 'ENFERMERA') {
+      this.router.navigate(['/e']);
+    }
+    if (userRole === 'SECRETARIA') {
+      this.router.navigate(['/s']);
+    }
     return false;
   }
 
-  getUserData() {
+  getTokenDetails() {
     const user = this.decodeToken(this.getToken()!);
     return {
       'username': user.username ?? 'USUARIO',

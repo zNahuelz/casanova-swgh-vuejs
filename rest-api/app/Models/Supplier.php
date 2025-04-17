@@ -2,36 +2,26 @@
 
 namespace App\Models;
 
-use App\Enums\WorkerType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Worker extends Model
+class Supplier extends Model
 {
     protected $fillable = [
         'name',
-        'paternal_surname',
-        'maternal_surname',
-        'dni',
-        'email',
-        'phone',
+        'ruc',
         'address',
-        'hiring_date',
-        'user_id',
-        'position',
+        'phone',
+        'email',
+        'description',
         'created_by',
-        'updated_by'
+        'updated_by',
     ];
 
-    protected $casts = [
-        'position' => WorkerType::class,
-        'hiring_date' => 'date'
-    ];
-
-
-    public function user(): BelongsTo
+    public function medicines(): HasMany
     {
-        return $this->belongsTo(User::class);
+        return $this->hasMany(Medicine::class);
     }
 
     public function createdBy(): BelongsTo
@@ -45,4 +35,5 @@ class Worker extends Model
         //Wip...
         return $this->belongsTo(User::class, 'created_by');
     }
+
 }

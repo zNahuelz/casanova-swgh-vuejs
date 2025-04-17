@@ -11,7 +11,7 @@ export const generalGuard: CanActivateFn = (route, state) => {
   }
 
   //Obtener rol usuario.
-  const userRole = authService.getUserData().role;
+  const userRole = authService.getTokenDetails().role;
 
   //Obtener los roles permitidos para la siguiente ruta. (Desde el enrutado mas antiguo que matchee la ruta actual - ruta padre)
   let currentRoute: ActivatedRouteSnapshot | null = route;

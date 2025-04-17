@@ -20,5 +20,35 @@ export const routes: Routes = [
         {path: 'testing', component: TestingComponent, title: 'PLAYGROUND'},
       ]
   },
+  {
+    path: 'd',
+    component: ManagementLayoutComponent,
+    canActivate: [generalGuard],
+    data: {roles: ['DOCTOR']},
+    children:
+    [
+      {path: '', component: DashboardComponent, title: 'ALTERNATIVA CASANOVA - INICIO'},
+    ]
+  },
+  {
+    path: 'e',
+    component: ManagementLayoutComponent,
+    canActivate: [generalGuard],
+    data: {roles: ['ENFERMERA']},
+    children:
+      [
+        {path: '', component: DashboardComponent, title: 'ALTERNATIVA CASANOVA - INICIO'},
+      ]
+  },
+  {
+    path: 's',
+    component: ManagementLayoutComponent,
+    canActivate: [generalGuard],
+    data: {roles: ['SECRETARIA']},
+    children:
+      [
+        {path: '', component: DashboardComponent, title: 'ALTERNATIVA CASANOVA - INICIO'},
+      ]
+  },
   {path: '**', redirectTo: ''}
 ];

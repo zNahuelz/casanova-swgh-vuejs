@@ -18,18 +18,45 @@ class AuthController extends Controller
         $credentials = $request->only('username', 'password');
 
         $token = Auth::guard('api')->attempt($credentials);
-        if (!$token) {
+        if (!$token) 
+        {
             return response()->json([
                 'message' => 'Intento de inicio de sesión fallido.'
             ], 401);
         }
 
-        return response()->json([
-            'auth' => [
-                'token' => $token,
-                'type' => 'Bearer'
-            ]
-        ]);
+        $user = Auth::guard('api')->user()->load('role');
+
+        if($user->role->name == 'ENFERMERA' || $user->role->name == 'SECRETARIA')
+        {
+            return response()->json([
+                'auth' => [
+                    'token' => $token,
+                    'type' => 'Bearer'
+                ],
+                'userData' => $user->worker
+            ]);
+        }
+        else if($user->role->name == 'DOCTOR')
+        {
+            return response()->json([
+                'auth' => [
+                    'token' => $token,
+                    'type' => 'Bearer'
+                ],
+                'userData' => $user->doctor
+            ]);
+        }
+        else
+        {
+            return response()->json([
+                'auth' => [
+                    'token' => $token,
+                    'type' => 'Bearer'
+                ]
+            ]);
+        }
+
     }
 
     public function profile()
@@ -41,6 +68,20 @@ class AuthController extends Controller
                 'message' => 'Error! Token expirado o invalido.',
             ],401);
         }
-        return response()->json($user->load('role'));
+        else
+        {
+            if($user->role->name == 'ENFERMERA' || $user->role->name == 'SECRETARIA')
+            {
+                return response()->json($user->load(['role','worker']));
+            }
+            else if($user->role->name == 'DOCTOR')
+            {
+                return response()->json($user->load(['role','doctor']));
+            }
+            else
+            {
+                return response()->json($user->load(['role']));
+            }
+        }
     }
 }

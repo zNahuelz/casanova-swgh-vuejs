@@ -5,10 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class TreatmentRequirement extends Model
+class MedicineSupplier extends Model
 {
     protected $fillable = [
-        'treatment_id',
+        'supplier_id',
         'medicine_id',
     ];
 
@@ -17,10 +17,8 @@ class TreatmentRequirement extends Model
         return $this->belongsTo(Medicine::class);
     }
 
-    public function treatment(): BelongsTo
+    public function supplier(): BelongsTo
     {
-        return $this->belongsTo(Treatment::class);
+        return $this->belongsTo(Supplier::class);
     }
-    
 }
-

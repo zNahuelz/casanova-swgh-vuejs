@@ -20,7 +20,9 @@ class Medicine extends Model
         'profit',
         'stock',
         'salable',
-        'presentation'
+        'presentation',
+        'created_by',
+        'updated_by'
     ];
 
     public function presentation(): BelongsTo
@@ -28,13 +30,25 @@ class Medicine extends Model
         return $this->belongsTo(Presentation::class);
     }
 
-    public function treatmentRequeriments(): HasMany
+    public function suppliers(): HasMany
     {
-        return $this->hasMany(TreatmentRequirement::class);
+        return $this->hasMany(Supplier::class);
     }
 
     public function voucherDetail(): HasMany
     {
         return $this->hasMany(VoucherDetail::class);
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        //Wip...
+        return $this->belongsTo(User::class,'created_by');
+    }
+
+    public function updatedBy(): BelongsTo
+    {
+        //Wip...
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

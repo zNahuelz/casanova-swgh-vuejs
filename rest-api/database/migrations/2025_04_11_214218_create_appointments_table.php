@@ -27,6 +27,8 @@ return new class extends Migration
             $table->foreign('patient_id')->references('id')->on('patients');
             $table->unsignedBigInteger('doctor_id')->nullable();
             $table->foreign('doctor_id')->references('id')->on('doctors');
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
@@ -40,6 +42,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('appointments');
-        DB::statement('DROP TYPE IF EXISTS appointment_status');
+        DB::statement('DROP TYPE IF EXISTS appointment_status_check');
     }
 };

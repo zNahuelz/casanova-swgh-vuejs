@@ -29,7 +29,19 @@ export class LoginComponent {
     this.authService.login(this.loginForm.value.username!!, this.loginForm.value.password!!, this.loginForm.value.rememberMe!!).subscribe({
       next: res => {
         this.submitting = false;
-        this.router.navigate(['/a'])
+        const userRole = this.authService.getTokenDetails().role;
+        if (userRole === 'ADMINISTRADOR') {
+          this.router.navigate(['/a']);
+        }
+        if (userRole === 'DOCTOR') {
+          this.router.navigate(['/d']);
+        }
+        if (userRole === 'ENFERMERA') {
+          this.router.navigate(['/e']);
+        }
+        if (userRole === 'SECRETARIA') {
+          this.router.navigate(['/s']);
+        }
       },
       error: err => {
         this.submitting = false;
