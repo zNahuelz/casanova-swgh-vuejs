@@ -19,6 +19,10 @@ class Supplier extends Model
         'updated_by',
     ];
 
+    protected $attributes = [
+        'description' => 'PROVEEDOR GENERAL'
+    ];
+
     public function medicines(): HasMany
     {
         return $this->hasMany(Medicine::class);

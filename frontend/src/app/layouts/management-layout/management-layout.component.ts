@@ -1,6 +1,6 @@
 import {Component, inject} from '@angular/core';
 import {AuthService} from '../../services/auth.service';
-import {RouterOutlet} from '@angular/router';
+import {RouterLink, RouterOutlet} from '@angular/router';
 import {initFlowbite} from 'flowbite';
 import {NgClass, NgOptimizedImage} from '@angular/common';
 
@@ -9,7 +9,8 @@ import {NgClass, NgOptimizedImage} from '@angular/common';
   imports: [
     RouterOutlet,
     NgOptimizedImage,
-    NgClass
+    NgClass,
+    RouterLink
   ],
   templateUrl: './management-layout.component.html',
   styleUrl: './management-layout.component.css'

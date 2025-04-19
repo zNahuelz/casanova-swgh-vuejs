@@ -97,9 +97,19 @@ export class AuthService {
   getTokenDetails() {
     const user = this.decodeToken(this.getToken()!);
     return {
+      'user_id': user.user_id ?? null,
       'username': user.username ?? 'USUARIO',
       'email': user.email ?? 'EMAIL@DOMINIO.COM',
       'role': user.role ?? 'N/A',
+    }
+  }
+
+  getUserId() {
+    const userRole = this.getTokenDetails().role;
+    if (userRole === 'ADMINISTRADOR') {
+      return this.getTokenDetails().user_id;
+    } else {
+      return this.getUserData().id;
     }
   }
 }

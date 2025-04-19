@@ -1,0 +1,121 @@
+<main class="flex flex-col items-center pt-5">
+
+
+  <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm  min-w-150">
+
+    <h5 class="mb-2 text-2xl font-bold tracking-tight text-black text-center">NUEVO PROVEEDOR</h5>
+    <form class="space-y-3" [formGroup]="supplierForm" (ngSubmit)="onSubmit()">
+      <div>
+        <label class="block mb-1 text-sm font-medium text-gray-900 ">Nombre</label>
+        <input type="text" formControlName="name"
+               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full">
+        @if (supplierForm.get('name')?.hasError('required') && (supplierForm.get('name')?.touched || supplierForm.get('name')?.dirty)) {
+          <p class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium">Debe ingresar un nombre.</p>
+        }
+        @if ((supplierForm.get('name')?.hasError('minlength') || supplierForm.get('name')?.hasError('maxlength')) && (supplierForm.get('name')?.touched || supplierForm.get('name')?.dirty)) {
+          <p class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium">El nombre debe tener entre 2 y 150
+            carácteres.</p>
+        }
+      </div>
+
+      <div>
+        <label class="block mb-1 text-sm font-medium text-gray-900 ">RUC</label>
+        <input type="number" formControlName="ruc" (keydown)="allowIntegers($event)"
+               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none">
+        @if (supplierForm.get('ruc')?.hasError('required') && (supplierForm.get('ruc')?.touched || supplierForm.get('ruc')?.dirty)) {
+          <p class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium">Debe ingresar un RUC.</p>
+        }
+        @if (supplierForm.get('ruc')?.hasError('pattern') && (supplierForm.get('ruc')?.touched || supplierForm.get('ruc')?.dirty)) {
+          <p class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium">El RUC debe comenzar con 10 o 20 y tener
+            máximo 11 carácteres.</p>
+        }
+        @if ((supplierForm.get('ruc')?.hasError('minlength') || supplierForm.get('ruc')?.hasError('maxlength')) && (supplierForm.get('ruc')?.touched || supplierForm.get('ruc')?.dirty)) {
+          <p class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium">El RUC debe tener 11 carácteres.</p>
+        }
+      </div>
+
+      <div>
+        <label class="block mb-1 text-sm font-medium text-gray-900 ">Dirección</label>
+        <input type="text" formControlName="address"
+               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full">
+        @if (supplierForm.get('address')?.hasError('required') && (supplierForm.get('address')?.touched || supplierForm.get('address')?.dirty)) {
+          <p class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium">Debe ingresar una dirección.</p>
+        }
+        @if ((supplierForm.get('address')?.hasError('minlength') || supplierForm.get('address')?.hasError('maxlength')) && (supplierForm.get('address')?.touched || supplierForm.get('address')?.dirty)) {
+          <p class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium">La dirección debe tener entre 5 y 100
+            carácteres.</p>
+        }
+      </div>
+
+      <div>
+        <label class="block mb-1 text-sm font-medium text-gray-900 ">Teléfono de Contacto</label>
+        <input type="text" formControlName="phone"
+               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full">
+        @if (supplierForm.get('phone')?.hasError('required') && (supplierForm.get('phone')?.touched || supplierForm.get('phone')?.dirty)) {
+          <p class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium">Debe ingresar un número de teléfono.</p>
+        }
+        @if (supplierForm.get('phone')?.hasError('pattern') && (supplierForm.get('phone')?.touched || supplierForm.get('phone')?.dirty)) {
+          <p class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium">El número de teléfono debe tener entre 6 y
+            15 carácteres.</p>
+        }
+        @if ((supplierForm.get('phone')?.hasError('minlength') || supplierForm.get('phone')?.hasError('maxlength')) && (supplierForm.get('phone')?.touched || supplierForm.get('ruc')?.dirty)) {
+          <p class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium">El teléfono debe contener solo números.</p>
+        }
+      </div>
+
+      <div>
+        <label class="block mb-1 text-sm font-medium text-gray-900 ">E-Mail</label>
+        <input type="email" formControlName="email"
+               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full">
+        @if (supplierForm.get('email')?.hasError('required') && (supplierForm.get('email')?.touched || supplierForm.get('email')?.dirty)) {
+          <p class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium">Debe ingresar una dirección de E-Mail.</p>
+        }
+        @if (supplierForm.get('email')?.hasError('email') && (supplierForm.get('email')?.touched || supplierForm.get('email')?.dirty)) {
+          <p class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium">El E-Mail debe cumplir el formato EMAIL&#64;DOMINIO.COM.</p>
+        }
+        @if (supplierForm.get('email')?.hasError('maxlength') && (supplierForm.get('email')?.touched || supplierForm.get('email')?.dirty)) {
+          <p class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium">El E-Mail debe tener como máximo 50
+            carácteres.</p>
+        }
+      </div>
+
+      <div>
+        <label class="block mb-1 text-sm font-medium text-gray-900 ">Descripción</label>
+        <input type="text" formControlName="description"
+               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full">
+        @if (supplierForm.get('description')?.hasError('maxlength') && (supplierForm.get('description')?.touched || supplierForm.get('description')?.dirty)) {
+          <p class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium">La descripción debe tener como máximo 150
+            carácteres.</p>
+        }
+      </div>
+
+
+      <div class="flex justify-center mt-5">
+        <div class="inline-flex rounded-md shadow-xs" role="group">
+          <button type="button" (click)="this.location.back()" [disabled]="submitting"
+                  class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
+            <i class="bi bi-x-circle w-3 h-3 me-2 flex items-center justify-center"></i>
+            Cancelar
+          </button>
+          <button type="button" (click)="resetForm(supplierForm)" [disabled]="submitting"
+                  class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
+            <i class="bi bi-arrow-clockwise w-3 h-3 me-2 flex items-center justify-center"></i>
+            Limpiar
+          </button>
+          <button type="submit" [disabled]="supplierForm.invalid || submitting"
+                  class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
+            <i class="bi bi-floppy-fill w-3 h-3 me-2 flex items-center justify-center"></i>
+            @if (submitting) {
+              Guardando...
+            } @else {
+              Guardar
+            }
+          </button>
+        </div>
+      </div>
+
+
+    </form>
+  </div>
+
+</main>

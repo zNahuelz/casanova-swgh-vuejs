@@ -19,6 +19,14 @@
           <input type="text" formControlName="username"
                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-none rounded-e-lg focus:ring-green-800 focus:border-green-800 block w-full p-2.5 ">
         </div>
+        @if (loginForm.get('username')?.hasError('required') && (loginForm.get('username')?.touched || loginForm.get('username')?.dirty)) {
+          <p class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium">Debe ingresar su nombre de usuario.</p>
+        }
+        @if ((loginForm.get('username')?.hasError('minlength') || loginForm.get('username')?.hasError('maxlength')) && (loginForm.get('username')?.touched || loginForm.get('username')?.dirty)) {
+          <p class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium">Su nombre de usuario debe tener entre 5 y
+            20
+            carácteres.</p>
+        }
       </div>
       <div class="mb-4">
         <label class="block mb-2 text-sm font-medium text-gray-900 ">Contraseña</label>
@@ -34,6 +42,14 @@
           <input type="password" formControlName="password"
                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-none rounded-e-lg focus:ring-green-800 focus:border-green-800 block w-full p-2.5 ">
         </div>
+        @if (loginForm.get('password')?.hasError('required') && (loginForm.get('password')?.touched || loginForm.get('password')?.dirty)) {
+          <p class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium">Debe ingresar su contraseña.</p>
+        }
+        @if ((loginForm.get('password')?.hasError('minlength') || loginForm.get('password')?.hasError('maxlength')) && (loginForm.get('password')?.touched || loginForm.get('password')?.dirty)) {
+          <p class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium">La contraseña debe tener entre 5 y
+            20
+            carácteres.</p>
+        }
       </div>
       <div class="flex items-start">
         <div class="flex items-start">
