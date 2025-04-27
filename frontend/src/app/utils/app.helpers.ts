@@ -15,3 +15,24 @@ export function allowIntegers(e: KeyboardEvent) {
     e.preventDefault();
   }
 }
+
+export function handleKeywordKeydown(e: KeyboardEvent) {
+  //Permitir borrar, delete, tab, esc, enter, numeros.
+  if (
+    [46, 8, 9, 27, 13].includes(e.keyCode) || // Teclas especiales
+    (e.keyCode >= 48 && e.keyCode <= 57) || // Teclas numericas
+    (e.keyCode >= 96 && e.keyCode <= 105) // Teclado numerico
+  ) {
+    return; // Permitir entrada.
+  }
+  e.preventDefault();
+}
+
+export interface PaginationOptions {
+  page?: number;
+  per_page?: number;
+}
+
+export function reloadPage(){
+  window.location.reload();
+}

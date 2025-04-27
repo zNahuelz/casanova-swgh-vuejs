@@ -6,6 +6,7 @@ import {DashboardComponent} from './components/shared/dashboard/dashboard.compon
 import {generalGuard} from './guards/general.guard';
 import {loginGuard} from './guards/login.guard';
 import {NewSupplierComponent} from './components/supplier/new-supplier/new-supplier.component';
+import {SupplierListComponent} from './components/supplier/supplier-list/supplier-list.component';
 
 export const routes: Routes = [
   {path: '', component: LoginComponent, title: 'ALTERNATIVA CASANOVA - INICIO DE SESIÓN', canActivate:[loginGuard]},
@@ -19,6 +20,7 @@ export const routes: Routes = [
       [
         {path: '', component: DashboardComponent, title: 'ALTERNATIVA CASANOVA - INICIO'},
         {path: 'new-supplier', component: NewSupplierComponent, title: 'ALTERNATIVA CASANOVA - NUEVO PROVEEDOR'},
+        {path: 'supplier-list', component: SupplierListComponent, title: 'ALTERNATIVA CASANOVA - PROVEEDORES'},
         {path: 'testing', component: TestingComponent, title: 'PLAYGROUND'},
       ]
   },

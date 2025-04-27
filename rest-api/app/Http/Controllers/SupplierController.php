@@ -65,11 +65,31 @@ class SupplierController extends Controller
         return response()->json(['message' => 'Proveedor de ID: '.$id.' actualizado con exito.'],200);
     }
 
-    public function getSuppliers()
+    public function getSuppliers(Request $request)
     {
-        $suppliers = Supplier::all();
+        $query = Supplier::query();
+        // Filtrar por nombre si esta presente.
+        if ($request->has('name')) {
+            $query->where('name', 'ilike', '%' . $request->input('name') . '%');
+            //ILIKE -> Exclusivo de posgres. Non-case-sensitive search.
+        }
+        // Filtrar por RUC si esta presente.
+        if ($request->has('ruc')) {
+            $query->where('ruc', 'like', '%' . $request->input('ruc') . '%');
+        }
+        if ($request->has('email')) {
+            $query->where('email', 'ilike', '%' . $request->input('email') . '%');
+        }
+        //Ordenar.
+        $sortField = $request->input('sort_by', 'id'); // Ordenar por ID (Default)
+        $sortDirection = $request->input('sort_dir', 'asc'); // Asc or Desc
+        if (in_array($sortField, ['name', 'ruc', 'email', 'created_at'])) {
+            $query->orderBy($sortField, $sortDirection);
+        } //Verificar si el ordenado esta en el array.
+        // Pagination
+        $perPage = $request->input('per_page', 10); // Default: 10.
+        $suppliers = $query->paginate($perPage);
         return response()->json($suppliers);
-        //TODO: Modificar y agregar query parameter, paginar y modificar query en arbol.
     }
 
     public function getSupplier($id)

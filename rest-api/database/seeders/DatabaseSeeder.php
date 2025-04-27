@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             TreatmentSeeder::class,
             VoucherTypeSeeder::class,
             PaymentTypeSeeder::class,
+            SupplierSeeder::class,
         ]);
     }
 }

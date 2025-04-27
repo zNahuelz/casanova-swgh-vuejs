@@ -8,3 +8,9 @@ export const ERROR_MESSAGES = {
   RUC_TAKEN: 'El RUC ingresado ya se encuentra en uso por otro proveedor.',
   SERVER_ERROR: 'Error interno del servidor. Intente nuevamente, si el error persiste comuniquese con administración.',
 }
+
+export const SUPPLIER_SEARCH_MODES = [
+  'POR ID',
+  'POR NOMBRE',
+  'POR RUC',
+]

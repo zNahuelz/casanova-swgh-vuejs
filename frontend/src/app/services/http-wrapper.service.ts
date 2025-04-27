@@ -1,6 +1,6 @@
 import {inject, Injectable} from '@angular/core';
 import {catchError, Observable, throwError} from 'rxjs';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import {AuthService} from './auth.service';
 
 @Injectable({
@@ -19,9 +19,9 @@ export class HttpWrapperService {
     });
   }
 
-  GET<T>(url: string): Observable<T> {
+  GET<T>(url: string, options?: {params?: HttpParams}): Observable<T> {
     return this.http
-      .get<T>(`${this.API_URL}${url}`, {headers: this.getAuthHeaders()})
+      .get<T>(`${this.API_URL}${url}`, {headers: this.getAuthHeaders(), params: options?.params})
       .pipe(catchError(this.handleError));
   }
 
