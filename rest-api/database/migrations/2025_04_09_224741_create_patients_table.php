@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('email',50)->default('EMAIL@DOMINIO.COM');
             $table->string('phone',15)->default('000000000');
             $table->string('address',100)->default('---');
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

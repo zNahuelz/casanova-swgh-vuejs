@@ -18,7 +18,9 @@ class Worker extends Model
         'address',
         'hiring_date',
         'user_id',
-        'position'
+        'position',
+        'created_by',
+        'updated_by'
     ];
 
     protected $casts = [
@@ -30,5 +32,17 @@ class Worker extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        //Wip...
+        return $this->belongsTo(User::class,'created_by');
+    }
+
+    public function updatedBy(): BelongsTo
+    {
+        //Wip...
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

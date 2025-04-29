@@ -22,7 +22,9 @@ class DatabaseSeeder extends Seeder
             PatientSeeder::class,
             PresentationSeeder::class,
             TreatmentSeeder::class,
-            VoucherTypeSeeder::class
+            VoucherTypeSeeder::class,
+            PaymentTypeSeeder::class,
+            SupplierSeeder::class,
         ]);
     }
 }

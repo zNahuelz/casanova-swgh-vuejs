@@ -25,10 +25,5 @@ class Treatment extends Model
     {
         return $this->belongsToMany(Appointment::class);
     }
-
-    public function requiredMedicines(): HasMany
-    {
-        return $this->hasMany(TreatmentRequirement::class);
-    }
     
 }

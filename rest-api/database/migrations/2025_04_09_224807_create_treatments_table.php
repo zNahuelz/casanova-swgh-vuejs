@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('description')->default('---');
             $table->string('procedure')->default('---');
             $table->double('price');
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
