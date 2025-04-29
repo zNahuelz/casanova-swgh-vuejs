@@ -51,6 +51,7 @@ class SupplierController extends Controller
             'phone' => ['required','string','min:6','max:15'],
             'email' => ['required','email','max:50'],
             'description' => ['max:150'],
+            'updated_by' => ['required','numeric','exists:users,id']
         ]);
 
         $oldSupplier->update([
@@ -60,6 +61,7 @@ class SupplierController extends Controller
             'phone' => trim($request->phone),
             'email' => trim(strtoupper($request->email)),
             'description' => trim(strtoupper($request->description)),
+            'updated_by' => $request->updated_by, 
         ]);
 
         return response()->json(['message' => 'Proveedor de ID: '.$id.' actualizado con exito.'],200);
@@ -94,12 +96,32 @@ class SupplierController extends Controller
 
     public function getSupplier($id)
     {
-        $supplier = Supplier::find($id);
-        if(!$supplier)
-        {
-            return response()->json(['message' => 'Proveedor de ID: '.$id.' no encontrado.'],404);
+        $supplier = Supplier::with([
+            'createdBy.doctor',
+            'createdBy.worker',
+            'updatedBy.doctor',
+            'updatedBy.worker'
+        ])->find($id);
+    
+        if (!$supplier) {
+            return response()->json(['message' => 'Proveedor de ID: ' . $id . ' no encontrado.'], 404);
         }
-        return response()->json($supplier);
+    
+        return response()->json([
+            'id' => $supplier->id,
+            'name' => $supplier->name,
+            'ruc' => $supplier->ruc,
+            'address' => $supplier->address,
+            'phone' => $supplier->phone,
+            'email' => $supplier->email,
+            'description' => $supplier->description,
+            'created_at' => $supplier->created_at,
+            'updated_at' => $supplier->updated_at,
+            'created_by' => $supplier->created_by,
+            'created_by_name' => $this->getUserDisplayName($supplier->createdBy),
+            'updated_by' => $supplier->updated_by,
+            'updated_by_name' => $this->getUserDisplayName($supplier->updatedBy),
+        ]);
     }
 
     public function getSupplierByRUC($ruc)
@@ -110,5 +132,34 @@ class SupplierController extends Controller
             return response()->json(['message' => 'Proveedor de RUC: '.$ruc.' no encontrado.'],404);
         }
         return response()->json($supplier);
+    }
+
+    public function deleteSupplier($id)
+    {
+        $supplier = Supplier::find($id);
+        if(!$supplier)
+        {
+            return response()->json(['message' => 'Proveedor de ID: '.$id.' no encontrado.']);
+        }
+        $supplier->delete();
+        return response()->json(['message' => 'Proveedor de ID: '.$id.' eliminado correctamente.']);  
+    }
+
+    private function getUserDisplayName($user)
+    {
+        if (!$user) 
+        {
+            return null;
+        }
+        if ($user->doctor) 
+        {
+            return $user->doctor->name . ' ' . $user->doctor->paternal_surname;
+        }
+        if ($user->worker) 
+        {
+            return $user->worker->name . ' ' . $user->worker->paternal_surname;
+        }
+
+        return $user->username ?? $user->name ?? 'USUARIO SIN NOMBRE';
     }
 }

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('description',150)->default('PROVEEDOR GENERAL');
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

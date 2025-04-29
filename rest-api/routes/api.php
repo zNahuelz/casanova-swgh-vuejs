@@ -22,4 +22,5 @@ Route::group([
     Route::put('/{id}', [SupplierController::class, 'updateSupplier'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::get('/{id}', [SupplierController::class, 'getSupplier'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
     Route::get('/', [SupplierController::class, 'getSuppliers'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
+    Route::delete('/{id}',[SupplierController::class, 'deleteSupplier'])->middleware('role:ADMINISTRADOR');
 });
