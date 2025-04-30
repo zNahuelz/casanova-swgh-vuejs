@@ -6,6 +6,7 @@ import NewSupplierView from '@/views/supplier/NewSupplierView.vue'
 import SupplierListView from '@/views/supplier/SupplierListView.vue'
 import {useAuthStore} from '@/stores/auth.js'
 import EditSupplierView from "@/views/supplier/EditSupplierView.vue";
+import PresentationListView from "@/views/presentation/PresentationListView.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,6 +45,12 @@ const router = createRouter({
                     name: 'edit-supplier',
                     component: EditSupplierView,
                     meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA']},
+                },
+                {
+                    path: 'presentation-list',
+                    name: 'presentation-list',
+                    component: PresentationListView,
+                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR','SECRETARIA']},
                 }
             ]
         },

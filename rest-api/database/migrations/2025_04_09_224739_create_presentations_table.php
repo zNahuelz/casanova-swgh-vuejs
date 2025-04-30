@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('presentations', function (Blueprint $table) {
             $table->id();
-            $table->string('name',50)->unique(); //Capsulas Masticables
+            $table->string('name',50); //Capsulas Masticables
             $table->double('numeric_value'); //50
-            $table->string('aux',20); //Unidades --- TODO: Opcional?
+            $table->string('aux',20)->nullable(); //Unidades --- TODO: Opcional?
+            $table->unique(['name', 'numeric_value', 'aux'], 'unique_presentation');
             $table->timestamps();
         });
     }

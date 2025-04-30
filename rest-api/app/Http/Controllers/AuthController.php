@@ -35,7 +35,7 @@ class AuthController extends Controller
                     'type' => 'Bearer'
                 ],
                 'userData' => $user->worker
-            ]);
+            ],200);
         }
         else if($user->role->name == 'DOCTOR')
         {
@@ -45,7 +45,7 @@ class AuthController extends Controller
                     'type' => 'Bearer'
                 ],
                 'userData' => $user->doctor
-            ]);
+            ],200);
         }
         else
         {
@@ -54,7 +54,7 @@ class AuthController extends Controller
                     'token' => $token,
                     'type' => 'Bearer'
                 ]
-            ]);
+            ],200);
         }
 
     }
@@ -72,15 +72,15 @@ class AuthController extends Controller
         {
             if($user->role->name == 'ENFERMERA' || $user->role->name == 'SECRETARIA')
             {
-                return response()->json($user->load(['role','worker']));
+                return response()->json($user->load(['role','worker']),200);
             }
             else if($user->role->name == 'DOCTOR')
             {
-                return response()->json($user->load(['role','doctor']));
+                return response()->json($user->load(['role','doctor']),200);
             }
             else
             {
-                return response()->json($user->load(['role']));
+                return response()->json($user->load(['role']),200);
             }
         }
     }

@@ -7,6 +7,7 @@ import {RouterView, useRouter} from 'vue-router';
 import * as yup from 'yup';
 import {ErrorMessage, Field, Form} from 'vee-validate';
 import Swal from "sweetalert2";
+import {useAuthStore} from "@/stores/auth.js";
 
 const searchMode = ref('id');
 const suppliers = ref([]);
@@ -19,6 +20,7 @@ const pageSize = ref(10);
 const showDetails = ref(false);
 const supplierDetail = ref(null);
 const router = useRouter();
+const authService = useAuthStore();
 
 const dynamicSchema = computed(() => {
   let keywordValidation = yup.string().required();
@@ -37,7 +39,6 @@ const dynamicSchema = computed(() => {
     searchMode: yup.string().required(),
     keyword: keywordValidation,
   });
-
 });
 
 const loadSuppliers = async (filters = {}) => {
@@ -215,7 +216,7 @@ onMounted(() => {
                 <th scope="col" class="px-6 py-3">
                   TELÉFONO
                 </th>
-                <th scope="col" class="px-6 py-3">
+                <th scope="col" class="px-6 py-3 text-center">
                   HERRAMIENTAS
                 </th>
               </tr>
@@ -238,13 +239,13 @@ onMounted(() => {
                 <td class="px-6 py-2">
                   {{ s.phone }}
                 </td>
-                <td class="px-6 py-3">
+                <td class="px-6 py-3 flex justify-center items-center">
                   <div class="inline-flex rounded-md shadow-xs" role="group">
                     <button type="button" @click="goToEdit(s.id)"
                             class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
                       <i class="bi bi-pencil-square w-4 h-4"></i>
                     </button>
-                    <button type="button" @click="showDeleteDialog(s)"
+                    <button type="button" @click="showDeleteDialog(s)" v-if="authService.getTokenDetails().role === 'ADMINISTRADOR'"
                             class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
                       <i class="bi bi-trash-fill w-4 h-4"></i>
                     </button>
@@ -391,7 +392,7 @@ onMounted(() => {
                       class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
                 <i class="bi bi-pencil-square w-4 h-4"></i>
               </button>
-              <button type="button" @click="showDeleteDialog(supplierDetail)"
+              <button type="button" @click="showDeleteDialog(supplierDetail)" v-if="authService.getTokenDetails().role === 'ADMINISTRADOR'"
                       class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white  border rounded-e-lg border-gray-200 hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
                 <i class="bi bi-trash-fill w-4 h-4"></i>
               </button>

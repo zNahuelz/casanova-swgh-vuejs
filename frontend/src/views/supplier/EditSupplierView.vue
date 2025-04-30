@@ -60,6 +60,7 @@ const schema = yup.object().shape({
 
 
 onMounted(() => {
+  document.title = 'ALTERNATIVA CASANOVA - EDITAR PROVEEDOR';
   const id = route.params.id;
   if (isNaN(id)) {
     router.back();

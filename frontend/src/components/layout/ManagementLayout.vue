@@ -164,8 +164,8 @@ onMounted(() => {
                  class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500">Listado</a>
             </li>
             <li>
-              <a href="#"
-                 class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500">3</a>
+              <router-link :to="{name: 'presentation-list'}"
+                 class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500">Presentaciones</router-link>
             </li>
           </ul>
         </li>

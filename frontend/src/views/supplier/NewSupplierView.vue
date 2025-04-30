@@ -77,7 +77,7 @@ async function onSubmit(values) {
 }
 
 onMounted(() => {
-  document.title = 'ALTERNATIVA CASANOVA - LISTADO DE PROVEEDORES'
+  document.title = 'ALTERNATIVA CASANOVA - NUEVO PROVEEDOR'
 });
 
 function goBack() {

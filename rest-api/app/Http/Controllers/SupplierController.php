@@ -32,7 +32,7 @@ class SupplierController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Proveedor creado con exito.',
+            'message' => 'Proveedor creado correctamente.',
             'supplier' => $supplier
         ],201);
     }
@@ -40,7 +40,8 @@ class SupplierController extends Controller
     public function updateSupplier(Request $request, $id)
     {
         $oldSupplier = Supplier::find($id);
-        if(!$oldSupplier){
+        if(!$oldSupplier)
+        {
             return response()->json(['message' => 'Proveedor de ID: '.$id.' no encontrado.'],404);
         }
 
@@ -64,7 +65,7 @@ class SupplierController extends Controller
             'updated_by' => $request->updated_by, 
         ]);
 
-        return response()->json(['message' => 'Proveedor de ID: '.$id.' actualizado con exito.'],200);
+        return response()->json(['message' => 'Proveedor de ID: '.$id.' actualizado correctamente.'],200);
     }
 
     public function getSuppliers(Request $request)
@@ -91,7 +92,7 @@ class SupplierController extends Controller
         // Pagination
         $perPage = $request->input('per_page', 10); // Default: 10.
         $suppliers = $query->paginate($perPage);
-        return response()->json($suppliers);
+        return response()->json($suppliers,200);
     }
 
     public function getSupplier($id)
@@ -121,7 +122,7 @@ class SupplierController extends Controller
             'created_by_name' => $this->getUserDisplayName($supplier->createdBy),
             'updated_by' => $supplier->updated_by,
             'updated_by_name' => $this->getUserDisplayName($supplier->updatedBy),
-        ]);
+        ],200);
     }
 
     public function getSupplierByRUC($ruc)
@@ -131,7 +132,7 @@ class SupplierController extends Controller
         {
             return response()->json(['message' => 'Proveedor de RUC: '.$ruc.' no encontrado.'],404);
         }
-        return response()->json($supplier);
+        return response()->json($supplier,200);
     }
 
     public function deleteSupplier($id)
@@ -142,7 +143,7 @@ class SupplierController extends Controller
             return response()->json(['message' => 'Proveedor de ID: '.$id.' no encontrado.']);
         }
         $supplier->delete();
-        return response()->json(['message' => 'Proveedor de ID: '.$id.' eliminado correctamente.']);  
+        return response()->json(['message' => 'Proveedor de ID: '.$id.' eliminado correctamente.'],200);  
     }
 
     private function getUserDisplayName($user)

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PresentationController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Middleware\BaseMiddleware;
 use Illuminate\Http\Request;
@@ -20,7 +21,16 @@ Route::group([
 ], function($router){
     Route::post('/', [SupplierController::class, 'createSupplier'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::put('/{id}', [SupplierController::class, 'updateSupplier'])->middleware('role:ADMINISTRADOR,SECRETARIA');
-    Route::get('/{id}', [SupplierController::class, 'getSupplier'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
-    Route::get('/', [SupplierController::class, 'getSuppliers'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
+    Route::get('/{id}', [SupplierController::class, 'getSupplier'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+    Route::get('/', [SupplierController::class, 'getSuppliers'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::delete('/{id}',[SupplierController::class, 'deleteSupplier'])->middleware('role:ADMINISTRADOR');
+});
+
+Route::group([
+    'prefix' => '/presentation',
+], function($router){
+    Route::post('/', [PresentationController::class, 'createPresentation'])->middleware('role:ADMINISTRADOR,SECRETARIA');
+    Route::put('/{id}', [PresentationController::class, 'updatePresentation'])->middleware('role:ADMINISTRADOR,SECRETARIA');
+    Route::get('/{id}', [PresentationController::class, 'getPresentation'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+    Route::get('/',[PresentationController::class, 'getPresentations'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
 });
