@@ -121,7 +121,7 @@ const nextPage = () => {
               <button type="button"
                       v-if="authService.getTokenDetails().role === 'ADMINISTRADOR' || authService.getTokenDetails().role === 'SECRETARIA'"
                       @click="handleCreationForm"
-                      class="p-2.5 text-sm font-medium text-white bg-lime-600 rounded-lg hover:bg-lime-800 focus:ring-4 focus:outline-none focus:ring-lime-500">
+                      class="p-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500">
                 <i class="bi bi-plus"></i> Nueva
               </button>
 

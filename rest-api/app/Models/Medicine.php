@@ -6,9 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Medicine extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'name',
         'composition',
@@ -30,9 +33,9 @@ class Medicine extends Model
         return $this->belongsTo(Presentation::class);
     }
 
-    public function suppliers(): HasMany
+    public function suppliers(): BelongsToMany
     {
-        return $this->hasMany(Supplier::class);
+        return $this->belongsToMany(Supplier::class,'medicine_supplier');
     }
 
     public function voucherDetail(): HasMany

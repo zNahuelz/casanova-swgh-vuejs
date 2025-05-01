@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -27,9 +28,9 @@ class Supplier extends Model
         'description' => 'PROVEEDOR GENERAL'
     ];
 
-    public function medicines(): HasMany
+    public function medicines(): BelongsToMany
     {
-        return $this->hasMany(Medicine::class);
+        return $this->belongsToMany(Medicine::class,'medicine_suppliers');
     }
 
     public function createdBy(): BelongsTo

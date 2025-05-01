@@ -14,7 +14,8 @@ export const SupplierService = {
     get(filters = {}, pagination = {}, sorting = {}) {
         let params = {};
 
-        // Filtros 
+        // Filtros
+        if (filters.id) params.id = filters.id;
         if (filters.name) params.name = filters.name;
         if (filters.ruc) params.ruc = filters.ruc;
         if (filters.email) params.email = filters.email;

@@ -2,15 +2,18 @@ export const SUCCESS_MESSAGES = {
     SUCCESS_TAG: 'Operación completada.',
     SUPPLIER_CREATED: 'Proveedor creado correctamente.',
     PRESENTATION_CREATED: 'Presentación creada correctamente.',
+    MEDICINE_CREATED: 'Medicina creada correctamente.'
 }
 
 export const ERROR_MESSAGES = {
     ERROR_TAG: 'Oops! Ha sucedido un error.',
     RUC_TAKEN: 'El RUC ingresado ya se encuentra en uso por otro proveedor.',
-    SERVER_ERROR: 'Error interno del servidor. Intente nuevamente, si el error persiste comuniquese con administración.',
-    SUPPLIER_NOT_FOUND: 'Proveedor no encontrado. Intente nuevamente, si el error persiste comuniquese con administración',
+    SERVER_ERROR: 'Error interno del servidor. Intente nuevamente, si el problema persiste comuniquese con administración.',
+    SUPPLIER_NOT_FOUND: 'Proveedor no encontrado. Intente nuevamente, si el problema persiste comuniquese con administración.',
     SEARCH_ERROR: 'Oops! Error de busqueda.',
     DUPLICATED_PRESENTATION: 'Ya existe una presentación con los datos ingresados.',
+    BARCODE_GENERATION_ERROR: 'La generación de código de barras ha fallado. Intente nuevamente, si el problema persiste comuniquese con administración.',
+    BARCODE_TAKEN: 'El código de barras ingresado ya se encuentra asignado a un medicamento.',
 }
 
 export const SUPPLIER_SEARCH_MODES = [

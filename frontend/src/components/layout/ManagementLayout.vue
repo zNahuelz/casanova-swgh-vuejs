@@ -148,7 +148,7 @@ onMounted(() => {
               <path
                   d="m12.013 12.545 5.006-3.194-5.006-3.176 4.98-3.194L22 6.175l-5.007 3.194L22 12.562l-5.007 3.194-4.98-3.211Z"/>
             </svg>
-            <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">Medicinas</span>
+            <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">Medicamentos</span>
             <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="m1 1 4 4 4-4"/>
@@ -156,8 +156,8 @@ onMounted(() => {
           </button>
           <ul id="medicines-dropdown" class="hidden py-2 space-y-2">
             <li>
-              <a href="#"
-                 class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500">Nuevo</a>
+              <router-link :to="{name: 'new-medicine'}"
+                 class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500">Nuevo</router-link>
             </li>
             <li>
               <a href="#"

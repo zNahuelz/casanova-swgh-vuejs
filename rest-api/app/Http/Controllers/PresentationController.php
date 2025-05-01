@@ -110,6 +110,12 @@ class PresentationController extends Controller
         return response()->json($presentations,200);
     }
 
+    public function getAllPresentations()
+    {
+        $presentations = Presentation::all();
+        return response()->json($presentations,200);
+    }
+
     public function getPresentation($id)
     {
         $presentation = Presentation::find($id);

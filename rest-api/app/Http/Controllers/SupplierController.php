@@ -71,6 +71,9 @@ class SupplierController extends Controller
     public function getSuppliers(Request $request)
     {
         $query = Supplier::query();
+        if ($request->has('id')) { //TODO: Something fails? HERE!
+            $query->where('id', $request->input('id'));
+        }
         // Filtrar por nombre si esta presente.
         if ($request->has('name')) {
             $query->where('name', 'ilike', '%' . $request->input('name') . '%');
@@ -92,6 +95,12 @@ class SupplierController extends Controller
         // Pagination
         $perPage = $request->input('per_page', 10); // Default: 10.
         $suppliers = $query->paginate($perPage);
+        return response()->json($suppliers,200);
+    }
+
+    public function getAllSuppliers()
+    {
+        $suppliers = Supplier::all();
         return response()->json($suppliers,200);
     }
 
