@@ -75,7 +75,7 @@ const loadSuppliers = async (filters = {}) => {
 <template>
   <div id="new-presentation" tabindex="-1"
        class="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-sm">
-    <div class="relative bg-white rounded-lg shadow-lg w-100 max-w-md">
+    <div class="relative bg-white rounded-lg shadow-lg w-auto">
       <div
           class="flex items-center justify-between p-4 md:p-5 border-b rounded-t  border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900">
@@ -179,15 +179,12 @@ const loadSuppliers = async (filters = {}) => {
             </div>
             <h1 class="mt-5 text-2xl font-light">Buscando proveedores...</h1>
           </div>
-
-
           <div class="container mt-5  flex flex-col items-center"
                v-if="!isLoading && !suppliersLoaded && loadError">
             <span><i class="bi bi-exclamation-triangle-fill text-8xl text-red-700"></i></span>
             <h1 class="mt-5 text-lg font-light text-center">No se encontraron proveedores con el criterio
               ingresado.</h1>
           </div>
-
         </div>
       </div>
     </div>

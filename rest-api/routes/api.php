@@ -52,6 +52,7 @@ Route::group([
     'prefix' => '/medicine'
 ], function($router){
     Route::post('/', [MedicineController::class, 'createMedicine'])->middleware('role:ADMINISTRADOR,SECRETARIA');
+    Route::put('/{id}', [MedicineController::class, 'updateMedicine'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::get('/generate-barcode', [MedicineController::class, 'generateRandomBarcode'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::get('/id/{id}', [MedicineController::class, 'getMedicineById'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/barcode/{barcode}', [MedicineController::class, 'getMedicineByBarcode'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');

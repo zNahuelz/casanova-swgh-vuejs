@@ -139,7 +139,7 @@ const nextPage = () => {
 };
 
 function goToEdit(id) {
-  router.push({name: 'edit-supplier', params: {id}})
+  router.push({name: 'edit-supplier', params: {id}});
 }
 
 onMounted(() => {
@@ -149,7 +149,6 @@ onMounted(() => {
 
 </script>
 <template>
-
   <main class="flex flex-col items-center pt-5 relative">
     <div class="container px-12 mx-auto">
       <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm w-full">
@@ -402,5 +401,4 @@ onMounted(() => {
       </div>
     </div>
   </main>
-
 </template>

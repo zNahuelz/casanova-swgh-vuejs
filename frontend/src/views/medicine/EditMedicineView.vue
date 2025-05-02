@@ -1,97 +1,126 @@
 <script setup>
-import ScanBarcodeForm from "@/components/medicine/ScanBarcodeForm.vue";
-import {ErrorMessage, Field, Form} from "vee-validate";
 import {onMounted, ref} from "vue";
-import {useRouter} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import {reloadOnDismiss, reloadPage} from "@/utils/helpers.js";
-import * as yup from "yup";
-import {useAuthStore} from "@/stores/auth.js";
-import SearchPresentationModal from "@/components/presentation/SearchPresentationModal.vue";
-import SearchSupplierModal from "@/components/supplier/SearchSupplierModal.vue";
 import {MedicineService} from "@/services/medicine-service.js";
 import Swal from "sweetalert2";
 import {ERROR_MESSAGES as EM, SUCCESS_MESSAGES as SM} from "@/utils/constants.js";
+import {ErrorMessage, Field, Form} from "vee-validate";
+import SearchPresentationModal from "@/components/presentation/SearchPresentationModal.vue";
+import SearchSupplierModal from "@/components/supplier/SearchSupplierModal.vue";
+import * as yup from "yup";
+import {SupplierService} from "@/services/supplier-service.js";
+import {PresentationService} from "@/services/presentation-service.js";
+import {useAuthStore} from "@/stores/auth.js";
 import {SettingService} from "@/services/setting-service.js";
 
 const IGV_VALUE = ref(0.18);
-//I'm tired '-'
-const submitting = ref(false);
-const barcodeLocked = ref(false); //Change to false on prod.
-const barcode = ref(''); //Change to '' on prod. 0000000063457
+const router = useRouter();
+const route = useRoute();
 const isLoading = ref(false);
-
-const selectedPresentationId = ref(0); //Change this to 5 for test. SupId for 3.
-const selectedSupplierId = ref(0);
-const selectedPresentation = ref({});
-const selectedSupplier = ref({});
-const presentationName = ref('NO SELECCIONADA');
-const supplierName = ref('NO SELECCIONADO');
-const profitValue = ref(0);
-const igvValue = ref(0);
-
+const loadError = ref(false);
+const medicine = ref(null);
+const submitting = ref(false);
 const buyPriceValue = ref(0);
 const sellPriceValue = ref(0);
-
+const profitValue = ref(0);
+const igvValue = ref(0);
 const igvStatus = ref(true);
 const salable = ref(true);
 
-const authService = useAuthStore();
-const router = useRouter();
+const presentationName = ref('NO SELECCIONADA');
+const supplierName = ref('NO SELECCIONADO');
+const selectedPresentationId = ref(0);
+const selectedSupplierId = ref(0);
+const selectedPresentation = ref({});
+const selectedSupplier = ref({});
 
 const showSearchPresentationModal = ref(false);
 const showSearchSupplierModal = ref(false);
-
+const editMedicineForm = ref({});
+const authService = useAuthStore();
 
 const medicineSchema = yup.object({
-  name: yup.string().min(5, 'El nombre debe tener entre 5 y 100 carácteres.').max(100, 'El nombre debe tener entre 5 y 100 carácteres.').required('Debe ingresar un nombre.'),
-  composition: yup.string().min(5, 'La composición debe tener entre 5 y 100 carácteres.').max(100, 'La composición debe tener entre 5 y 100 carácteres.').required('Debe ingresar la composición'),
-  description: yup.string().min(5, 'La descripción debe tener entre 5 y 150 carácteres.').max(100, 'La descripción debe tener entre 5 y 150 carácteres.').required('Debe ingresar una descripción'),
-  buy_price: yup.number().positive('El precio de compra debe ser positivo.').test(
-      "is-decimal",
-      "Máximo dos decimales permitidos.",
+  name: yup.string().min(5).max(100).required('Debe ingresar un nombre.'),
+  composition: yup.string().min(5).max(100).required('Debe ingresar la composición'),
+  description: yup.string().min(5).max(150).required('Debe ingresar una descripción'),
+  buy_price: yup.number().positive().test(
+      "is-decimal", "Máximo dos decimales permitidos.",
       (value) => /^\d+(\.\d{1,2})?$/.test(String(value))
   ).required('Debe ingresar un precio de compra.'),
-  sell_price: yup.number().positive('El precio de venta debe ser positivo.').test(
-      "is-decimal",
-      "Máximo dos decimales permitidos.",
+  sell_price: yup.number().positive().test(
+      "is-decimal", "Máximo dos decimales permitidos.",
       (value) => /^\d+(\.\d{1,2})?$/.test(String(value))
-  ).min(yup.ref('buy_price'), 'El precio de venta debe ser igual o superior al de compra.').required('Debe ingresar un precio de venta.'),
+  ).min(yup.ref('buy_price')).required('Debe ingresar un precio de venta.'),
   igv: yup.number().required('El IGV es requerido.'),
   profit: yup.number().required('El IGV es requerido.'),
-  stock: yup.number().moreThan(0, 'El valor de stock debe ser superior a 0.').positive('El stock debe ser positivo.').required('Debe ingresar el stock.'),
-  presentation: yup.number().positive('Debe seleccionar una presentación.').required('Debe seleccionar una presentación.'),
-  supplier: yup.number().positive('Debe seleccionar un proveedor.').required('Debe seleccionar un proveedor.'),
+  stock: yup.number().moreThan(0).positive().required('Debe ingresar el stock.'),
+  presentation: yup.number().positive().required('Debe seleccionar una presentación.'),
+  supplier: yup.number().positive().required('Debe seleccionar un proveedor.'),
 });
 
-async function onSubmit(values) {
-  onPricesChanges();
-  submitting.value = true;
-  const payload = {
-    ...values,
-    barcode: barcode.value,
-    igv: igvValue.value,
-    profit: profitValue.value,
-    salable: salable.value,
-    presentation: selectedPresentationId.value,
-    supplier: selectedSupplierId.value,
-    created_by: authService.getUserId(),
-  }
+
+async function loadMedicine(id) {
+  isLoading.value = true;
   try {
-    const response = await MedicineService.create(payload);
-    Swal.fire(SM.SUCCESS_TAG, `${SM.MEDICINE_CREATED} ID Asignado: ${response.medicine.id}`, 'success').then((r) => reloadOnDismiss(r));
+    medicine.value = await MedicineService.getById(id);
+    buyPriceValue.value = medicine.value.buy_price;
+    sellPriceValue.value = medicine.value.sell_price;
+    igvValue.value = medicine.value.igv;
+    profitValue.value = medicine.value.profit;
+    salable.value = medicine.value.salable;
+    igvStatus.value = medicine.value.igv >= 1;
+    onPricesChanges();
+    await loadSupplier();
+    await loadPresentation();
+    await loadIgvValue();
+    loadError.value = false;
+    isLoading.value = false;
   } catch (err) {
-    if (err.errors.barcode) {
-      Swal.fire(EM.ERROR_TAG, EM.BARCODE_TAKEN, 'warning').then((r) => reloadOnDismiss(r));
-    } else {
-      Swal.fire(EM.ERROR_TAG, EM.SERVER_ERROR, 'error').then((r) => reloadOnDismiss(r));
-    }
-  } finally {
-    submitting.value = false;
+    loadError.value = true;
+    Swal.fire(EM.ERROR_TAG, EM.MEDICINE_NOT_FOUND, 'error').then((r) => {
+      if (r.dismiss || r.isDismissed || r.isConfirmed) {
+        router.back();
+      }
+    });
+  }
+}
+
+async function loadSupplier() {
+  try {
+    const supplierId = medicine.value.suppliers[0].id;
+    selectedSupplier.value = await SupplierService.getById(supplierId);
+    selectedSupplierId.value = selectedSupplier.value.id;
+    supplierName.value = selectedSupplier.value.name;
+  } catch (err) {
+    selectedSupplierId.value = 0;
+    supplierName.value = 'NO SELECCIONADO';
+  }
+}
+
+async function loadPresentation() {
+  try {
+    const presentationId = medicine.value.presentation.id;
+    selectedPresentation.value = await PresentationService.getById(presentationId);
+    selectedPresentationId.value = selectedPresentation.value.id;
+    presentationName.value = `${selectedPresentation.value.name} ${selectedPresentation.value.numeric_value} ${selectedPresentation.value.aux}`;
+  } catch (err) {
+    selectedPresentationId.value = 0;
+    presentationName.value = 'NO SELECCIONADA';
+  }
+}
+
+async function loadIgvValue() {
+  try {
+    const response = await SettingService.getByKey('VALOR_IGV');
+    IGV_VALUE.value = parseFloat(response.value);
+  } catch (err) {
+    Swal.fire(EM.ERROR_TAG, EM.IGV_VAL_NOT_LOADED, 'error');
+    IGV_VALUE.value = 0.18;
   }
 }
 
 function onPricesChanges() {
-  //Don't event think about touching this lol
   const buy = buyPriceValue.value;
   const sell = sellPriceValue.value;
 
@@ -105,10 +134,31 @@ function onPricesChanges() {
   }
 }
 
-function handleBarcodeGeneration(newBarcode) {
-  barcode.value = newBarcode;
-  barcodeLocked.value = true;
-  console.log(barcode.value);
+async function onSubmit(values) {
+  onPricesChanges();
+  submitting.value = true;
+  const payload = {
+    ...values,
+    barcode: medicine.value.barcode,
+    igv: igvValue.value,
+    profit: profitValue.value,
+    salable: salable.value,
+    presentation: selectedPresentationId.value,
+    supplier: selectedSupplierId.value,
+    updated_by: authService.getUserId(),
+  }
+  try {
+    const response = await MedicineService.update(medicine.value.id, payload);
+    Swal.fire(SM.SUCCESS_TAG, response.message, 'success').then((r) => reloadOnDismiss(r));
+  } catch (err) {
+    if (err.errors.barcode) {
+      Swal.fire(EM.ERROR_TAG, EM.BARCODE_TAKEN, 'warning').then((r) => reloadOnDismiss(r));
+    } else {
+      Swal.fire(EM.ERROR_TAG, EM.SERVER_ERROR, 'error').then((r) => reloadOnDismiss(r));
+    }
+  } finally {
+    submitting.value = false;
+  }
 }
 
 function handleSearchPresentationModal(p) {
@@ -116,7 +166,7 @@ function handleSearchPresentationModal(p) {
   if (p && p.id != null) {
     selectedPresentationId.value = p.id;
     selectedPresentation.value = p;
-    presentationName.value = `${p.name} ${p.numeric_value} ${p.aux}`
+    presentationName.value = `${p.name} ${p.numeric_value} ${p.aux}`;
   } else {
     selectedPresentationId.value = 0;
     selectedPresentation.value = {};
@@ -137,28 +187,24 @@ function handleSearchSupplierModal(s) {
   }
 }
 
-onMounted(() => {
-  document.title = 'ALTERNATIVA CASANOVA - NUEVO MEDICAMENTO'
-  loadIgvValue();
-});
-
-async function loadIgvValue() {
-  isLoading.value = true;
-  try {
-    const response = await SettingService.getByKey('VALOR_IGV');
-    IGV_VALUE.value = parseFloat(response.value);
-  } catch (err) {
-    Swal.fire(EM.ERROR_TAG, EM.IGV_VAL_NOT_LOADED, 'error');
-    IGV_VALUE.value = 0.18;
-  } finally {
-    isLoading.value = false;
-  }
+function goToMedicineList() {
+  router.push({name: 'medicine-list'});
 }
+
+onMounted(() => {
+  document.title = 'ALTERNATIVA CASANOVA - EDITAR PROVEEDOR';
+  const id = route.params.id;
+  if (isNaN(id)) {
+    router.back();
+  }
+  loadMedicine(id);
+});
 </script>
+
 <template>
   <main class="flex flex-col items-center pt-5">
     <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm min-w-150">
-      <h5 class="mb-2 text-2xl font-bold tracking-tight text-black text-center">NUEVO MEDICAMENTO</h5>
+      <h5 class="mb-2 text-2xl font-bold tracking-tight text-black text-center">EDITAR MEDICAMENTO</h5>
       <div class="container mt-5 mb-5 flex flex-col items-center" v-if="isLoading">
         <div role="status">
           <svg aria-hidden="true" class="inline w-30 h-30 text-gray-200 animate-spin  fill-green-600"
@@ -172,14 +218,11 @@ async function loadIgvValue() {
           </svg>
           <span class="sr-only">Loading...</span>
         </div>
-        <h1 class="mt-5 text-2xl font-light">Cargando configuración...</h1>
+        <h1 class="mt-5 text-2xl font-light">Cargando medicamento...</h1>
       </div>
-      <ScanBarcodeForm v-if="!barcodeLocked && !isLoading"
-                       @barcodeGenerated="handleBarcodeGeneration"></ScanBarcodeForm>
-
       <div
           class="flex items-center p-4 mb-4 text-sm text-yellow-800 border border-yellow-300 rounded-lg bg-yellow-50 mt-3"
-          role="alert" v-if="barcodeLocked">
+          role="alert" v-if="!isLoading">
         <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
              fill="currentColor" viewBox="0 0 20 20">
           <path
@@ -187,60 +230,58 @@ async function loadIgvValue() {
         </svg>
         <span class="sr-only">Info</span>
         <div>
-          Código de barras actual: <span class="font-medium">{{ barcode }}</span>
+          Código de barras actual: <span class="font-medium">{{ medicine?.barcode }}</span> - ID: <span
+            class="font-medium">{{ medicine?.id }}</span>
         </div>
       </div>
-
-      <Form class="space-y-3 mt-5" v-if="barcodeLocked && !isLoading" :validation-schema="medicineSchema"
+      <Form class="space-y-3 mt-5" v-if="!isLoading" :validation-schema="medicineSchema" ref="editMedicineForm"
             @submit="onSubmit">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Nombre</label>
-            <Field type="text" id="name" name="name" :validate-on-input="true"
+            <Field type="text" id="name" name="name" :validate-on-input="true" :model-value="medicine?.name"
                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"/>
             <ErrorMessage name="name" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
           </div>
-
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Composición</label>
-            <Field type="text" id="composition" name="composition"
+            <Field type="text" id="composition" name="composition" :validate-on-input="true"
+                   :model-value="medicine?.composition"
                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"/>
             <ErrorMessage name="composition"
                           class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
           </div>
-
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Descripción</label>
-            <Field type="text" id="description" name="description"
+            <Field type="text" id="description" name="description" :validate-on-input="true"
+                   :model-value="medicine?.description"
                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"/>
             <ErrorMessage name="description"
                           class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
           </div>
-
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Stock</label>
-            <Field type="number" id="stock" name="stock"
+            <Field type="number" id="stock" name="stock" :validate-on-input="true" :model-value="medicine?.stock"
                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"/>
             <ErrorMessage name="stock"
                           class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
           </div>
-
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Precio de Compra</label>
-            <Field type="number" id="buy_price" name="buy_price" @change="onPricesChanges" v-model="buyPriceValue"
+            <Field type="number" id="buy_price" name="buy_price" @change="onPricesChanges" :validate-on-input="true"
+                   v-model="buyPriceValue"
                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"/>
             <ErrorMessage name="buy_price"
                           class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
           </div>
-
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Precio de Venta</label>
-            <Field type="number" id="sell_price" name="sell_price" @change="onPricesChanges" v-model="sellPriceValue"
+            <Field type="number" id="sell_price" name="sell_price" @change="onPricesChanges" :validate-on-input="true"
+                   v-model="sellPriceValue"
                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"/>
             <ErrorMessage name="sell_price"
                           class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
           </div>
-
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Valor IGV</label>
             <Field type="number" id="igv" name="igv" v-model="igvValue"
@@ -248,14 +289,12 @@ async function loadIgvValue() {
                    disabled/>
             <ErrorMessage name="igv" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
           </div>
-
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Ganancia</label>
             <Field type="number" id="profit" name="profit" disabled v-model="profitValue"
                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"/>
             <ErrorMessage name="profit" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
           </div>
-
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Vendible</label>
             <div class="flex items-center ps-4 border border-gray-300 rounded-lg h-10 bg-gray-50">
@@ -265,7 +304,6 @@ async function loadIgvValue() {
               <label for="salable" class="ms-2 text-sm font-medium text-gray-900">Venta Habilitada</label>
             </div>
           </div>
-
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">IGV</label>
             <div class="flex items-center ps-4 border border-gray-300 rounded-lg h-10 bg-gray-50">
@@ -276,7 +314,6 @@ async function loadIgvValue() {
               <label for="igvStatus" class="ms-2 text-sm font-medium text-gray-900">Afecto al IGV</label>
             </div>
           </div>
-
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Presentación</label>
             <div class="flex">
@@ -295,7 +332,6 @@ async function loadIgvValue() {
                         d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                 </svg>
               </button>
-
             </div>
             <ErrorMessage name="presentation"
                           class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
@@ -323,16 +359,15 @@ async function loadIgvValue() {
                           class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
           </div>
         </div>
-
         <Field name="presentation" id="presentation" type="hidden" v-model="selectedPresentationId"/>
         <Field name="supplier" id="supplier" type="hidden" v-model="selectedSupplierId"/>
 
-        <div class="flex justify-center mt-5" v-if="barcodeLocked && !isLoading">
+        <div class="flex justify-center mt-5" v-if="!isLoading">
           <div class="inline-flex rounded-md shadow-xs" role="group">
-            <button @click="reloadPage()" type="button" :disabled="submitting"
+            <button @click="goToMedicineList" type="button" :disabled="submitting"
                     class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
-              <i class="bi bi-x-circle w-3 h-3 me-2 flex items-center justify-center"></i>
-              Cancelar
+              <i class="bi bi-arrow-return-left w-3 h-3 me-2 flex items-center justify-center"></i>
+              Atras
             </button>
             <button type="button" @click="reloadPage()" :disabled="submitting"
                     class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
@@ -348,10 +383,8 @@ async function loadIgvValue() {
         </div>
       </Form>
     </div>
-
     <SearchPresentationModal v-if="showSearchPresentationModal"
                              :onClose="handleSearchPresentationModal"></SearchPresentationModal>
     <SearchSupplierModal v-if="showSearchSupplierModal" :onClose="handleSearchSupplierModal"></SearchSupplierModal>
   </main>
 </template>
-

@@ -123,8 +123,6 @@ class PresentationController extends Controller
         if (!$presentation) {
             return response()->json(['message' => 'Presentación de ID: ' . $id . ' no encontrada.'], 404);
         }
-        return response()->json([
-            $presentation
-        ],200);
+        return response()->json($presentation,200);
     }
 }

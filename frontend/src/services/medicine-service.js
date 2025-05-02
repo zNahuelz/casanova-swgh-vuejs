@@ -5,10 +5,14 @@ export const MedicineService = {
     create(medicine) {
         return Http.POST(this.endpoint, medicine);
     },
+    update(id, medicine) {
+        return Http.PUT(`${this.endpoint}/${id}`, medicine);
+    },
     get(filters = {}, pagination = {}, sorting = {}) {
         let params = {};
 
         // Filtros
+        if (filters.id) params.id = filters.id;
         if (filters.name) params.name = filters.name;
         if (filters.composition) params.composition = filters.composition;
         if (filters.description) params.description = filters.description;
@@ -30,7 +34,7 @@ export const MedicineService = {
     getByBarcode(barcode) {
         return Http.GET(`${this.endpoint}/barcode/${barcode}`);
     },
-    generateRandomBarcode(){
+    generateRandomBarcode() {
         return Http.GET(`${this.endpoint}/generate-barcode`);
     }
 };

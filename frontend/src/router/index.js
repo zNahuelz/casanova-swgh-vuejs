@@ -8,6 +8,9 @@ import {useAuthStore} from '@/stores/auth.js'
 import EditSupplierView from "@/views/supplier/EditSupplierView.vue";
 import PresentationListView from "@/views/presentation/PresentationListView.vue";
 import NewMedicineView from "@/views/medicine/NewMedicineView.vue";
+import MedicineListView from "@/views/medicine/MedicineListView.vue";
+import MedicineDetailView from "@/views/medicine/MedicineDetailView.vue";
+import EditMedicineView from "@/views/medicine/EditMedicineView.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -51,13 +54,31 @@ const router = createRouter({
                     path: 'presentation-list',
                     name: 'presentation-list',
                     component: PresentationListView,
-                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR','SECRETARIA']},
+                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA']},
                 },
                 {
                     path: 'new-medicine',
                     name: 'new-medicine',
                     component: NewMedicineView,
-                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR','SECRETARIA']},
+                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA']},
+                },
+                {
+                    path: 'medicine-list',
+                    name: 'medicine-list',
+                    component: MedicineListView,
+                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA', 'ENFERMERA', 'DOCTOR']}
+                },
+                {
+                    path: 'medicine-detail/:id',
+                    name: 'medicine-detail',
+                    component: MedicineDetailView,
+                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA', 'ENFERMERA', 'DOCTOR']}
+                },
+                {
+                    path: 'edit-medicine/:id',
+                    name: 'edit-medicine',
+                    component: EditMedicineView,
+                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA']},
                 }
             ]
         },

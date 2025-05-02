@@ -74,7 +74,7 @@ const loadPresentations = async (filters = {}) => {
 <template>
   <div id="new-presentation" tabindex="-1"
        class="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-sm">
-    <div class="relative bg-white rounded-lg shadow-lg w-100 max-w-md">
+    <div class="relative bg-white rounded-lg shadow-lg w-auto">
       <div
           class="flex items-center justify-between p-4 md:p-5 border-b rounded-t  border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900">

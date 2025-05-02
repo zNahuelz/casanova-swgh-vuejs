@@ -2,7 +2,7 @@ export const SUCCESS_MESSAGES = {
     SUCCESS_TAG: 'Operación completada.',
     SUPPLIER_CREATED: 'Proveedor creado correctamente.',
     PRESENTATION_CREATED: 'Presentación creada correctamente.',
-    MEDICINE_CREATED: 'Medicina creada correctamente.'
+    MEDICINE_CREATED: 'Medicamento creado correctamente.'
 }
 
 export const ERROR_MESSAGES = {
@@ -14,6 +14,8 @@ export const ERROR_MESSAGES = {
     DUPLICATED_PRESENTATION: 'Ya existe una presentación con los datos ingresados.',
     BARCODE_GENERATION_ERROR: 'La generación de código de barras ha fallado. Intente nuevamente, si el problema persiste comuniquese con administración.',
     BARCODE_TAKEN: 'El código de barras ingresado ya se encuentra asignado a un medicamento.',
+    IGV_VAL_NOT_LOADED: 'No se pudo recuperar el valor del IGV desde la configuración. Se utilizará el valor predeterminado de 18%. Intente nuevamente, si el problema persiste comuniquese con administración.',
+    MEDICINE_NOT_FOUND: 'Medicamento no encontrado. Intente nuevamente, si el problema persiste comuniquese con administración',
 }
 
 export const SUPPLIER_SEARCH_MODES = [
@@ -26,4 +28,12 @@ export const PRESENTATION_SEARCH_MODES = [
     {value: 'id', label: 'POR ID'},
     {value: 'name', label: 'POR NOMBRE'},
     {value: 'aux', label: 'POR AUXILIAR'},
+]
+
+export const MEDICINE_SEARCH_MODES = [
+    {value: 'id', label: 'POR ID'},
+    {value: 'name', label: 'POR NOMBRE'},
+    {value: 'composition', label: 'POR COMPOSICIÓN'},
+    {value: 'description', label: 'POR DESCRIPCIÓN'},
+    {value: 'barcode', label: 'POR CÓDIGO DE BARRAS'}
 ]

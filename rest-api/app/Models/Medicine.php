@@ -30,12 +30,12 @@ class Medicine extends Model
 
     public function presentation(): BelongsTo
     {
-        return $this->belongsTo(Presentation::class);
+        return $this->belongsTo(Presentation::class, 'presentation');
     }
 
     public function suppliers(): BelongsToMany
     {
-        return $this->belongsToMany(Supplier::class,'medicine_supplier');
+        return $this->belongsToMany(Supplier::class,'medicine_suppliers');
     }
 
     public function voucherDetail(): HasMany
@@ -52,6 +52,6 @@ class Medicine extends Model
     public function updatedBy(): BelongsTo
     {
         //Wip...
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

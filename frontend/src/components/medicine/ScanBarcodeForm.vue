@@ -15,27 +15,26 @@ const router = useRouter();
 
 
 const schema = yup.object({
-  barcode: yup.string().min(13, 'El código de barras debe tener entre 13 y 30 carácteres.').max(30, 'El código de barras debe tener entre 13 y 30 carácteres.').matches(/^[A-Za-z0-9]{13,30}$/,'El código de barras debe contener solo números y letras.').required('Debe ingresar un código de barras o generar uno aleatorio.'),
+  barcode: yup.string().min(8, 'El código de barras debe tener entre 8 y 30 carácteres.').max(30, 'El código de barras debe tener entre 8 y 30 carácteres.').matches(/^[A-Za-z0-9]{8,30}$/, 'El código de barras debe contener solo números y letras.').required('Debe ingresar un código de barras o generar uno aleatorio.'),
 });
 
 
-async function loadRandomBarcode(){
+async function loadRandomBarcode() {
   loadingMessage.value = 'Generando código de barras...'
   isLoading.value = true;
-  try{
+  try {
     const response = await MedicineService.generateRandomBarcode();
     isLoading.value = false;
-    emit('barcodeGenerated',response.barcode);
-  }
-  catch(err){
-    Swal.fire(EM.ERROR_TAG,EM.BARCODE_GENERATION_ERROR,'error').then((r) => reloadOnDismiss(r))
+    emit('barcodeGenerated', response.barcode);
+  } catch (err) {
+    Swal.fire(EM.ERROR_TAG, EM.BARCODE_GENERATION_ERROR, 'error').then((r) => reloadOnDismiss(r))
   }
 }
 
-async function validateBarcode(value){
+async function validateBarcode(value) {
   loadingMessage.value = 'Validando código de barras...'
   isLoading.value = true;
-  try{
+  try {
     const response = await MedicineService.getByBarcode(value.barcode);
     let text = `El código de barras ingresado pertenece al siguiente producto: </br>ID: ${response.id} </br>NOMBRE: ${response.name} </br> CÓDIGO DE BARRAS: ${response.barcode} </br> ¿Desea modificar el stock del producto mencionado?`
     Swal.fire({
@@ -50,14 +49,12 @@ async function validateBarcode(value){
     }).then((op) => {
       if (op.isConfirmed) {
         router.replace('/') //TODO: Redirect to edit-medicine/BARCODE or update stock...
-      }
-      else{
+      } else {
         reloadPage();
       }
     });
-  }
-  catch(err){
-    emit('barcodeGenerated',value.barcode)
+  } catch (err) {
+    emit('barcodeGenerated', value.barcode)
   }
 }
 </script>
@@ -76,7 +73,7 @@ async function validateBarcode(value){
       </svg>
       <span class="sr-only">Loading...</span>
     </div>
-    <h1 class="mt-5 text-2xl font-light">{{loadingMessage}}</h1>
+    <h1 class="mt-5 text-2xl font-light">{{ loadingMessage }}</h1>
   </div>
   <Form class="max-w-md mx-auto mt-4" @submit="validateBarcode" :validation-schema="schema" v-if="!isLoading">
     <label for="barcode" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"></label>
