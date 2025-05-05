@@ -15,6 +15,9 @@ Route::group([
     'middleware' => BaseMiddleware::class,
 ], function($router){
     Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/recover_account', [AuthController::class, 'sendRecoveryMail']);
+    Route::post('/verify_token', [AuthController::class, 'verifyRecoveryToken']);
+    Route::post('/change_password/token', [AuthController::class, 'changePasswordWithToken']);
     Route::get('/profile', [AuthController::class, 'profile']);
 });
 

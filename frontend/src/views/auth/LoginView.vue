@@ -1,6 +1,6 @@
 <script setup>
 import {onMounted, ref} from 'vue';
-import {useRouter} from 'vue-router';
+import {useRouter, RouterView} from 'vue-router';
 import {useAuthStore} from '@/stores/auth';
 import * as yup from 'yup';
 import {Form, Field, ErrorMessage, useForm} from 'vee-validate';
@@ -21,7 +21,6 @@ const schema = yup.object({
 async function onSubmit(values) {
   submitting.value = true;
   try {
-    console.log(rememberMe.value)
     const success = await authStore.login(values.username, values.password, rememberMe.value);
     if (success) {
       router.push('/a');
@@ -60,8 +59,6 @@ onMounted(() => {
   </span>
             <Field type="text" id="username" name="username" :validate-on-input="true"
                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-none rounded-e-lg focus:ring-green-800 focus:border-green-800 block w-full p-2.5 "/>
-
-
           </div>
           <ErrorMessage name="username" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"/>
         </div>
@@ -78,7 +75,6 @@ onMounted(() => {
   </span>
             <Field type="password" id="password" name="password" :validate-on-input="true"
                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-none rounded-e-lg focus:ring-green-800 focus:border-green-800 block w-full p-2.5 "/>
-
           </div>
           <ErrorMessage name="password" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"/>
         </div>
@@ -104,7 +100,8 @@ onMounted(() => {
           </button>
         </div>
         <div class="text-sm font-medium text-gray-500">
-          ¿Olvido su contraseña? <a class="text-blue-700 hover:underline" :disabled="submitting">Click aquí</a>
+          ¿Olvido su contraseña?
+          <router-link class="text-blue-700 hover:underline" :to="{name: 'recover-account'}">Click aquí</router-link>
         </div>
       </Form>
 

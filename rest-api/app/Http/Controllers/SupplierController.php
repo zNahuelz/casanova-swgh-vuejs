@@ -27,7 +27,7 @@ class SupplierController extends Controller
             'address' => trim(strtoupper($request->address)),
             'phone' => trim($request->phone),
             'email' => trim(strtoupper($request->email)),
-            'description' => trim(strtoupper($request->description)) ?? null, //TODO: CHECK THIS SHIT!!
+            'description' => $request->isNotFilled('description') ? 'PROVEEDOR GENERAL' : trim(strtoupper($request->description)),
             'created_by' => $request->created_by, 
         ]);
 
@@ -61,7 +61,7 @@ class SupplierController extends Controller
             'address' => trim(strtoupper($request->address)),
             'phone' => trim($request->phone),
             'email' => trim(strtoupper($request->email)),
-            'description' => trim(strtoupper($request->description)),
+            'description' => $request->isNotFilled('description') ? 'PROVEEDOR GENERAL' : trim(strtoupper($request->description)),
             'updated_by' => $request->updated_by, 
         ]);
 

@@ -11,6 +11,8 @@ import NewMedicineView from "@/views/medicine/NewMedicineView.vue";
 import MedicineListView from "@/views/medicine/MedicineListView.vue";
 import MedicineDetailView from "@/views/medicine/MedicineDetailView.vue";
 import EditMedicineView from "@/views/medicine/EditMedicineView.vue";
+import LostPasswordView from "@/views/auth/LostPasswordView.vue";
+import MyAccountView from "@/views/auth/MyAccountView.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -19,7 +21,11 @@ const router = createRouter({
             path: '/',
             name: 'login',
             component: LoginView,
-            meta: {title: 'ALTERNATIVA CASANOVA - INICIO DE SESIÓN'}
+        },
+        {
+            path: '/recover-account',
+            name: 'recover-account',
+            component: LostPasswordView,
         },
         {
             path: '/a',
@@ -79,6 +85,12 @@ const router = createRouter({
                     name: 'edit-medicine',
                     component: EditMedicineView,
                     meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA']},
+                },
+                {
+                    path: 'my-account',
+                    name: 'my-account',
+                    component: MyAccountView,
+                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA','DOCTOR']}
                 }
             ]
         },
@@ -126,9 +138,9 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     const authStore = useAuthStore();
-
+    const redirectIfAuthenticated = ['login','recover-account'];
     // If trying to access login page but already authenticated
-    if (to.name === 'login' && authStore.isAuthenticated()) {
+    if (redirectIfAuthenticated.includes(to.name) && authStore.isAuthenticated()) { //to.name === 'login'
         const userRole = authStore.getTokenDetails().role;
         // Redirect to appropriate dashboard based on role
         if (userRole === 'ADMINISTRADOR') next('/a');

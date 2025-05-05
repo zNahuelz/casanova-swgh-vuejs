@@ -34,7 +34,7 @@ export const useAuthStore = defineStore('auth', {
             this.userData = JSON.parse(userData);
             Cookies.set('USER_DATA', userData, {expires: rememberMe ? 7 : undefined, path: '/'});
         },
-        getUserData(){
+        getUserData() {
             return JSON.parse(Cookies.get('USER_DATA'));
         },
         decodeToken(token) {

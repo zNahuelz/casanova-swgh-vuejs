@@ -16,6 +16,8 @@ export const ERROR_MESSAGES = {
     BARCODE_TAKEN: 'El código de barras ingresado ya se encuentra asignado a un medicamento.',
     IGV_VAL_NOT_LOADED: 'No se pudo recuperar el valor del IGV desde la configuración. Se utilizará el valor predeterminado de 18%. Intente nuevamente, si el problema persiste comuniquese con administración.',
     MEDICINE_NOT_FOUND: 'Medicamento no encontrado. Intente nuevamente, si el problema persiste comuniquese con administración',
+    INVALID_RECOVERY_TOKEN: 'Oops! El enlace de recuperación de cuenta es invalido o ha expirado. Intente nuevamente, si el problema persiste comuniquese con administración',
+    EXPIRED_RECOVERY_TOKEN: 'El enlace de recuperación de cuenta ha expirado. Intente nuevamente, si el problema persiste comuniquese con administración',
 }
 
 export const SUPPLIER_SEARCH_MODES = [

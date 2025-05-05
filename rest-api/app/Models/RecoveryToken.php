@@ -6,5 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class RecoveryToken extends Model
 {
-    //
+    protected $fillable = [
+        'email',
+        'token',
+        'expiration'
+    ];
 }

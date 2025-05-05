@@ -211,7 +211,7 @@ function goBack() {
         </div>
         <div class="flex justify-center mt-5">
           <div class="inline-flex rounded-md shadow-xs" role="group">
-            <button :disabled="submitting" @click="goBack"
+            <button :disabled="submitting" @click="goBack" type="button"
                          class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
               <i class="bi bi-x-circle w-3 h-3 me-2 flex items-center justify-center"></i>
               Cancelar
