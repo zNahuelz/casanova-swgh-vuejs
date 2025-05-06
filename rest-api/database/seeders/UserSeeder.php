@@ -31,14 +31,14 @@ class UserSeeder extends Seeder
         User::create([
             'username' => 'enfermera',
             'password' => Hash::make('enfermera'),
-            'email' => 'ENFERMERA@SITE.COM',
+            'email' => 'ALEJANDRA.MED@GMAIL.COM',
             'role_id' => 3
         ]);
 
         User::create([
             'username' => 'secretaria',
             'password' => Hash::make('secretaria'),
-            'email' => 'SECRETARIA@SITE.COM',
+            'email' => 'MARMOURNIER@OUTLOOK.COM',
             'role_id' => 4,
         ]);
     }

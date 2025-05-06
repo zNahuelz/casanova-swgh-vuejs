@@ -1,5 +1,4 @@
 <script setup>
-
 import {PRESENTATION_SEARCH_MODES as PSM} from "@/utils/constants.js";
 import {reloadPage} from "@/utils/helpers.js";
 import {ErrorMessage, Field, Form} from "vee-validate";

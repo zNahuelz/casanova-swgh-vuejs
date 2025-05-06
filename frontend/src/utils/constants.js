@@ -18,6 +18,8 @@ export const ERROR_MESSAGES = {
     MEDICINE_NOT_FOUND: 'Medicamento no encontrado. Intente nuevamente, si el problema persiste comuniquese con administración',
     INVALID_RECOVERY_TOKEN: 'Oops! El enlace de recuperación de cuenta es invalido o ha expirado. Intente nuevamente, si el problema persiste comuniquese con administración',
     EXPIRED_RECOVERY_TOKEN: 'El enlace de recuperación de cuenta ha expirado. Intente nuevamente, si el problema persiste comuniquese con administración',
+    EMAIL_TAKEN: 'El correo electrónico ingresado ya se encuentra vinculado a otra cuenta del sistema.',
+    USERNAME_TAKEN: 'El nombre de usuario ingresado ya se encuentra vinculado a otra cuenta del sistema.',
 }
 
 export const SUPPLIER_SEARCH_MODES = [
@@ -38,4 +40,10 @@ export const MEDICINE_SEARCH_MODES = [
     {value: 'composition', label: 'POR COMPOSICIÓN'},
     {value: 'description', label: 'POR DESCRIPCIÓN'},
     {value: 'barcode', label: 'POR CÓDIGO DE BARRAS'}
+]
+
+export const USER_SEARCH_MODES = [
+    {value: 'id', label: 'POR ID'},
+    {value: 'username', label: 'POR NOMBRE DE USUARIO'},
+    {value: 'email', label: 'POR E-MAIL'}
 ]

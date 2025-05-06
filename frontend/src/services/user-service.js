@@ -9,9 +9,45 @@ export const UserService = {
         return Http.POST(`${this.endpoint}/verify_token`, token);
     },
     changePasswordWithToken(payload) {
-        return Http.POST(`${this.endpoint}/change_password/token`, payload);
+        return Http.PUT(`${this.endpoint}/change_password/token`, payload);
     },
     getCurrenUserProfile() {
         return Http.GET(`${this.endpoint}/profile`);
+    },
+    changePasswordAndEmail(payload) {
+        return Http.PUT(`${this.endpoint}/change_password`, payload);
+    },
+    changeUsername(payload) {
+        return Http.PUT(`${this.endpoint}/change_username`, payload);
+    },
+    changePersonalInfo(payload) {
+        return Http.PUT(`${this.endpoint}/change_personal_info`, payload);
+    },
+    get(filters = {}, pagination = {}, sorting = {}) {
+        let params = {};
+
+        // Filtros
+        if (filters.id) params.id = filters.id;
+        if (filters.username) params.username = filters.username;
+        if (filters.email) params.email = filters.email;
+
+        // Paginado
+        if (pagination.page) params.page = pagination.page;
+        if (pagination.per_page) params.per_page = pagination.per_page;
+
+        // Ordenado
+        if (sorting.sort_by) params.sort_by = sorting.sort_by;
+        if (sorting.sort_dir) params.sort_dir = sorting.sort_dir;
+
+        return Http.GET('/user', params);
+    },
+    reset(id) {
+        return Http.POST(`/user/reset`, id);
+    },
+    disable(id) {
+        return Http.DELETE(`/user/disable/${id}`);
+    },
+    enable(id) {
+        return Http.PUT(`/user/enable/${id}`);
     }
 };

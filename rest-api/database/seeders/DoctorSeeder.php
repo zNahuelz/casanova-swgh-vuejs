@@ -18,7 +18,7 @@ class DoctorSeeder extends Seeder
             'paternal_surname' => 'VALVERDE',
             'maternal_surname' => 'SALAZAR',
             'dni' => '07866543',
-            'email' => 'doctor@site.com',
+            'email' => 'DOCTOR@SITE.COM',
             'phone' => '+51999000111',
             'address' => 'Av. Globo Terraqueo 203',
             'user_id' => 2,

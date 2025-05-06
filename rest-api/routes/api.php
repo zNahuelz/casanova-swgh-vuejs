@@ -5,6 +5,7 @@ use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\PresentationController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\UserController;
 use App\Http\Middleware\BaseMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -17,8 +18,21 @@ Route::group([
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/recover_account', [AuthController::class, 'sendRecoveryMail']);
     Route::post('/verify_token', [AuthController::class, 'verifyRecoveryToken']);
-    Route::post('/change_password/token', [AuthController::class, 'changePasswordWithToken']);
+    Route::put('/change_password/token', [AuthController::class, 'changePasswordWithToken']);
+    Route::put('/change_password', [AuthController::class, 'changePasswordAndEmail']);
+    Route::put('/change_username', [AuthController::class, 'changeUsername'])->middleware('role:ADMINISTRADOR');
+    Route::put('/change_personal_info', [AuthController::class, 'changeAddressAndPhone'])->middleware('role:SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/profile', [AuthController::class, 'profile']);
+});
+
+Route::group([
+    'prefix' => '/user',
+    'middleware' => 'role:ADMINISTRADOR'
+], function($router){
+    Route::get('/', [UserController::class, 'getUsers']);
+    Route::post('/reset', [UserController::class, 'resetPassword']);
+    Route::delete('/disable/{id}', [UserController::class, 'deleteUser']);
+    Route::put('/enable/{id}', [UserController::class, 'restoreUser']);
 });
 
 Route::group([

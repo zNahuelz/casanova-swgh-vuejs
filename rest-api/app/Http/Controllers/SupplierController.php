@@ -89,7 +89,7 @@ class SupplierController extends Controller
         //Ordenar.
         $sortField = $request->input('sort_by', 'id'); // Ordenar por ID (Default)
         $sortDirection = $request->input('sort_dir', 'asc'); // Asc or Desc
-        if (in_array($sortField, ['name', 'ruc', 'email', 'created_at'])) {
+        if (in_array($sortField, ['id','name', 'ruc', 'email', 'created_at'])) {
             $query->orderBy($sortField, $sortDirection);
         } //Verificar si el ordenado esta en el array.
         // Pagination

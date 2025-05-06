@@ -4,14 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Mail\ForgotPasswordMail;
+use App\Models\Doctor;
 use App\Models\RecoveryToken;
 use App\Models\User;
+use App\Models\Worker;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
 {
@@ -23,6 +27,17 @@ class AuthController extends Controller
         ]);
 
         $credentials = $request->only('username', 'password');
+
+        $user = User::withTrashed()
+                ->where('username', $credentials['username'])
+                ->first();
+
+        if ($user && $user->trashed()) {
+            return response()->json([
+                'message' => 'Esta cuenta está deshabilitada. Comuníquese con administración',
+                'aux' => 'ACCOUNT_DISABLED'
+            ], 403); 
+        }
 
         $token = Auth::guard('api')->attempt($credentials);
         if (!$token) 
@@ -63,7 +78,6 @@ class AuthController extends Controller
                 ]
             ],200);
         }
-
     }
 
     public function profile()
@@ -192,5 +206,165 @@ class AuthController extends Controller
                 'user' => $user,
             ],200);
         }
+    }
+
+    public function changePasswordAndEmail(Request $request)
+    {
+        $user = auth()->user();
+    
+        if (!$user) {
+            return response()->json([
+                'message' => 'Error! Token expirado o invalido.',
+                'aux' => 'INVALID_TOKEN'
+            ], 401);
+        }
+
+        $request->validate([
+            'email' => ['required','email','max:50',Rule::unique('users','email')->ignore($user->id)],
+            'current_password' => ['required','string','min:5','max:20'],
+            'new_password' => ['required','string','min:5','max:20'],
+        ]);
+
+        $dbUser = User::find($user->id);
+        $validPassword = Hash::check($request->current_password,$dbUser->password);
+        
+        if(!$validPassword)
+        {
+            return response()->json([
+                'message' => 'La contraseña ingresada no coincide con los datos almacenados. Intente nuevamente.',
+                'aux' => 'INVALID_PASSWORD'
+            ],400);
+        }
+        $userRole = $dbUser->role->name;
+
+        try
+        {
+            if($userRole == 'ADMINISTRADOR')
+            {
+                $dbUser->update([
+                    'email' => trim(strtoupper($request->email)),
+                    'password' => Hash::make($request->new_password)
+                ]);
+            }
+            if($userRole == 'DOCTOR')
+            {
+                $doctor = Doctor::where('user_id',$dbUser->id)->first();
+                $dbUser->update([
+                    'email' => trim(strtoupper($request->email)),
+                    'password' => Hash::make($request->new_password)
+                ]);
+                $doctor->update([
+                    'email' => trim(strtoupper($request->email))
+                ]);
+            }
+            if($userRole == 'ENFERMERA' || $userRole == 'SECRETARIA')
+            {
+                $worker = Worker::where('user_id',$dbUser->id)->first();
+                $dbUser->update([
+                    'email' => trim(strtoupper($request->email)),
+                    'password' => Hash::make($request->new_password)
+                ]);
+                $worker->update([
+                    'email' => trim(strtoupper($request->email))
+                ]);
+            }
+        }
+        catch(Exception $e)
+        {
+            return response()->json([
+                'message' => 'Error en actualización de datos. Intente nuevamente',
+                'aux' => 'SERVER_ERROR'
+            ],500);
+        }
+        return response()->json([
+            'message' => 'Correo y contraseña actualizados correctamente. Debe volver a iniciar sesión con sus nuevas credenciales.'
+        ],200);
+    }
+
+    public function changeUsername(Request $request)
+    {
+        $user = auth()->user();
+    
+        if (!$user) {
+            return response()->json([
+                'message' => 'Error! Token expirado o invalido.',
+                'aux' => 'INVALID_TOKEN'
+            ], 401);
+        }
+
+        $request->validate([
+            'username' => ['required','string','min:5','max:20',Rule::unique('users','username')->ignore($user->id)],
+            'password' => ['required','string','min:5','max:20']
+        ]);
+
+        $oldUser = User::find($user->id);
+        $validPassword = Hash::check($request->password,$oldUser->password);
+
+        if(!$validPassword)
+        {
+            return response()->json([
+                'message' => 'La contraseña ingresada no coincide con los datos almacenados. Intente nuevamente.',
+                'aux' => 'INVALID_PASSWORD'
+            ],400);
+        }
+  
+        $oldUser->update([
+            'username' => trim($request->username)
+        ]);
+
+        return response()->json([
+            'message' => 'Nombre de usuario actualizado correctamente. </br> Nombre de usuario anterior: '.$user->username.'</br> Nuevo nombre de usuario: '.$request->username.'</br> Debe volver a iniciar sesión con sus nuevas credenciales.'
+        ],200);
+    }
+
+    public function changeAddressAndPhone(Request $request)
+    {
+        $user = auth()->user();
+    
+        if (!$user) {
+            return response()->json([
+                'message' => 'Error! Token expirado o invalido.',
+                'aux' => 'INVALID_TOKEN'
+            ], 401);
+        }
+
+        $request->validate([
+            'address' => ['required','max:100'],
+            'phone' => ['required','string','min:6','max:15'],
+            'password' => ['required','string','min:5','max:20']
+        ]);
+
+        $oldUser = User::find($user->id);
+        $validPassword = Hash::check($request->password,$oldUser->password);
+
+        if(!$validPassword)
+        {
+            return response()->json([
+                'message' => 'La contraseña ingresada no coincide con los datos almacenados. Intente nuevamente.',
+                'aux' => 'INVALID_PASSWORD'
+            ],400);
+        }
+
+       $userRole = $user->role->name;
+       if($userRole == 'ENFERMERA' || $userRole == 'SECRETARIA')
+       {
+            $oldWorker = Worker::where('user_id',$user->id)->first();
+            $oldWorker->update([
+                'address' => trim(strtoupper($request->address)),
+                'phone' => trim($request->phone),
+            ]);
+       }
+       else 
+       {
+            $oldDoctor = Doctor::where('user_id',$user->id)->first();
+            $oldDoctor->update([
+                'address' => trim(strtoupper($request->address)),
+                'phone' => trim($request->phone),
+            ]);
+       }
+
+       return response()->json([
+            'message' => 'Información personal actualizada correctamente. Debe volver a iniciar sesión.',
+       ]);
     }
 }

@@ -13,6 +13,7 @@ import MedicineDetailView from "@/views/medicine/MedicineDetailView.vue";
 import EditMedicineView from "@/views/medicine/EditMedicineView.vue";
 import LostPasswordView from "@/views/auth/LostPasswordView.vue";
 import MyAccountView from "@/views/auth/MyAccountView.vue";
+import UserListView from "@/views/user/UserListView.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -85,6 +86,12 @@ const router = createRouter({
                     name: 'edit-medicine',
                     component: EditMedicineView,
                     meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA']},
+                },
+                {
+                  path: 'user-list',
+                  name: 'user-list',
+                  component: UserListView,
+                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR']}
                 },
                 {
                     path: 'my-account',
