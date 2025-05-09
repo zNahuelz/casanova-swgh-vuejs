@@ -6,6 +6,7 @@ use App\Http\Controllers\PresentationController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WorkerController;
 use App\Http\Middleware\BaseMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -74,4 +75,14 @@ Route::group([
     Route::get('/id/{id}', [MedicineController::class, 'getMedicineById'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/barcode/{barcode}', [MedicineController::class, 'getMedicineByBarcode'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/', [MedicineController::class, 'getMedicines'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+});
+
+Route::group([
+    'prefix' => '/worker'
+], function($router){
+    Route::post('/', [WorkerController::class, 'createWorker'])->middleware('role:ADMINISTRADOR');
+    Route::put('/{id}', [WorkerController::class, 'updateWorker'])->middleware('role:ADMINISTRADOR');
+    Route::get('/', [WorkerController::class, 'getWorkers'])->middleware('role:ADMINISTRADOR,SECRETARIA');
+    Route::get('/{id}', [WorkerController::class, 'getWorker'])->middleware('role:ADMINISTRADOR,SECRETARIA');
+
 });

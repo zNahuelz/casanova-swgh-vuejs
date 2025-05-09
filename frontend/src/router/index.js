@@ -14,6 +14,10 @@ import EditMedicineView from "@/views/medicine/EditMedicineView.vue";
 import LostPasswordView from "@/views/auth/LostPasswordView.vue";
 import MyAccountView from "@/views/auth/MyAccountView.vue";
 import UserListView from "@/views/user/UserListView.vue";
+import WorkerListView from "@/views/worker/WorkerListView.vue";
+import NewWorkerView from "@/views/worker/NewWorkerView.vue";
+import WorkerDetailView from "@/views/worker/WorkerDetailView.vue";
+import EditWorkerView from "@/views/worker/EditWorkerView.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -92,6 +96,30 @@ const router = createRouter({
                   name: 'user-list',
                   component: UserListView,
                     meta: {requiresAuth: true, roles: ['ADMINISTRADOR']}
+                },
+                {
+                  path: 'new-worker',
+                  name: 'new-worker',
+                  component: NewWorkerView,
+                  meta: {requiresAuth: true, roles: ['ADMINISTRADOR',]},
+                },
+                {
+                  path: 'worker-list',
+                  name: 'worker-list',
+                  component: WorkerListView,
+                  meta: {requiresAuth: true, roles: ['ADMINISTRADOR','SECRETARIA']},
+                },
+                {
+                  path: 'worker-detail/:id',
+                  name: 'worker-detail',
+                  component: WorkerDetailView,
+                  meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA']},
+                },
+                {
+                  path: 'edit-worker/:id',
+                  name: 'edit-worker',
+                  component: EditWorkerView,
+                  meta: {requiresAuth: true, roles: ['ADMINISTRADOR']}
                 },
                 {
                     path: 'my-account',

@@ -15,7 +15,7 @@ class SupplierController extends Controller
             'name' => ['required','string','min:2','max:150'],
             'ruc' => ['required','string','min:11','max:11',Rule::unique('suppliers','ruc')],
             'address' => ['required','max:100'],
-            'phone' => ['required','string','min:6','max:15'],
+            'phone' => ['required','string','min:6','max:15','regex:/^\+?\d{6,15}$/'], //TODO: Check this on frontend
             'email' => ['required','email','max:50'],
             'description' => ['max:150'],
             'created_by' => ['required','numeric','exists:users,id']

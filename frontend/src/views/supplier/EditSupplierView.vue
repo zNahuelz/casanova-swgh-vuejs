@@ -173,37 +173,37 @@ function goBack() {
         </div>
         <div>
           <label class="block mb-1 text-sm font-medium text-gray-900 ">Nombre</label>
-          <Field type="text" id="name" name="name" :validate-on-input="true" :model-value="supplier?.name"
+          <Field type="text" id="name" name="name" :validate-on-input="true" :model-value="supplier?.name" :disabled="submitting"
                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full"/>
           <ErrorMessage name="name" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
         </div>
         <div>
           <label class="block mb-1 text-sm font-medium text-gray-900 ">RUC</label>
-          <Field type="number" id="ruc" name="ruc" :validate-on-input="true" :model-value="supplier?.ruc"
+          <Field type="number" id="ruc" name="ruc" :validate-on-input="true" :model-value="supplier?.ruc" :disabled="submitting"
                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"/>
           <ErrorMessage name="ruc" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
         </div>
         <div>
           <label class="block mb-1 text-sm font-medium text-gray-900 ">Dirección</label>
-          <Field type="text" id="address" name="address" :validate-on-input="true" :model-value="supplier?.address"
+          <Field type="text" id="address" name="address" :validate-on-input="true" :model-value="supplier?.address" :disabled="submitting"
                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full"/>
           <ErrorMessage name="address" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
         </div>
         <div>
           <label class="block mb-1 text-sm font-medium text-gray-900 ">Teléfono de Contacto</label>
-          <Field type="text" id="phone" name="phone" :validate-on-input="true" :model-value="supplier?.phone"
+          <Field type="text" id="phone" name="phone" :validate-on-input="true" :model-value="supplier?.phone" :disabled="submitting"
                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"/>
           <ErrorMessage name="phone" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
         </div>
         <div>
           <label class="block mb-1 text-sm font-medium text-gray-900 ">E-Mail</label>
-          <Field type="email" id="email" name="email" :validate-on-input="true" :model-value="supplier?.email"
+          <Field type="email" id="email" name="email" :validate-on-input="true" :model-value="supplier?.email" :disabled="submitting"
                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full"/>
           <ErrorMessage name="email" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
         </div>
         <div>
           <label class="block mb-1 text-sm font-medium text-gray-900 ">Descripción</label>
-          <Field type="text" id="description" name="description" :validate-on-input="true"
+          <Field type="text" id="description" name="description" :validate-on-input="true" :disabled="submitting"
                  :model-value="supplier?.description"
                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full"/>
           <ErrorMessage name="description"

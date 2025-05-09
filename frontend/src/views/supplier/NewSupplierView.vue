@@ -46,6 +46,7 @@ const schema = yup.object().shape({
       .string()
       .required('Debe ingresar una dirección de E-Mail.')
       .email('El E-Mail debe cumplir el formato EMAIL@DOMINIO.COM.')
+      .matches(/^(?=.{1,50}$)[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{1,24}$/, 'El E-Mail debe cumplir el formato EMAIL@DOMINIO.COM.')
       .max(50, 'El E-Mail debe tener como máximo 50 carácteres.'),
 
   description: yup
@@ -91,42 +92,42 @@ function goBack() {
       <Form class="space-y-3" @submit="onSubmit" :validation-schema="schema" ref="supplierForm">
         <div>
           <label class="block mb-1 text-sm font-medium text-gray-900 ">Nombre</label>
-          <Field type="text" id="name" name="name" :validate-on-input="true"
+          <Field type="text" id="name" name="name" :validate-on-input="true" :disabled="submitting"
                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full"/>
           <ErrorMessage name="name" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
         </div>
 
         <div>
           <label class="block mb-1 text-sm font-medium text-gray-900 ">RUC</label>
-          <Field type="number" id="ruc" name="ruc" :validate-on-input="true"
+          <Field type="number" id="ruc" name="ruc" :validate-on-input="true" :disabled="submitting"
                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"/>
           <ErrorMessage name="ruc" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
         </div>
 
         <div>
           <label class="block mb-1 text-sm font-medium text-gray-900 ">Dirección</label>
-          <Field type="text" id="address" name="address" :validate-on-input="true"
+          <Field type="text" id="address" name="address" :validate-on-input="true" :disabled="submitting"
                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full"/>
           <ErrorMessage name="address" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
         </div>
 
         <div>
           <label class="block mb-1 text-sm font-medium text-gray-900 ">Teléfono de Contacto</label>
-          <Field type="text" id="phone" name="phone" :validate-on-input="true"
+          <Field type="text" id="phone" name="phone" :validate-on-input="true" :disabled="submitting"
                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"/>
           <ErrorMessage name="phone" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
         </div>
 
         <div>
           <label class="block mb-1 text-sm font-medium text-gray-900 ">E-Mail</label>
-          <Field type="email" id="email" name="email" :validate-on-input="true"
+          <Field type="email" id="email" name="email" :validate-on-input="true" :disabled="submitting"
                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full"/>
           <ErrorMessage name="email" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
         </div>
 
         <div>
           <label class="block mb-1 text-sm font-medium text-gray-900 ">Descripción</label>
-          <Field type="text" id="description" name="description" :validate-on-input="true"
+          <Field type="text" id="description" name="description" :validate-on-input="true" :disabled="submitting"
                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full"/>
           <ErrorMessage name="description"
                         class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>

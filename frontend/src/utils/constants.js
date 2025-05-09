@@ -20,6 +20,8 @@ export const ERROR_MESSAGES = {
     EXPIRED_RECOVERY_TOKEN: 'El enlace de recuperación de cuenta ha expirado. Intente nuevamente, si el problema persiste comuniquese con administración',
     EMAIL_TAKEN: 'El correo electrónico ingresado ya se encuentra vinculado a otra cuenta del sistema.',
     USERNAME_TAKEN: 'El nombre de usuario ingresado ya se encuentra vinculado a otra cuenta del sistema.',
+    DNI_TAKEN: 'El DNI ingresado ya se encuentra en uso por otro trabajador.',
+    WORKER_NOT_FOUND: 'Trabajador no encontrado. Intente nuevamente, si el problema persiste comuniquese con administración',
 }
 
 export const SUPPLIER_SEARCH_MODES = [
@@ -46,4 +48,16 @@ export const USER_SEARCH_MODES = [
     {value: 'id', label: 'POR ID'},
     {value: 'username', label: 'POR NOMBRE DE USUARIO'},
     {value: 'email', label: 'POR E-MAIL'}
+]
+
+export const WORKER_SEARCH_MODES = [
+    {value: 'id', label: 'POR ID'},
+    {value: 'name', label: 'POR NOMBRE'},
+    {value: 'dni', label: 'POR DNI'},
+    {value: 'position', label: 'POR CARGO'}
+]
+
+export const WORKER_POSITIONS = [
+    {value: 'SECRETARIA', label: 'SECRETARIA'},
+    {value: 'ENFERMERA', label: 'ENFERMERA'},
 ]
