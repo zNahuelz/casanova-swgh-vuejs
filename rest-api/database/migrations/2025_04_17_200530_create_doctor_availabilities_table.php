@@ -17,6 +17,8 @@ return new class extends Migration
             $table->integer('weekday'); //0 LUNES 1 MARTES ETC...
             $table->time('start_time');
             $table->time('end_time');
+            $table->time('break_start');
+            $table->time('break_end');
             $table->boolean('is_active');
             $table->foreign('doctor_id')->references('id')->on('doctors');
             $table->softDeletes();

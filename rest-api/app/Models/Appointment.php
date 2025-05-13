@@ -13,6 +13,7 @@ class Appointment extends Model
         'time',
         'notes',
         'status',
+        'duration',
         'rescheduling_date',
         'rescheduling_time',
         'is_treatment',

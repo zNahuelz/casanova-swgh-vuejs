@@ -10,6 +10,8 @@ class MedicineSupplier extends Model
     protected $fillable = [
         'supplier_id',
         'medicine_id',
+        'created_at',
+        'updated_at'
     ];
 
     public function medicine(): BelongsTo

@@ -12,6 +12,8 @@ class DoctorAvailability extends Model
         'weekday',
         'start_time',
         'end_time',
+        'break_start',
+        'break_end',
         'is_active'
     ];
 

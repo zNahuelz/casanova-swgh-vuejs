@@ -18,6 +18,10 @@ import WorkerListView from "@/views/worker/WorkerListView.vue";
 import NewWorkerView from "@/views/worker/NewWorkerView.vue";
 import WorkerDetailView from "@/views/worker/WorkerDetailView.vue";
 import EditWorkerView from "@/views/worker/EditWorkerView.vue";
+import NewTreatmentView from "@/views/treatment/NewTreatmentView.vue";
+import TreatmentListView from "@/views/treatment/TreatmentListView.vue";
+import EditTreatmentView from "@/views/treatment/EditTreatmentView.vue";
+import TreatmentDetailView from "@/views/treatment/TreatmentDetailView.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -120,6 +124,30 @@ const router = createRouter({
                   name: 'edit-worker',
                   component: EditWorkerView,
                   meta: {requiresAuth: true, roles: ['ADMINISTRADOR']}
+                },
+                {
+                    path: 'new-treatment',
+                    name: 'new-treatment',
+                    component: NewTreatmentView,
+                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA']},
+                },
+                {
+                  path: 'treatment-list',
+                  name: 'treatment-list',
+                  component: TreatmentListView,
+                  meta: {requiresAuth: true, roles: ['ADMINISTRADOR','SECRETARIA','ENFERMERA','DOCTOR']},
+                },
+                {
+                  path: 'edit-treatment/:id',
+                  name: 'edit-treatment',
+                  component: EditTreatmentView,
+                  meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA']},
+                },
+                {
+                  path: 'treatment-detail/:id',
+                  name: 'treatment-detail',
+                  component: TreatmentDetailView,
+                  meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA','DOCTOR']}
                 },
                 {
                     path: 'my-account',

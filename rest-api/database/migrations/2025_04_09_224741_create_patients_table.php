@@ -15,12 +15,13 @@ return new class extends Migration
         Schema::create('patients', function (Blueprint $table) {
             $table->id();
             $table->string('name',30);
-            $table->string('paternal_surname',30);
-            $table->string('maternal_surname',30);
+            $table->string('paternal_surname',30)->default('-----');
+            $table->string('maternal_surname',30)->default('-----');
+            $table->date('birth_date');
             $table->string('dni',15)->unique();
             $table->string('email',50)->default('EMAIL@DOMINIO.COM');
             $table->string('phone',15)->default('000000000');
-            $table->string('address',100)->default('---');
+            $table->string('address',100)->default('-----');
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();
             $table->softDeletes();

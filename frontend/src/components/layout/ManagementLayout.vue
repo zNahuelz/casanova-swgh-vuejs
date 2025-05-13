@@ -214,10 +214,6 @@ onMounted(() => {
                 Listado
               </router-link>
             </li>
-            <li>
-              <a class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
-                 href="#">3</a>
-            </li>
           </ul>
         </li>
         <li>
@@ -268,16 +264,12 @@ onMounted(() => {
           </button>
           <ul id="treatments-dropdown" class="hidden py-2 space-y-2">
             <li>
-              <a class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
-                 href="#">Nuevo</a>
+              <router-link :to="{name: 'new-treatment'}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
+                 href="#">Nuevo</router-link>
             </li>
             <li>
-              <a class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
-                 href="#">Listado</a>
-            </li>
-            <li>
-              <a class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
-                 href="#">3</a>
+              <router-link :to="{name: 'treatment-list'}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
+                 href="#">Listado</router-link>
             </li>
           </ul>
         </li>

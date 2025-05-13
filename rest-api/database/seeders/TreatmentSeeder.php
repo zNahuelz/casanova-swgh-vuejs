@@ -26,5 +26,33 @@ class TreatmentSeeder extends Seeder
             'procedure' => '---',
             'price' => 210,
         ]);
+
+        Treatment::create([
+            'name' => 'OZONOTERAPIA',
+            'description' => 'Aplicación de ozono directamente en el torrente sanguineo.',
+            'procedure' => '---',
+            'price' => 150,
+        ]);
+
+        Treatment::create([
+            'name' => 'VITAMINA B INTRAVENOSA',
+            'description' => 'Aplicación de vitamina B directamente en el torrente sanguineo.',
+            'procedure' => '---',
+            'price' => 150,
+        ]);
+
+        Treatment::create([
+            'name' => 'CÁMARA DE SAL - 1HR.',
+            'description' => 'Espacio dónde el paciente respira aire cargado de sal durante 1 hora.',
+            'procedure' => '---',
+            'price' => 100,
+        ]);
+
+        Treatment::create([
+            'name' => 'CÁMARA DE SAL - 30MIN.',
+            'description' => 'Espacio dónde el paciente respira aire cargado de sal durante media hora.',
+            'procedure' => '---',
+            'price' => 85,
+        ]);
     }
 }

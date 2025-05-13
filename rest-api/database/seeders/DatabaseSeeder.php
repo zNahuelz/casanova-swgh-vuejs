@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             SettingSeeder::class,
+            HolidaySeeder::class,
             RoleSeeder::class,
             UserSeeder::class,
             DoctorSeeder::class,
@@ -25,6 +26,7 @@ class DatabaseSeeder extends Seeder
             VoucherTypeSeeder::class,
             PaymentTypeSeeder::class,
             SupplierSeeder::class,
+            MedicineSeeder::class,
         ]);
     }
 }

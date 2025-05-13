@@ -5,6 +5,7 @@ use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\PresentationController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\TreatmentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkerController;
 use App\Http\Middleware\BaseMiddleware;
@@ -85,4 +86,13 @@ Route::group([
     Route::get('/', [WorkerController::class, 'getWorkers'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::get('/{id}', [WorkerController::class, 'getWorker'])->middleware('role:ADMINISTRADOR,SECRETARIA');
 
+});
+
+Route::group([
+    'prefix' => '/treatment'
+], function($router){
+    Route::post('/', [TreatmentController::class, 'createTreatment'])->middleware('role:ADMINISTRADOR,SECRETARIA');
+    Route::put('/{id}', [TreatmentController::class, 'updateTreatment'])->middleware('role:ADMINISTRADOR,SECRETARIA');
+    Route::get('/', [TreatmentController::class, 'getTreatments'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+    Route::get('/{id}', [TreatmentController::class, 'getTreatment'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
 });

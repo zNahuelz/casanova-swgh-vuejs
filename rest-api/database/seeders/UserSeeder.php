@@ -29,6 +29,20 @@ class UserSeeder extends Seeder
         ]);
 
         User::create([
+            'username' => 'doctor2',
+            'password' => Hash::make('doctor2'),
+            'email' => 'JIMENACHA@ALTERNATIVAC.COM',
+            'role_id' => 2,
+        ]);
+
+        User::create([
+            'username' => 'doctor3',
+            'password' => Hash::make('doctor3'),
+            'email' => 'JESUSRAM@ALTERNATIVAC.COM',
+            'role_id' => 2,
+        ]);
+
+        User::create([
             'username' => 'enfermera',
             'password' => Hash::make('enfermera'),
             'email' => 'ALEJANDRA.MED@GMAIL.COM',

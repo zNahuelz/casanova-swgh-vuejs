@@ -133,7 +133,7 @@ class WorkerController extends Controller
         {
             return response()->json([
                 'message' => 'El rol de: '.$request->position.' no ha sido encontrado.'
-            ]);
+            ],404);
         }
 
         try
@@ -155,6 +155,7 @@ class WorkerController extends Controller
 
             $userFromWorker->update([
                 'email' => strtoupper(trim($request->email)),
+                'role_id' => $role->id,
             ]);
 
             DB::commit();

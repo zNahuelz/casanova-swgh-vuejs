@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('notes',150);
             $table->string('status',20)->default('PENDIENTE'); // 0 PENDIENTE - 1 ATENTIDO - 2 REASIGNADO
             $table->boolean('is_remote')->default(false);
+            $table->integer('duration');
             $table->date('rescheduling_date')->nullable();
             $table->time('rescheduling_time')->nullable();
             $table->unsignedBigInteger('is_treatment')->nullable();

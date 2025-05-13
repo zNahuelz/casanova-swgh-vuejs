@@ -7,6 +7,7 @@ import {ErrorMessage, Field, Form} from "vee-validate";
 import * as yup from "yup";
 import {UserService} from "@/services/user-service.js";
 import Swal from "sweetalert2";
+import {useRouter} from "vue-router";
 
 const searchMode = ref('id');
 const users = ref([]);
@@ -17,6 +18,7 @@ const totalPages = ref(1);
 const totalItems = ref(0);
 const pageSize = ref(10);
 const authService = useAuthStore();
+const router = useRouter();
 
 const dynamicSchema = computed(() => {
   let keywordValidation = yup.string().required();
@@ -132,6 +134,24 @@ async function resetPassword(id) {
     Swal.fire(SM.SUCCESS_TAG, response.message, 'success').then((r) => reloadOnDismiss(r))
   } catch (err) {
     Swal.fire(EM.ERROR_TAG, err.message, 'error').then((r) => reloadOnDismiss(r));
+  }
+}
+
+function goToDetails(u) {
+  if (u.role.name === 'DOCTOR') {
+    router.push({name: 'doctor-detail', params: {id: u.doctor.id}}); //TODO: Make doctor detail.
+  }
+  if (u.role.name === 'ENFERMERA' || u.role.name === 'SECRETARIA') {
+    router.push({name: 'worker-detail', params: {id: u.worker.id}});
+  }
+}
+
+function goToEdit(u) {
+  if (u.role.name === 'DOCTOR') {
+    router.push({name: 'edit-doctor', params: {id: u.doctor.id}}); //TODO: Make doctor edit form.
+  }
+  if (u.role.name === 'ENFERMERA' || u.role.name === 'SECRETARIA') {
+    router.push({name: 'edit-worker', params: {id: u.worker.id}});
   }
 }
 
@@ -264,8 +284,8 @@ onMounted(() => {
                   <div class="inline-flex rounded-md shadow-xs" role="group">
                     <button
                         class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-s border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
-                        title="EDITAR"
-                        type="button">
+                        title="EDITAR" type="button"
+                        @click="goToEdit(u)">
                       <i class="bi bi-pencil-square w-4 h-4"></i>
                     </button>
                     <button
@@ -314,10 +334,10 @@ onMounted(() => {
                     </button>
                     <button
                         class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue  -700 disabled:bg-gray-200 disabled:cursor-not-allowed"
-                        title="DETALLES"
-                        type="button">
+                        title="DETALLES" type="button"
+                        @click="goToDetails(u)">
                       <i class="bi bi-three-dots w-4 h-4"></i>
-                      <!-----TODO: Redirect to worker or doctor details.-->
+                      <!-----TODO: Redirect to worker or doctor details. Check if edit usernames will be worth...-->
                     </button>
                   </div>
                 </td>

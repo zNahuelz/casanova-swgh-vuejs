@@ -22,6 +22,8 @@ export const ERROR_MESSAGES = {
     USERNAME_TAKEN: 'El nombre de usuario ingresado ya se encuentra vinculado a otra cuenta del sistema.',
     DNI_TAKEN: 'El DNI ingresado ya se encuentra en uso por otro trabajador.',
     WORKER_NOT_FOUND: 'Trabajador no encontrado. Intente nuevamente, si el problema persiste comuniquese con administración',
+    TREATMENT_NAME_TAKEN: 'El nombre ingresado ya se encuentra en uso por otro tratamiento.',
+    TREATMENT_NOT_FOUND: 'El tratamiento solicitado no se encuentra disponible o no existe. Vuelva a intentarlo.',
 }
 
 export const SUPPLIER_SEARCH_MODES = [
@@ -55,6 +57,13 @@ export const WORKER_SEARCH_MODES = [
     {value: 'name', label: 'POR NOMBRE'},
     {value: 'dni', label: 'POR DNI'},
     {value: 'position', label: 'POR CARGO'}
+]
+
+export const TREATMENT_SEARCH_MODES = [
+    {value: 'id', label: 'POR ID'},
+    {value: 'name', label: 'POR NOMBRE'},
+    {value: 'description', label: 'POR DESCRIPCIÓN'},
+    {value: 'procedure', label: 'POR PROCEDIMIENTO'}
 ]
 
 export const WORKER_POSITIONS = [

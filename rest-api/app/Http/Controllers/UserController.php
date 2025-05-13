@@ -12,7 +12,7 @@ class UserController extends Controller
 {
     public function getUsers(Request $request)
     {
-        $query = User::withTrashed()->with('role');
+        $query = User::withTrashed()->with('role','doctor','worker');
         if ($request->has('id')) { 
             $query->where('id', $request->input('id'));
         }
@@ -33,6 +33,26 @@ class UserController extends Controller
         // Pagination
         $perPage = $request->input('per_page', 20); // Default: 20.
         $users = $query->paginate($perPage);
+
+        $users->getCollection()->transform(function($user){
+            $customUser = [
+                'id' => $user->id,
+                'username' => $user->username,
+                'email' => $user->email,
+                'role' => $user->role,
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at,
+                'deleted_at' => $user->deleted_at
+            ];
+            $roleName = $user->role->name ?? '';
+            if($roleName === 'DOCTOR'){
+                $customUser['doctor'] = $user->doctor;
+            }
+            elseif (in_array($roleName, ['SECRETARIA','ENFERMERA'])){
+                $customUser['worker'] = $user->worker;
+            }
+            return $customUser;
+        });
         return response()->json($users,200);
     }
 

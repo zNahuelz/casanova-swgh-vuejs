@@ -14,27 +14,57 @@ class PresentationSeeder extends Seeder
     public function run(): void
     {
         Presentation::create([
-            'name' => 'CAPSULAS BLANDAS',
-            'numeric_value' => 60,
-            'aux' => 'UNDS.'
+            'name' => 'UNIDAD',
+            'numeric_value' => 1,
+            'aux' => '-----'
         ]);
 
         Presentation::create([
-            'name' => 'FRASCO',
-            'numeric_value' => 50,
-            'aux' => 'ML.'
+            'name' => 'CÁPSULAS',
+            'numeric_value' => 10,
+            'aux' => 'UNDS. - 250MG'
         ]);
 
         Presentation::create([
-            'name' => 'POTE',
-            'numeric_value' => 50,
+            'name' => 'TABLETAS',
+            'numeric_value' => 20,
+            'aux' => 'UNDS. - 500MG'
+        ]);
+
+        Presentation::create([
+            'name' => 'CÁPSULA BLANDA',
+            'numeric_value' => 20,
+            'aux' => 'UNDS. - 500MG'
+        ]);
+
+        Presentation::create([
+            'name' => 'POLVO - BOLSA',
+            'numeric_value' => 500,
             'aux' => 'GR.'
         ]);
 
         Presentation::create([
-            'name' => 'CAJA',
-            'numeric_value' => 14,
-            'aux' => 'UNDS.'
+            'name' => 'GRANOS - BOLSA',
+            'numeric_value' => 500,
+            'aux' => 'GR.'
+        ]);
+
+        Presentation::create([
+            'name' => 'BOLSA',
+            'numeric_value' => 0.5,
+            'aux' => 'KG.'
+        ]);
+
+        Presentation::create([
+            'name' => 'BOLSA',
+            'numeric_value' => 1,
+            'aux' => 'KG.'
+        ]);
+
+        Presentation::create([
+            'name' => 'AMPOLLA',
+            'numeric_value' => 5,
+            'aux' => 'ML.'
         ]);
     }
 }

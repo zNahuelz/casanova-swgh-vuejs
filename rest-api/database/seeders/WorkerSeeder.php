@@ -24,7 +24,7 @@ class WorkerSeeder extends Seeder
             'phone' => '996413664',
             'address' => 'Av. El Trebol 201',
             'hiring_date' => '2020-04-10',
-            'user_id' => 3,
+            'user_id' => 5,
             'position' => 'ENFERMERA',
         ]);
 
@@ -37,7 +37,7 @@ class WorkerSeeder extends Seeder
             'phone' => '996125883',
             'address' => 'Pasaje Javier Heraud 104',
             'hiring_date' => '2018-12-04',
-            'user_id' => 4,
+            'user_id' => 6,
             'position' => 'SECRETARIA',
         ]);
     }
