@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\PresentationController;
 use App\Http\Controllers\SettingController;
@@ -95,4 +96,13 @@ Route::group([
     Route::put('/{id}', [TreatmentController::class, 'updateTreatment'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::get('/', [TreatmentController::class, 'getTreatments'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/{id}', [TreatmentController::class, 'getTreatment'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+});
+
+Route::group([
+    'prefix' => '/doctor'
+], function($router){
+    Route::post('/', [DoctorController::class, 'createDoctor'])->middleware('role:ADMINISTRADOR');
+    Route::put('/{id}', [DoctorController::class, 'updateDoctor'])->middleware('role:ADMINISTRADOR,SECRETARIA');
+    Route::get('/', [DoctorController::class, 'getDoctors'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+    Route::get('/{id}', [DoctorController::class, 'getDoctor'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
 });
