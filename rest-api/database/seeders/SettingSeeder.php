@@ -25,5 +25,9 @@ class SettingSeeder extends Seeder
             'key' => 'VALOR_SEDE',
             'value' => 'Av. primavera 517, piso 1 oficina 103, San Borja - Lima , Lima, Peru',
         ]);
+        Setting::create([
+            'key' => 'ESTADO_TRABAJO_FINDES',
+            'value' => 'false'
+        ]);
     }
 }

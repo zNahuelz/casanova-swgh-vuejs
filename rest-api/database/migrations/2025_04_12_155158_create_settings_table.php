@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('description')->default('---');
             $table->timestamps();
         });
-        DB::statement('ALTER SEQUENCE settings_id_seq INCREMENT BY 10 START WITH 100');
+        DB::statement('ALTER SEQUENCE settings_id_seq RESTART WITH 100 INCREMENT BY 10');
     }
 
     /**

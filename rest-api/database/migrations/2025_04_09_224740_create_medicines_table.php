@@ -31,7 +31,7 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
         });
-        DB::statement('ALTER SEQUENCE medicines_id_seq INCREMENT BY 10 START WITH 100');
+        DB::statement('ALTER SEQUENCE medicines_id_seq RESTART WITH 100 INCREMENT BY 10');
     }
 
     /**

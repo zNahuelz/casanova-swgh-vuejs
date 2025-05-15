@@ -13,7 +13,7 @@ class DoctorAvailabilitySeeder extends Seeder
      */
     public function run(): void
     {
-        $doctorsIds = [1, 11, 21];
+        $doctorsIds = [100, 110, 120];
         $weekdays = [1, 2, 3, 4, 5];
         foreach ($doctorsIds as $id)
         {

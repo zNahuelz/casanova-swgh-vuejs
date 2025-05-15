@@ -210,7 +210,7 @@ const nextPage = () => {
                 </td>
                 <td class="px-6 py-3 flex justify-center items-center">
                   <div class="inline-flex rounded-md shadow-xs" role="group">
-                    <button type="button" @click="() => { selectedPresentation.value = p; handleUpdateForm(); }"
+                    <button type="button" @click="() => { selectedPresentation.value = p; handleUpdateForm(); }" title="EDITAR"
                             class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
                       <i class="bi bi-pencil-square w-4 h-4"></i>
                     </button>
@@ -234,7 +234,7 @@ const nextPage = () => {
                 <li>
                   <a
                       class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                      @click="reloadPage">{{ currentPage }}</a>
+                      @click="reloadPage" title="REFRESCAR">{{ currentPage }}</a>
                 </li>
                 <li>
                   <a

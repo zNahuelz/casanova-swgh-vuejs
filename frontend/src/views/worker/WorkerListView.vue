@@ -223,13 +223,13 @@ onMounted(() => {
                     <button
                         class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
                         type="button"
-                        @click="goToEdit(w.id)">
+                        @click="goToEdit(w.id)" title="EDITAR">
                       <i class="bi bi-pencil-square w-4 h-4"></i>
                     </button>
                     <button
                         class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-e border-t border-b border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue  -700 disabled:bg-gray-200 disabled:cursor-not-allowed"
                         type="button"
-                        @click="goToDetails(w.id)">
+                        @click="goToDetails(w.id)" title="DETALLES">
                       <i class="bi bi-three-dots w-4 h-4"></i>
                     </button>
                   </div>
@@ -252,7 +252,7 @@ onMounted(() => {
                 <li>
                   <a
                       class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                      @click="reloadPage">{{ currentPage }}</a>
+                      @click="reloadPage" title="REFRESCAR">{{ currentPage }}</a>
                 </li>
                 <li>
                   <a

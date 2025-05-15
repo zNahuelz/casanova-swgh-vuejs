@@ -24,6 +24,8 @@ export const ERROR_MESSAGES = {
     WORKER_NOT_FOUND: 'Trabajador no encontrado. Intente nuevamente, si el problema persiste comuniquese con administración',
     TREATMENT_NAME_TAKEN: 'El nombre ingresado ya se encuentra en uso por otro tratamiento.',
     TREATMENT_NOT_FOUND: 'El tratamiento solicitado no se encuentra disponible o no existe. Vuelva a intentarlo.',
+    INVALID_WORK_SCHEDULE: 'El horario de trabajo asignado no es válido. Vuelva a intentarlo.',
+    WEEKENDS_CONFIG_NOT_FOUND: 'La llave "ESTADO_TRABAJO_FINDES" no se encuentra definida en la configuración del sistema. Un administrador puede restaurarla, hasta entonces el sistema utilizará la configuración predeterminada: "NO SE PERMITE ASIGNAR HORARIO DE TRABAJO LOS DÍAS SABADO-DOMINGO". Comuniquese con administración.',
 }
 
 export const SUPPLIER_SEARCH_MODES = [
@@ -66,7 +68,23 @@ export const TREATMENT_SEARCH_MODES = [
     {value: 'procedure', label: 'POR PROCEDIMIENTO'}
 ]
 
+export const DOCTOR_SEARCH_MODES = [
+    {value: 'id', label: 'POR ID'},
+    {value: 'name', label: 'POR NOMBRE'},
+    {value: 'dni', label: 'POR DNI'},
+]
+
 export const WORKER_POSITIONS = [
     {value: 'SECRETARIA', label: 'SECRETARIA'},
     {value: 'ENFERMERA', label: 'ENFERMERA'},
+]
+
+export const DEFAULT_DOCTOR_AVAILABILITIES = [
+    {weekday: 1, label: 'LUNES', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40'},
+    {weekday: 2, label: 'MARTES', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40'},
+    {weekday: 3, label: 'MIERCOLES', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40'},
+    {weekday: 4, label: 'JUEVES', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40'},
+    {weekday: 5, label: 'VIERNES', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40'},
+    {weekday: 6, label: 'SABADO', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40'},
+    {weekday: 7, label: 'DOMINGO', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40'},
 ]

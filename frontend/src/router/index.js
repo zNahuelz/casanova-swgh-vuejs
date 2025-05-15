@@ -22,6 +22,9 @@ import NewTreatmentView from "@/views/treatment/NewTreatmentView.vue";
 import TreatmentListView from "@/views/treatment/TreatmentListView.vue";
 import EditTreatmentView from "@/views/treatment/EditTreatmentView.vue";
 import TreatmentDetailView from "@/views/treatment/TreatmentDetailView.vue";
+import NewDoctorView from "@/views/doctor/NewDoctorView.vue";
+import DoctorListView from "@/views/doctor/DoctorListView.vue";
+import SettingManagementView from "@/views/setting/SettingManagementView.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -144,16 +147,34 @@ const router = createRouter({
                   meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA']},
                 },
                 {
-                  path: 'treatment-detail/:id',
-                  name: 'treatment-detail',
-                  component: TreatmentDetailView,
-                  meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA','DOCTOR']}
+                    path: 'treatment-detail/:id',
+                    name: 'treatment-detail',
+                    component: TreatmentDetailView,
+                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA','DOCTOR']}
+                },
+                {
+                  path: 'new-doctor',
+                  name: 'new-doctor',
+                  component: NewDoctorView,
+                  meta: {requiresAuth: true, roles: ['ADMINISTRADOR']}
+                },
+                {
+                    path: 'doctor-list',
+                    name: 'doctor-list',
+                    component: DoctorListView,
+                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR']}
                 },
                 {
                     path: 'my-account',
                     name: 'my-account',
                     component: MyAccountView,
                     meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA','DOCTOR']}
+                },
+                {
+                    path: 'settings',
+                    name: 'settings',
+                    component: SettingManagementView,
+                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR']}
                 }
             ]
         },

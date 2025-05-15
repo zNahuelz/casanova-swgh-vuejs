@@ -358,7 +358,7 @@ onMounted(() => {
                 <li>
                   <a
                       class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                      @click="reloadPage">{{ currentPage }}</a>
+                      @click="reloadPage" title="REFRESCAR">{{ currentPage }}</a>
                 </li>
                 <li>
                   <a

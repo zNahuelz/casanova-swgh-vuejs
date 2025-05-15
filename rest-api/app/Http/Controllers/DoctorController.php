@@ -25,7 +25,7 @@ class DoctorController extends Controller
             'paternal_surname' => ['nullable', 'max:30', 'regex:/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{2,30}$/'],
             'maternal_surname' => ['nullable', 'max:30', 'regex:/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{2,30}$/'],
             'dni' => ['required', 'string', 'min:8', 'max:15', 'regex:/^[0-9]{8,15}$/', Rule::unique('doctors', 'dni')],
-            'email' => ['required', 'email', 'max:50', Rule::unique('doctors', 'email'), Rule::unique('users', 'email')],
+            'email' => ['required', 'email', 'max:50', Rule::unique('doctors', 'email'), Rule::unique('users', 'email'), Rule::unique('workers','email')],
             'phone' => ['required', 'string', 'min:6', 'max:15', 'regex:/^\+?\d{6,15}$/'],
             'address' => ['required', 'string', 'min:5', 'max:100'],
             'created_by' => ['required', 'numeric', 'exists:users,id'],

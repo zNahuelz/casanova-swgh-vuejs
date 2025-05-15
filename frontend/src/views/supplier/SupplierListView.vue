@@ -240,15 +240,15 @@ onMounted(() => {
                 </td>
                 <td class="px-6 py-3 flex justify-center items-center">
                   <div class="inline-flex rounded-md shadow-xs" role="group">
-                    <button type="button" @click="goToEdit(s.id)"
+                    <button type="button" @click="goToEdit(s.id)" title="EDITAR"
                             class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
                       <i class="bi bi-pencil-square w-4 h-4"></i>
                     </button>
-                    <button type="button" @click="showDeleteDialog(s)" v-if="authService.getTokenDetails().role === 'ADMINISTRADOR'"
+                    <button type="button" @click="showDeleteDialog(s)" v-if="authService.getTokenDetails().role === 'ADMINISTRADOR'" title="ELIMINAR"
                             class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
                       <i class="bi bi-trash-fill w-4 h-4"></i>
                     </button>
-                    <button type="button" @click="loadSupplierDetail(s.id)"
+                    <button type="button" @click="loadSupplierDetail(s.id)" title="DETALLES"
                             class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue  -700 disabled:bg-gray-200 disabled:cursor-not-allowed">
                       <i class="bi bi-three-dots w-4 h-4"></i>
                     </button>
@@ -272,7 +272,7 @@ onMounted(() => {
                 <li>
                   <a
                       class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                      @click="reloadPage">{{ currentPage }}</a>
+                      @click="reloadPage" title="REFRESCAR">{{ currentPage }}</a>
                 </li>
                 <li>
                   <a

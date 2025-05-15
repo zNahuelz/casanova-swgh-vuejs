@@ -1,15 +1,15 @@
 <script setup>
 import {computed, onMounted, ref} from "vue";
-import {TREATMENT_SEARCH_MODES as TSM} from "@/utils/constants.js";
+import {DOCTOR_SEARCH_MODES as DSM} from "@/utils/constants.js";
 import {reloadPage} from "@/utils/helpers.js";
+import {ErrorMessage, Field, Form} from "vee-validate";
 import {useRouter} from "vue-router";
 import {useAuthStore} from "@/stores/auth.js";
-import {ErrorMessage, Field, Form} from "vee-validate";
 import * as yup from "yup";
-import {TreatmentService} from "@/services/treatment-service.js";
+import {DoctorService} from "@/services/doctor-service.js";
 
 const searchMode = ref('id');
-const treatments = ref([]);
+const doctors = ref([]);
 const isLoading = ref(false);
 const loadError = ref(false);
 const currentPage = ref(1);
@@ -27,10 +27,8 @@ const dynamicSchema = computed(() => {
         .min(1, 'El ID debe tener al menos una cifra.');
   } else if (searchMode.value === 'name') {
     keywordValidation = keywordValidation.min(3, 'El nombre debe tener al menos 3 carácteres');
-  } else if (searchMode.value === 'description') {
-    keywordValidation = keywordValidation.min(3, 'La descripción debe tener al menos 8 carácteres');
-  } else if (searchMode.value === 'procedure') {
-    keywordValidation = keywordValidation.min(3, 'El procedimiento debe tener al menos 3 carácteres');
+  } else if (searchMode.value === 'dni') {
+    keywordValidation = keywordValidation.min(8, 'El DNI debe tener al menos 8 carácteres');
   }
 
   return yup.object({
@@ -39,13 +37,13 @@ const dynamicSchema = computed(() => {
   });
 });
 
-async function loadTreatments(filters = {}) {
+async function loadDoctors(filters = {}) {
   isLoading.value = true;
   loadError.value = false;
   try {
     const pagination = {page: currentPage.value, per_page: pageSize.value}
-    const response = await TreatmentService.get(filters, pagination);
-    treatments.value = response.data;
+    const response = await DoctorService.get(filters, pagination);
+    doctors.value = response.data;
     totalPages.value = response.last_page;
     totalItems.value = response.total;
     if (response.data.length <= 0) {
@@ -64,50 +62,45 @@ function onSubmit(values) {
   if (values.searchMode === 'id') {
     filters = {id: keyword};
     currentPage.value = 1;
-    loadTreatments(filters);
+    loadDoctors(filters);
   }
   if (values.searchMode === 'name') {
     filters = {name: keyword};
     currentPage.value = 1;
-    loadTreatments(filters);
+    loadDoctors(filters);
   }
-  if (values.searchMode === 'description') {
-    filters = {description: keyword};
+  if (values.searchMode === 'dni') {
+    filters = {dni: keyword};
     currentPage.value = 1;
-    loadTreatments(filters);
-  }
-  if (values.searchMode === 'procedure') {
-    filters = {procedure: keyword};
-    currentPage.value = 1;
-    loadTreatments(filters);
+    loadDoctors(filters);
   }
 }
 
 const prevPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--;
-    loadTreatments();
+    loadDoctors();
   }
 };
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++;
-    loadTreatments();
+    loadDoctors();
   }
 };
 
 function goToEdit(id) {
-  router.push({name: 'edit-treatment', params: {id}});
+  router.push({name: 'edit-doctor', params: {id}});
 }
 
 function goToDetails(id) {
-  router.push({name: 'treatment-detail', params: {id}});
+  router.push({name: 'doctor-detail', params: {id}});
 }
 
 onMounted(() => {
-  document.title = 'ALTERNATIVA CASANOVA - LISTADO DE TRATAMIENTOS'
-  loadTreatments();
+  document.title = 'ALTERNATIVA CASANOVA - LISTADO DE DOCTORES'
+  loadDoctors();
 });
 </script>
 
@@ -115,7 +108,7 @@ onMounted(() => {
   <main class="flex flex-col items-center pt-5 relative">
     <div class="container px-12 mx-auto">
       <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm w-full">
-        <h5 class="mb-2 text-2xl font-bold tracking-tight text-black text-start">LISTADO DE TRATAMIENTOS</h5>
+        <h5 class="mb-2 text-2xl font-bold tracking-tight text-black text-start">LISTADO DE DOCTORES</h5>
 
         <div v-if="isLoading" class="container mt-5 mb-5 flex flex-col items-center">
           <div role="status">
@@ -130,7 +123,7 @@ onMounted(() => {
             </svg>
             <span class="sr-only">Loading...</span>
           </div>
-          <h1 class="mt-5 text-2xl font-light">Cargando tratamientos...</h1>
+          <h1 class="mt-5 text-2xl font-light">Cargando doctores...</h1>
         </div>
 
         <div v-if="!isLoading && !loadError" class="container mt-5 mb-3 flex flex-col items-end">
@@ -140,7 +133,7 @@ onMounted(() => {
                      class="shrink-0 z-10 inline-flex w-45 items-center py-2.5 px-4 text-sm font-medium text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100"
                      name="searchMode"
                      @change="validate">
-                <option v-for="sm in TSM" :key="sm.value" :value="sm.value">{{ sm.label }}</option>
+                <option v-for="sm in DSM" :key="sm.value" :value="sm.value">{{ sm.label }}</option>
               </Field>
               <ErrorMessage name="searchMode"></ErrorMessage>
               <div class="relative w-70">
@@ -175,13 +168,19 @@ onMounted(() => {
                   NOMBRE
                 </th>
                 <th class="px-6 py-3" scope="col">
-                  DESCRIPCIÓN
+                  APELLIDOS
                 </th>
                 <th class="px-6 py-3" scope="col">
-                  PROCEDIMIENTO
+                  DNI
                 </th>
                 <th class="px-6 py-3" scope="col">
-                  PRECIO
+                  E-MAIL
+                </th>
+                <th class="px-6 py-3" scope="col">
+                  TELÉFONO
+                </th>
+                <th class="px-6 py-3" scope="col">
+                  DÍAS DISPONIBLES
                 </th>
                 <th class="px-6 py-3 text-center" scope="col">
                   HERRAMIENTAS
@@ -190,34 +189,45 @@ onMounted(() => {
               </thead>
               <tbody>
               <tr
-                  v-for="t in treatments" :key="t.id" class="bg-white border-b border-gray-200 hover:bg-gray-50">
+                  v-for="d in doctors" :key="d.id" class="bg-white border-b border-gray-200 hover:bg-gray-50">
                 <th class="px-6 py-2 whitespace-nowrap" scope="row">
-                  {{ t.id }}
+                  {{ d.id }}
                 </th>
                 <td class="px-6 py-2 font-medium text-gray-900">
-                  {{ t.name }}
+                  {{ d.name }}
                 </td>
                 <td class="px-6 py-2 font-medium text-gray-900">
-                  {{ t.description }}
+                  {{ d.paternal_surname + ' ' + d.maternal_surname }}
                 </td>
                 <td class="px-6 py-2">
-                  {{ t.procedure }}
+                  {{ d.dni }}
                 </td>
-                <td class="px-6 py-2 text-green-700 font-bold text-start">
-                  {{ 'S./ ' + t.price }}
+                <td class="px-6 py-2">
+                  {{ d.email }}
+                </td>
+                <td class="px-6 py-2">
+                  {{ d.phone }}
+                </td>
+                <td :class="{'text-green-600 font-bold': d.availabilities.length, 'text-red-600 font-bold': d.availabilities.length <= 0}"
+                    class="px-6 py-2">
+                  {{ d.availabilities.length ? d.availabilities.length : 'ASIGNACIÓN DE HORARIO PENDIENTE' }}
                 </td>
                 <td class="px-6 py-3 flex justify-center items-center">
                   <div class="inline-flex rounded-md shadow-xs" role="group">
-                    <button
-                        class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
-                        type="button" @click="goToEdit(t.id)" title="EDITAR"
-                    >
+                    <button class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed" type="button"
+                            @click="goToEdit(d.id)" title="EDITAR">
                       <i class="bi bi-pencil-square w-4 h-4"></i>
                     </button>
-                    <button
-                        class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-e border-t border-b border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue  -700 disabled:bg-gray-200 disabled:cursor-not-allowed"
-                        type="button" @click="goToDetails(t.id)" title="DETALLES"
-                    >
+                    <button v-if="authService.getTokenDetails().role === 'ADMINISTRADOR'" class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-e border-gray-200 hover:bg-gray-100 hover:text-purple-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-purple-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                            type="button" title="MODIFICAR HORARIO">
+                      <i class="bi bi-calendar-week w-4 h-4"></i>
+                    </button>
+                    <button v-if="authService.getTokenDetails().role === 'ADMINISTRADOR'" class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-rose-900 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-rose-900 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                            type="button" title="PAUSAR RESERVAS">
+                      <i class="bi bi-pause-circle w-4 h-4"></i>
+                    </button>
+                    <button class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue  -700 disabled:bg-gray-200 disabled:cursor-not-allowed" type="button"
+                            @click="goToDetails(d.id)" title="DETALLES">
                       <i class="bi bi-three-dots w-4 h-4"></i>
                     </button>
                   </div>
@@ -230,7 +240,7 @@ onMounted(() => {
                  class="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4 p-4">
             <span
                 class="text-sm font-normal text-gray-500  mb-4 md:mb-0 block w-full md:inline md:w-auto">De un total de <span
-                class="font-semibold text-gray-900 ">{{ totalItems }}</span> tratamientos</span>
+                class="font-semibold text-gray-900 ">{{ totalItems }}</span> doctores</span>
               <ul class="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
                 <li>
                   <a
@@ -255,13 +265,13 @@ onMounted(() => {
 
         <div v-if="loadError" class="container mt-5 mb-5 flex flex-col items-center space-y-5">
           <span><i class="bi bi-exclamation-triangle-fill text-9xl text-red-700"></i></span>
-          <h1 class="text-2xl font-light">Oops! No se encontraron tratamientos con los parametros ingresados. Intente
+          <h1 class="text-2xl font-light">Oops! No se encontraron doctores con los parametros ingresados. Intente
             nuevamente o registre
             algunos.</h1>
           <h1 class="text-xl font-semibold text-green-800 underline" @click="reloadPage">Recargar</h1>
         </div>
       </div>
     </div>
-
   </main>
 </template>
+

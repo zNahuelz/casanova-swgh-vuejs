@@ -89,12 +89,16 @@ onMounted(() => {
           </button>
           <ul id="doctors-dropdown" class="hidden py-2 space-y-2">
             <li>
-              <a class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
-                 href="#">Nuevo</a>
+              <router-link :to="{name: 'new-doctor'}"
+                           class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
+              >Nuevo
+              </router-link>
             </li>
             <li>
-              <a class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
-                 href="#">Listado</a>
+              <router-link :to="{name: 'doctor-list'}"
+                           class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
+              >Listado
+              </router-link>
             </li>
             <li>
               <a class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
@@ -236,12 +240,16 @@ onMounted(() => {
           </button>
           <ul id="workers-dropdown" class="hidden py-2 space-y-2">
             <li>
-              <router-link :to="{name: 'new-worker'}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
-                 href="#">Nuevo</router-link>
+              <router-link :to="{name: 'new-worker'}"
+                           class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
+                           href="#">Nuevo
+              </router-link>
             </li>
             <li>
-              <router-link :to="{name: 'worker-list'}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
-                 href="#">Listado</router-link>
+              <router-link :to="{name: 'worker-list'}"
+                           class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
+                           href="#">Listado
+              </router-link>
             </li>
           </ul>
         </li>
@@ -264,12 +272,16 @@ onMounted(() => {
           </button>
           <ul id="treatments-dropdown" class="hidden py-2 space-y-2">
             <li>
-              <router-link :to="{name: 'new-treatment'}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
-                 href="#">Nuevo</router-link>
+              <router-link :to="{name: 'new-treatment'}"
+                           class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
+                           href="#">Nuevo
+              </router-link>
             </li>
             <li>
-              <router-link :to="{name: 'treatment-list'}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
-                 href="#">Listado</router-link>
+              <router-link :to="{name: 'treatment-list'}"
+                           class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
+                           href="#">Listado
+              </router-link>
             </li>
           </ul>
         </li>
@@ -289,8 +301,8 @@ onMounted(() => {
           </router-link>
         </li>
         <li>
-          <a class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-green-500 group"
-             href="#">
+          <router-link :to="{name: 'settings'}"
+                       class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-green-500 group">
             <svg aria-hidden="true"
                  class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"
                  fill="currentColor" height="24" viewBox="0 0 24 24" width="24"
@@ -303,7 +315,7 @@ onMounted(() => {
                     fill-rule="evenodd"/>
             </svg>
             <span class="flex-1 ms-3 whitespace-nowrap">Configuración</span>
-          </a>
+          </router-link>
         </li>
         <li>
           <router-link :to="{name: 'my-account'}"
