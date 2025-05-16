@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 import {ERROR_MESSAGES as EM} from "@/utils/constants.js";
 import {useRoute, useRouter} from "vue-router";
 import {useAuthStore} from "@/stores/auth.js";
-import {formatDate} from "@/utils/helpers.js";
+import {formatAsDatetime} from "@/utils/helpers.js";
 
 const submitting = ref(false);
 const router = useRouter();
@@ -73,7 +73,7 @@ onMounted(() => {
               <div>
                 <label class="block text-sm font-medium text-gray-500">Fecha de Registro</label>
                 <div class="mt-1 text-sm text-gray-900">
-                  {{ formatDate(worker?.worker?.created_at) }}
+                  {{ formatAsDatetime(worker?.worker?.created_at) }}
                 </div>
               </div>
               <div>
@@ -87,7 +87,7 @@ onMounted(() => {
               <div>
                 <label class="block text-sm font-medium text-gray-500">Última Modificación</label>
                 <div class="mt-1 text-sm text-gray-900">
-                  {{ formatDate(worker?.worker?.updated_at) }}
+                  {{ formatAsDatetime(worker?.worker?.updated_at) }}
                 </div>
               </div>
               <div>
@@ -143,7 +143,7 @@ onMounted(() => {
           </div>
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900 ">Fecha de Contrato</label>
-            <input :value="formatDate(worker?.worker?.hiring_date)" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full" disabled
+            <input :value="formatAsDatetime(worker?.worker?.hiring_date)" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full" disabled
                    type="text"/>
           </div>
 

@@ -22,7 +22,7 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
         });
-        DB::statement("ALTER TABLE doctor_unavailabilities ADD CONSTRAINT unavailabilities_reason_check CHECK(reason IN('VACACIONES','ENFERMEDAD','DIA LIBRE'))");
+        DB::statement("ALTER TABLE doctor_unavailabilities ADD CONSTRAINT unavailabilities_reason_check CHECK(reason IN('VACACIONES','ENFERMEDAD','DIA LIBRE','MATERNIDAD','NO ESPECIFICADO'))");
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Doctor;
 use App\Models\DoctorAvailability;
+use App\Models\DoctorUnavailability;
 use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator as ValidationValidator;
 
 class DoctorController extends Controller
 {
@@ -24,8 +26,8 @@ class DoctorController extends Controller
             'name' => ['required', 'string', 'min:2', 'max:30', 'regex:/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{2,30}$/'],
             'paternal_surname' => ['nullable', 'max:30', 'regex:/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{2,30}$/'],
             'maternal_surname' => ['nullable', 'max:30', 'regex:/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{2,30}$/'],
-            'dni' => ['required', 'string', 'min:8', 'max:15', 'regex:/^[0-9]{8,15}$/', Rule::unique('doctors', 'dni')],
-            'email' => ['required', 'email', 'max:50', Rule::unique('doctors', 'email'), Rule::unique('users', 'email'), Rule::unique('workers','email')],
+            'dni' => ['required', 'string', 'min:8', 'max:15', 'regex:/^[0-9]{8,15}$/', Rule::unique('doctors', 'dni'),Rule::unique('workers','dni')],
+            'email' => ['required', 'email', 'max:50', Rule::unique('doctors', 'email'), Rule::unique('users', 'email'), Rule::unique('workers', 'email')],
             'phone' => ['required', 'string', 'min:6', 'max:15', 'regex:/^\+?\d{6,15}$/'],
             'address' => ['required', 'string', 'min:5', 'max:100'],
             'created_by' => ['required', 'numeric', 'exists:users,id'],
@@ -134,14 +136,72 @@ class DoctorController extends Controller
         }
     }
 
-    public function updateDoctor(Request $request)
+    public function updateDoctorInfo(Request $request,$id)
     {
-        return response()->json($request);
+        $oldDoctor = Doctor::find($id);
+        if(!$oldDoctor)
+        {
+            return response()->json([
+                'message' => 'Error. Doctor de ID: '.$id.' no encontrado.'
+            ],404);
+        }
+
+        $userFromDoctor = User::find($oldDoctor->user_id);
+        if(!$userFromDoctor)
+        {
+            return response()->json([
+                'message' => 'Error. Imposible actualizar doctor, el mismo no tiene cuenta asociada. Comuniquese con administración.'
+            ],404);
+        }
+
+        //TODO: Something fails? Here!
+        $request->validate([
+            'name' => ['required', 'string', 'min:2', 'max:30', 'regex:/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{2,30}$/'],
+            'paternal_surname' => ['nullable', 'max:30', 'regex:/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{2,30}$/'],
+            'maternal_surname' => ['nullable', 'max:30', 'regex:/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{2,30}$/'],
+            'dni' => ['required', 'string', 'min:8', 'max:15', 'regex:/^[0-9]{8,15}$/', Rule::unique('doctors', 'dni')->ignore($id), Rule::unique('workers','dni')],
+            'email' => ['required', 'email', 'max:50', Rule::unique('doctors', 'email')->ignore($id), Rule::unique('users', 'email')->ignore($userFromDoctor->id), Rule::unique('workers', 'email')],
+            'phone' => ['required', 'string', 'min:6', 'max:15', 'regex:/^\+?\d{6,15}$/'],
+            'address' => ['required', 'string', 'min:5', 'max:100'],
+            'updated_by' => ['required', 'numeric', 'exists:users,id'],
+        ]);
+
+        try{
+            DB::beginTransaction();
+            
+            $oldDoctor->update([
+                'name' => strtoupper(trim($request->name)),
+                'paternal_surname' => strtoupper(trim($request->paternal_surname)) ?? '',
+                'maternal_surname' => strtoupper(trim($request->maternal_surname)) ?? '',
+                'dni' => trim($request->dni),
+                'email' => strtoupper(trim($request->email)),
+                'phone' => trim($request->phone),
+                'address' => trim(strtoupper($request->address)),
+                'updated_by' => $request->updated_by,
+            ]);
+
+            $userFromDoctor->update([
+                'email' => strtoupper(trim($request->email)),
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Doctor actualizado correctamente.'
+            ],200);
+        }
+        catch(Exception $e)
+        {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Error en la actualización de doctor. Operación cancelada. Vuelva a intentarlo.'
+            ],500);
+        }
     }
 
     public function getDoctors(Request $request)
     {
-        $query = Doctor::with(['availabilities','unavailabilities']);
+        $query = Doctor::with(['availabilities', 'unavailabilities']);
 
         if ($request->has('id')) {
             $query->where('id', $request->input('id'));
@@ -169,7 +229,7 @@ class DoctorController extends Controller
 
     public function getDoctor($id)
     {
-        $doctor = Doctor::where('id',$id)->with(['availabilities', 'unavailabilities'])->first();
+        $doctor = Doctor::where('id', $id)->with(['availabilities', 'unavailabilities', 'createdBy', 'updatedBy', 'user'])->first();
         if (!$doctor) {
             return response()->json([
                 'message' => 'Doctor de ID: ' . $id . ' no encontrado.',
@@ -177,5 +237,53 @@ class DoctorController extends Controller
         }
 
         return response()->json($doctor, 200);
+    }
+
+    public function createUnavailability(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'start_datetime' => ['required', 'date'],
+            'end_datetime' => ['required', 'date', 'after:start_datetime'],
+            'reason' => ['nullable', 'string', 'min:5', 'max:20'],
+            'doctor_id' => ['required', 'numeric', 'exists:doctors,id']
+        ]);
+
+        $validator->after(function ($validator) use ($request) {
+            $start = Carbon::parse($request->input('start_datetime'));
+            $end   = Carbon::parse($request->input('end_datetime'));
+            $docId = $request->input('doctor_id');
+
+            // Overlap check: any existing where existing.start <= new.end
+            // and existing.end   >= new.start
+            $overlap = DoctorUnavailability::where('doctor_id', $docId)
+                ->where('start_datetime', '<=', $end)
+                ->where('end_datetime',   '>=', $start)
+                ->exists();
+
+            if ($overlap) {
+                $validator->errors()->add(
+                    'start_datetime',
+                    'Ya existe una indisponibilidad que se solapa con el rango de fechas ingresado.'
+                );
+            }
+        });
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $unavailability = DoctorUnavailability::create([
+            'doctor_id' => $request->doctor_id,
+            'start_datetime' => $request->start_datetime,
+            'end_datetime' => $request->end_datetime,
+            'reason' => trim($request->reason ?? 'NO ESPECIFICADO')
+        ]);
+
+        return response()->json([
+            'message' => 'Indisponibilidad creada correctamente. Asignado ID: '.$unavailability->id,
+            'unavailability' => $unavailability
+        ],201);
     }
 }

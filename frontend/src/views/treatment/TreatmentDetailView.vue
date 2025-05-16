@@ -1,5 +1,5 @@
 <script setup>
-import {formatDate} from "@/utils/helpers.js";
+import {formatAsDatetime} from "@/utils/helpers.js";
 import {onMounted, ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useAuthStore} from "@/stores/auth.js";
@@ -76,7 +76,7 @@ onMounted(() => {
             <div>
               <label class="block text-sm font-medium text-gray-500">Fecha de Registro</label>
               <div class="mt-1 text-sm text-gray-900">
-                {{ formatDate(treatment?.created_at) }}
+                {{ formatAsDatetime(treatment?.created_at) }}
               </div>
             </div>
             <div>
@@ -90,7 +90,7 @@ onMounted(() => {
             <div>
               <label class="block text-sm font-medium text-gray-500">Última Modificación</label>
               <div class="mt-1 text-sm text-gray-900">
-                {{ formatDate(treatment?.updated_at) }}
+                {{ formatAsDatetime(treatment?.updated_at) }}
               </div>
             </div>
             <div>

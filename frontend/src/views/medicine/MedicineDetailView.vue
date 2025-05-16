@@ -1,7 +1,7 @@
 <script setup>
 import {onMounted, ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
-import {formatDate} from "@/utils/helpers.js";
+import {formatAsDatetime} from "@/utils/helpers.js";
 import {MedicineService} from "@/services/medicine-service.js";
 import Swal from "sweetalert2";
 import {ERROR_MESSAGES as EM} from "@/utils/constants.js";
@@ -14,7 +14,7 @@ const medicine = ref({});
 
 
 onMounted(() => {
-  document.title = 'ALTERNATIVA CASANOVA - EDITAR PROVEEDOR';
+  document.title = 'ALTERNATIVA CASANOVA - DETALLE DE MEDICAMENTO';
   const id = route.params.id;
   if (isNaN(id)) {
     router.back();
@@ -97,7 +97,7 @@ function goToEdit(id) {
               <div>
                 <label class="block text-sm font-medium text-gray-500">Fecha de Registro</label>
                 <div class="mt-1 text-sm text-gray-900">
-                  {{ formatDate(medicine?.created_at) }}
+                  {{ formatAsDatetime(medicine?.created_at) }}
                 </div>
               </div>
               <div>
@@ -111,7 +111,7 @@ function goToEdit(id) {
               <div>
                 <label class="block text-sm font-medium text-gray-500">Última Modificación</label>
                 <div class="mt-1 text-sm text-gray-900">
-                  {{ formatDate(medicine?.updated_at) }}
+                  {{ formatAsDatetime(medicine?.updated_at) }}
                 </div>
               </div>
               <div>

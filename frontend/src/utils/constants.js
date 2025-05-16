@@ -26,6 +26,9 @@ export const ERROR_MESSAGES = {
     TREATMENT_NOT_FOUND: 'El tratamiento solicitado no se encuentra disponible o no existe. Vuelva a intentarlo.',
     INVALID_WORK_SCHEDULE: 'El horario de trabajo asignado no es válido. Vuelva a intentarlo.',
     WEEKENDS_CONFIG_NOT_FOUND: 'La llave "ESTADO_TRABAJO_FINDES" no se encuentra definida en la configuración del sistema. Un administrador puede restaurarla, hasta entonces el sistema utilizará la configuración predeterminada: "NO SE PERMITE ASIGNAR HORARIO DE TRABAJO LOS DÍAS SABADO-DOMINGO". Comuniquese con administración.',
+    DOCTOR_NOT_FOUND: 'Doctor no encontrado. Intente nuevamente, si el problema persiste comuniquese con administración.',
+    UNAVAILABILITY_OVERLAP: 'Ya existe una indisponibilidad que se solapa con el rango de fechas ingresado.',
+
 }
 
 export const SUPPLIER_SEARCH_MODES = [
@@ -87,4 +90,22 @@ export const DEFAULT_DOCTOR_AVAILABILITIES = [
     {weekday: 5, label: 'VIERNES', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40'},
     {weekday: 6, label: 'SABADO', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40'},
     {weekday: 7, label: 'DOMINGO', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40'},
+]
+
+export const WEEKDAY_NAMES = [
+    {weekday: 1, name: 'LUNES'},
+    {weekday: 2, name: 'MARTES'},
+    {weekday: 3, name: 'MIERCOLES'},
+    {weekday: 4, name: 'JUEVES'},
+    {weekday: 5, name: 'VIERNES'},
+    {weekday: 6, name: 'SABADO'},
+    {weekday: 7, name: 'DOMINGO'},
+]
+
+export const UNAVAILABILITY_REASONS = [
+    {reason: 'VACACIONES'},
+    {reason: 'ENFERMEDAD'},
+    {reason: 'DÍA LIBRE'},
+    {reason: 'MATERNIDAD'},
+    {reason: 'NO ESPECIFICADO'},
 ]

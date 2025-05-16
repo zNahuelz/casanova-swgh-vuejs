@@ -2,7 +2,7 @@
 import {onMounted, ref} from "vue";
 import {UserService} from "@/services/user-service.js";
 import {useAuthStore} from "@/stores/auth.js";
-import {formatDate, reloadOnDismiss, reloadPage} from "@/utils/helpers.js";
+import {formatAsDatetime, reloadOnDismiss, reloadPage} from "@/utils/helpers.js";
 import {ErrorMessage, Field, Form} from "vee-validate";
 import * as yup from "yup";
 import Swal from "sweetalert2";
@@ -162,11 +162,11 @@ onMounted(() => {
                   class="font-bold text-black">TELÉFONO: </span>{{ profileData.phone }}</span>
               <span v-if="!isAdmin && authService.getTokenDetails().role === 'DOCTOR'"
                     class="col-span-full text-md text-gray-500"><span
-                  class="font-bold text-black">FECHA DE CONTRATO: </span>{{ formatDate(profileData.created_at) }}</span>
+                  class="font-bold text-black">FECHA DE CONTRATO: </span>{{ formatAsDatetime(profileData.created_at) }}</span>
               <span v-if="!isAdmin && authService.getTokenDetails().role !== 'DOCTOR'"
                     class="col-span-full text-md text-gray-500"><span
                   class="font-bold text-black">FECHA DE CONTRATO: </span>{{
-                  formatDate(profileData.hiring_date)
+                  formatAsDatetime(profileData.hiring_date)
                 }}</span>
               <span v-if="!isAdmin" class="col-span-full text-md text-gray-500"><span
                   class="font-bold text-black">E-MAIL: </span>{{ profileData.email }}</span>

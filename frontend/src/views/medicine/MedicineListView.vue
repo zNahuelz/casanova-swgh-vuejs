@@ -1,7 +1,7 @@
 <script setup>
 
 import {MEDICINE_SEARCH_MODES as MSM} from "@/utils/constants.js";
-import {formatDate, reloadPage} from "@/utils/helpers.js";
+import {formatAsDatetime, reloadPage} from "@/utils/helpers.js";
 import {computed, onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
 import {useAuthStore} from "@/stores/auth.js";

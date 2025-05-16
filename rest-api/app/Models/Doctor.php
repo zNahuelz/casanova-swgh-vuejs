@@ -50,6 +50,6 @@ class Doctor extends Model
     public function updatedBy(): BelongsTo
     {
         //Wip...
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

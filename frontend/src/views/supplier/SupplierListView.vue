@@ -1,7 +1,7 @@
 <script setup>
 import {SupplierService} from '@/services/supplier-service';
 import {SUPPLIER_SEARCH_MODES as SSM, ERROR_MESSAGES as EM, SUCCESS_MESSAGES as SM} from '@/utils/constants';
-import {formatDate, reloadOnDismiss, reloadPage} from '@/utils/helpers';
+import {formatAsDatetime, reloadOnDismiss, reloadPage} from '@/utils/helpers';
 import {computed, onMounted, ref} from 'vue';
 import {RouterView, useRouter} from 'vue-router';
 import * as yup from 'yup';
@@ -359,13 +359,13 @@ onMounted(() => {
 
             <div>
               <label class="block mb-2 text-sm font-medium text-gray-900">Fecha de Registro</label>
-              <input type="text" :value="formatDate(supplierDetail?.created_at)"
+              <input type="text" :value="formatAsDatetime(supplierDetail?.created_at)"
                      class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
                     focus:ring-green-600 focus:border-green-600 block w-full p-2.5" disabled>
             </div>
             <div>
               <label class="block mb-2 text-sm font-medium text-gray-900">Última Modificación</label>
-              <input type="text" :value="formatDate(supplierDetail?.updated_at)"
+              <input type="text" :value="formatAsDatetime(supplierDetail?.updated_at)"
                      class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
                     focus:ring-green-600 focus:border-green-600 block w-full p-2.5" disabled>
             </div>

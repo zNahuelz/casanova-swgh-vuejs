@@ -1,7 +1,7 @@
 <script setup>
 import {computed, onMounted, ref} from "vue";
 import {ERROR_MESSAGES as EM, SUCCESS_MESSAGES as SM, USER_SEARCH_MODES as USM} from "@/utils/constants.js";
-import {formatDate, reloadOnDismiss, reloadPage} from "@/utils/helpers.js";
+import {formatAsDatetime, reloadOnDismiss, reloadPage} from "@/utils/helpers.js";
 import {useAuthStore} from "@/stores/auth.js";
 import {ErrorMessage, Field, Form} from "vee-validate";
 import * as yup from "yup";
@@ -275,10 +275,10 @@ onMounted(() => {
                   {{ u.deleted_at ? 'DESHABILITADO' : 'HABILITADO' }}
                 </td>
                 <td class="px-6 py-2">
-                  {{ formatDate(u.created_at) }}
+                  {{ formatAsDatetime(u.created_at) }}
                 </td>
                 <td class="px-6 py-2">
-                  {{ formatDate(u.updated_at) }}
+                  {{ formatAsDatetime(u.updated_at) }}
                 </td>
                 <td :hidden="u.id === authService.getUserId()" class="px-6 py-3 flex justify-center items-center">
                   <div class="inline-flex rounded-md shadow-xs" role="group">

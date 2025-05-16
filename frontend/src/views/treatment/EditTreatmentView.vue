@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 import {ERROR_MESSAGES as EM, SUCCESS_MESSAGES as SM} from "@/utils/constants.js";
 import {TreatmentService} from "@/services/treatment-service.js";
 import * as yup from "yup";
-import {formatDate, reloadOnDismiss} from "@/utils/helpers.js";
+import {formatAsDatetime, reloadOnDismiss} from "@/utils/helpers.js";
 import {useAuthStore} from "@/stores/auth.js";
 
 const submitting = ref(false);
@@ -124,7 +124,7 @@ onMounted(() => {
             <div>
               <label class="block text-sm font-medium text-gray-500">Fecha de Registro</label>
               <div class="mt-1 text-sm text-gray-900">
-                {{ formatDate(treatment?.created_at) }}
+                {{ formatAsDatetime(treatment?.created_at) }}
               </div>
             </div>
             <div>
@@ -138,7 +138,7 @@ onMounted(() => {
             <div>
               <label class="block text-sm font-medium text-gray-500">Última Modificación</label>
               <div class="mt-1 text-sm text-gray-900">
-                {{ formatDate(treatment?.updated_at) }}
+                {{ formatAsDatetime(treatment?.updated_at) }}
               </div>
             </div>
             <div>

@@ -14,6 +14,8 @@ use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 class User extends Authenticatable implements JWTSubject
 {
     use HasFactory,Notifiable,HasApiTokens,SoftDeletes;
+
+    protected $appends = ['display_name'];
     protected $fillable = [
         'username',
         'password',
@@ -45,6 +47,20 @@ class User extends Authenticatable implements JWTSubject
             'role_id' => $this->role_id,
             'role' => $this->role->name,
         ];
+    }
+
+    public function getDisplayNameAttribute(): string
+    {
+        if ($this->doctor) {
+            return "{$this->doctor->name} {$this->doctor->paternal_surname}";
+        }
+        if ($this->worker) {
+            return "{$this->worker->name} {$this->worker->paternal_surname}";
+        }
+
+        return $this->username
+            ?? $this->name
+            ?? 'USUARIO SIN NOMBRE'; 
     }
 
     public function role(): BelongsTo

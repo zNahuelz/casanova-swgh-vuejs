@@ -10,6 +10,10 @@ export function reloadPage() {
     window.location.reload();
 }
 
-export function formatDate(date) {
+export function formatAsDatetime(date) {
     return date ? dayjs(date).format('DD/MM/YYYY hh:mm A') : '';
+}
+
+export function formatAsDate(date){
+    return date ? dayjs(date).format('DD/MM/YYYY') : '';
 }

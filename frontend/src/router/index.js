@@ -25,6 +25,9 @@ import TreatmentDetailView from "@/views/treatment/TreatmentDetailView.vue";
 import NewDoctorView from "@/views/doctor/NewDoctorView.vue";
 import DoctorListView from "@/views/doctor/DoctorListView.vue";
 import SettingManagementView from "@/views/setting/SettingManagementView.vue";
+import DoctorDetailView from "@/views/doctor/DoctorDetailView.vue";
+import EditDoctorView from "@/views/doctor/EditDoctorView.vue";
+import EditDoctorAvailabilities from "@/views/doctor/EditDoctorAvailabilities.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -162,7 +165,25 @@ const router = createRouter({
                     path: 'doctor-list',
                     name: 'doctor-list',
                     component: DoctorListView,
-                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR']}
+                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR','SECRETARIA','ENFERMERA']}
+                },
+                {
+                  path: 'doctor-detail/:id',
+                  name: 'doctor-detail',
+                  component: DoctorDetailView,
+                  meta: {requiresAuth: true, roles: ['ADMINISTRADOR','SECRETARIA','ENFERMERA']}
+                },
+                {
+                  path: 'edit-doctor/:id',
+                  name: 'edit-doctor',
+                  component: EditDoctorView,
+                  meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA']},
+                },
+                {
+                    path: 'edit-doctor-availabilities/:id',
+                    name: 'edit-doctor-schedule',
+                    component: EditDoctorAvailabilities,
+                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA']},
                 },
                 {
                     path: 'my-account',

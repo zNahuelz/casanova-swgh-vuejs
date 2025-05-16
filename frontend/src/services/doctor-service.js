@@ -29,4 +29,7 @@ export const DoctorService = {
     getById(id) {
         return Http.GET(`${this.endpoint}/${id}`);
     },
+    setUnavailability(payload){
+      return Http.POST(`${this.endpoint}/unavailability`,payload);
+    },
 };

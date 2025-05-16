@@ -102,7 +102,8 @@ Route::group([
     'prefix' => '/doctor'
 ], function($router){
     Route::post('/', [DoctorController::class, 'createDoctor'])->middleware('role:ADMINISTRADOR');
-    Route::put('/{id}', [DoctorController::class, 'updateDoctor'])->middleware('role:ADMINISTRADOR,SECRETARIA');
+    Route::post('/unavailability', [DoctorController::class, 'createUnavailability'])->middleware('role:ADMINISTRADOR,SECRETARIA');
+    Route::put('/{id}', [DoctorController::class, 'updateDoctorInfo'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::get('/', [DoctorController::class, 'getDoctors'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/{id}', [DoctorController::class, 'getDoctor'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
 });
