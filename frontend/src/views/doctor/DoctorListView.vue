@@ -114,6 +114,16 @@ function openUnavailabilityModal(doctor) {
   handleUnavailabilitiesFormModal();
 }
 
+function calculateAvailableDays(availabilities){
+  let counter = 0;
+  availabilities.forEach((e) => {
+    if(e.is_active){
+      counter++;
+    }
+  });
+  return counter >= 1 ? counter : 'ASIGNACIÓN DE HORARIO PENDIENTE';
+}
+
 onMounted(() => {
   document.title = 'ALTERNATIVA CASANOVA - LISTADO DE DOCTORES'
   loadDoctors();
@@ -224,9 +234,9 @@ onMounted(() => {
                 <td class="px-6 py-2">
                   {{ d.phone }}
                 </td>
-                <td :class="{'text-green-600 font-bold': d.availabilities.length, 'text-red-600 font-bold': d.availabilities.length <= 0}"
+                <td :class="{'text-green-600 font-bold': calculateAvailableDays(d.availabilities) !== 'ASIGNACIÓN DE HORARIO PENDIENTE', 'text-red-600 font-bold': calculateAvailableDays(d.availabilities) === 'ASIGNACIÓN DE HORARIO PENDIENTE'}"
                     class="px-6 py-2">
-                  {{ d.availabilities.length ? d.availabilities.length : 'ASIGNACIÓN DE HORARIO PENDIENTE' }}
+                  {{ calculateAvailableDays(d.availabilities) }}
                 </td>
                 <td class="px-6 py-3 flex justify-center items-center">
                   <div class="inline-flex rounded-md shadow-xs" role="group">

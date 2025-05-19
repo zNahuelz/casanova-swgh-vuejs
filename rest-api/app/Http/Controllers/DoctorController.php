@@ -19,14 +19,14 @@ use Illuminate\Validation\Validator as ValidationValidator;
 
 class DoctorController extends Controller
 {
-    //TODO: TEST....!
+
     public function createDoctor(Request $request)
     {
         $validator =  Validator::make($request->all(), [
             'name' => ['required', 'string', 'min:2', 'max:30', 'regex:/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{2,30}$/'],
             'paternal_surname' => ['nullable', 'max:30', 'regex:/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{2,30}$/'],
             'maternal_surname' => ['nullable', 'max:30', 'regex:/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{2,30}$/'],
-            'dni' => ['required', 'string', 'min:8', 'max:15', 'regex:/^[0-9]{8,15}$/', Rule::unique('doctors', 'dni'),Rule::unique('workers','dni')],
+            'dni' => ['required', 'string', 'min:8', 'max:15', 'regex:/^[0-9]{8,15}$/', Rule::unique('doctors', 'dni'), Rule::unique('workers', 'dni')],
             'email' => ['required', 'email', 'max:50', Rule::unique('doctors', 'email'), Rule::unique('users', 'email'), Rule::unique('workers', 'email')],
             'phone' => ['required', 'string', 'min:6', 'max:15', 'regex:/^\+?\d{6,15}$/'],
             'address' => ['required', 'string', 'min:5', 'max:100'],
@@ -36,7 +36,8 @@ class DoctorController extends Controller
             'availabilities.*.start_time' => ['required', 'date_format:H:i'],
             'availabilities.*.end_time' => ['required', 'date_format:H:i'],
             'availabilities.*.break_start' => ['required', 'date_format:H:i'],
-            'availabilities.*.break_end' => ['required', 'date_format:H:i']
+            'availabilities.*.break_end' => ['required', 'date_format:H:i'],
+            'availabilities.*.is_active' => ['required','boolean'],
         ]);
 
         $validator->after(function ($validator) use ($request) {
@@ -118,7 +119,7 @@ class DoctorController extends Controller
                     'end_time' => $av['end_time'],
                     'break_start' => $av['break_start'],
                     'break_end' => $av['break_end'],
-                    'is_active' => true,
+                    'is_active' => $av['is_active'],
                 ]);
             }
             DB::commit();
@@ -136,22 +137,20 @@ class DoctorController extends Controller
         }
     }
 
-    public function updateDoctorInfo(Request $request,$id)
+    public function updateDoctorInfo(Request $request, $id)
     {
         $oldDoctor = Doctor::find($id);
-        if(!$oldDoctor)
-        {
+        if (!$oldDoctor) {
             return response()->json([
-                'message' => 'Error. Doctor de ID: '.$id.' no encontrado.'
-            ],404);
+                'message' => 'Error. Doctor de ID: ' . $id . ' no encontrado.'
+            ], 404);
         }
 
         $userFromDoctor = User::find($oldDoctor->user_id);
-        if(!$userFromDoctor)
-        {
+        if (!$userFromDoctor) {
             return response()->json([
                 'message' => 'Error. Imposible actualizar doctor, el mismo no tiene cuenta asociada. Comuniquese con administración.'
-            ],404);
+            ], 404);
         }
 
         //TODO: Something fails? Here!
@@ -159,16 +158,16 @@ class DoctorController extends Controller
             'name' => ['required', 'string', 'min:2', 'max:30', 'regex:/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{2,30}$/'],
             'paternal_surname' => ['nullable', 'max:30', 'regex:/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{2,30}$/'],
             'maternal_surname' => ['nullable', 'max:30', 'regex:/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{2,30}$/'],
-            'dni' => ['required', 'string', 'min:8', 'max:15', 'regex:/^[0-9]{8,15}$/', Rule::unique('doctors', 'dni')->ignore($id), Rule::unique('workers','dni')],
+            'dni' => ['required', 'string', 'min:8', 'max:15', 'regex:/^[0-9]{8,15}$/', Rule::unique('doctors', 'dni')->ignore($id), Rule::unique('workers', 'dni')],
             'email' => ['required', 'email', 'max:50', Rule::unique('doctors', 'email')->ignore($id), Rule::unique('users', 'email')->ignore($userFromDoctor->id), Rule::unique('workers', 'email')],
             'phone' => ['required', 'string', 'min:6', 'max:15', 'regex:/^\+?\d{6,15}$/'],
             'address' => ['required', 'string', 'min:5', 'max:100'],
             'updated_by' => ['required', 'numeric', 'exists:users,id'],
         ]);
 
-        try{
+        try {
             DB::beginTransaction();
-            
+
             $oldDoctor->update([
                 'name' => strtoupper(trim($request->name)),
                 'paternal_surname' => strtoupper(trim($request->paternal_surname)) ?? '',
@@ -188,14 +187,99 @@ class DoctorController extends Controller
 
             return response()->json([
                 'message' => 'Doctor actualizado correctamente.'
-            ],200);
-        }
-        catch(Exception $e)
-        {
+            ], 200);
+        } catch (Exception $e) {
             DB::rollBack();
             return response()->json([
                 'message' => 'Error en la actualización de doctor. Operación cancelada. Vuelva a intentarlo.'
-            ],500);
+            ], 500);
+        }
+    }
+
+    public function updateDoctorAvailabilities(Request $request, $id)
+    {
+        $oldDoctor = Doctor::find($id);
+        if (!$oldDoctor) {
+            return response()->json([
+                'message' => 'Error. Doctor de ID: ' . $id . ' no encontrado.'
+            ], 404);
+        }
+
+        $validator =  Validator::make($request->all(), [
+            'availabilities' => ['required', 'array', 'min:5', 'max:7'],
+            'availabilities.*.weekday' => ['required', 'integer', 'between:1,7'],
+            'availabilities.*.start_time' => ['required', 'date_format:H:i'],
+            'availabilities.*.end_time' => ['required', 'date_format:H:i'],
+            'availabilities.*.break_start' => ['required', 'date_format:H:i'],
+            'availabilities.*.break_end' => ['required', 'date_format:H:i'],
+            'availabilities.*.is_active' => ['required','boolean']
+        ]);
+
+        $validator->after(function ($validator) use ($request) {
+            $seenWeekdays = [];
+            $availabilities = $request->input('availabilities', []);
+            foreach ($availabilities as $index => $a) {
+                $weekday = $a['weekday'];
+                if (in_array($weekday, $seenWeekdays)) {
+                    $validator->errors()->add("availabilities.$index.weekday", "Día de la semana duplicado: $weekday");
+                }
+                $seenWeekdays[] = $weekday;
+
+                $start = Carbon::createFromFormat('H:i', $a['start_time']);
+                $end = Carbon::createFromFormat('H:i', $a['end_time']);
+                $breakStart = Carbon::createFromFormat('H:i', $a['break_start']);
+                $breakEnd = Carbon::createFromFormat('H:i', $a['break_end']);
+
+                if ($start->greaterThanOrEqualTo($end)) {
+                    $validator->errors()->add("availabilities.$index.end_time", 'El horario de cierre debe estar despues del horario de inicio.');
+                }
+
+                // Validar break dentro de horario laboral.
+                if ($breakStart->lessThan($start) || $breakEnd->greaterThan($end)) {
+                    $validator->errors()->add("availabilities.$index.break_start", 'El horario del break debe estar dentro del horario laboral..');
+                }
+
+                // Validar break_end > break_start
+                if ($breakStart->greaterThanOrEqualTo($breakEnd)) {
+                    $validator->errors()->add("availabilities.$index.break_end", 'El final del break debe ser luego del inicio del break.');
+                }
+
+                if (count($seenWeekdays) !== count(array_unique($seenWeekdays))) {
+                    $validator->errors()->add('availabilities', 'No se permiten valores duplicados en los días de la semana.');
+                }
+            }
+        });
+        $validator->validate();
+
+        try {
+            DB::beginTransaction();
+            DoctorAvailability::where('doctor_id', $id)->forceDelete();
+            $availabilities = $request->availabilities;
+
+            // Wrap in a Collection, sort it, and then iterate
+            collect($availabilities)
+                ->sortBy('weekday') 
+                ->each(function ($av) use ($id) {
+                    DoctorAvailability::create([
+                        'doctor_id'   => $id,
+                        'weekday'     => $av['weekday'],
+                        'start_time'  => $av['start_time'],
+                        'end_time'    => $av['end_time'],
+                        'break_start' => $av['break_start'],
+                        'break_end'   => $av['break_end'],
+                        'is_active'   => $av['is_active'],
+                    ]);
+                });
+            DB::commit();
+            return response()->json([
+                'message' => 'Disponibilidad del doctor de ID: ' . $id . ' actualizada correctamente',
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => "Error en la actualización de disponibilidad del doctor de ID: $id Operación cancelada. Vuelva a intentarlo.",
+                $e->getMessage()
+            ], 500);
         }
     }
 
@@ -282,8 +366,8 @@ class DoctorController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Indisponibilidad creada correctamente. Asignado ID: '.$unavailability->id,
+            'message' => 'Indisponibilidad creada correctamente. Asignado ID: ' . $unavailability->id,
             'unavailability' => $unavailability
-        ],201);
+        ], 201);
     }
 }

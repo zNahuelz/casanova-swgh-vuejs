@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\MedicineController;
@@ -104,6 +105,13 @@ Route::group([
     Route::post('/', [DoctorController::class, 'createDoctor'])->middleware('role:ADMINISTRADOR');
     Route::post('/unavailability', [DoctorController::class, 'createUnavailability'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::put('/{id}', [DoctorController::class, 'updateDoctorInfo'])->middleware('role:ADMINISTRADOR,SECRETARIA');
+    Route::put('/availabilities/{id}', [DoctorController::class, 'updateDoctorAvailabilities'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::get('/', [DoctorController::class, 'getDoctors'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/{id}', [DoctorController::class, 'getDoctor'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+});
+
+Route::group([
+    'prefix' => '/appointment'
+], function($router){
+    Route::get('/', [AppointmentController::class, 'prepareAppointment'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
 });

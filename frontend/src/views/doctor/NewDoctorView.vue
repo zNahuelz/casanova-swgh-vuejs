@@ -113,7 +113,6 @@ async function getConfig() {
     const response = await SettingService.getByKey(CONFIG_KEY.value);
     weekendsAllowed.value = response.value;
     removeWeekends();
-    console.log(weekendsAllowed.value);
   } catch (err) {
     Swal.fire(EM.ERROR_TAG, EM.WEEKENDS_CONFIG_NOT_FOUND, 'error');
   } finally {
@@ -129,18 +128,20 @@ function handleWeekdayUpdate(updatedDay) {
   }
 }
 
-const weekdaysValid = computed(() =>
-    workDays.value.every(d => {
-      // must have a valid start & end
-      if (!d.start_time || !d.end_time || d.start_time >= d.end_time) return false
-      // break if set must be inside hours and break_end > break_start
-      if (d.break_start && d.break_end) {
-        if (d.break_start >= d.break_end) return false
-        if (d.break_start < d.start_time || d.break_end > d.end_time) return false
-      }
-      return true
-    })
-)
+const weekdaysValid = computed(() => {
+  const allValid = workDays.value.every(d => {
+    if (!d.start_time || !d.end_time || d.start_time >= d.end_time) return false;
+    if (d.break_start && d.break_end) {
+      if (d.break_start >= d.break_end) return false;
+      if (d.break_start < d.start_time || d.break_end > d.end_time) return false;
+    }
+    return true;
+  });
+  
+  const anyActive = workDays.value.some(d => d.is_active);
+
+  return allValid && anyActive;
+});
 
 onMounted(() => {
   document.title = 'ALTERNATIVA CASANOVA - NUEVO DOCTOR'

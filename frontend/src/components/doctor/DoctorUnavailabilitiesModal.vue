@@ -12,12 +12,19 @@ function isCurrentlyActive(start, end) {
   const startDate = dayjs(start, 'DD/MM/YYYY');
   const endDate = dayjs(end, 'DD/MM/YYYY');
 
-  return today.isAfter(startDate.subtract(1, 'day')) && today.isBefore(endDate.add(1, 'day'));
+  if (today.isAfter(endDate)) {
+    return "PASADO";
+  } else if (today.isBefore(startDate)) {
+    return "PRÓXIMAMENTE";
+  } else {
+    return "VIGENTE";
+  }
 }
 </script>
 
 <template>
-  <div id="unavailabilities-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-sm"
+  <div id="unavailabilities-modal"
+       class="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-sm"
        tabindex="-1">
     <div class="relative bg-white rounded-lg shadow-lg w-full max-w-3xl">
       <div
@@ -25,11 +32,13 @@ function isCurrentlyActive(start, end) {
         <h3 class="text-lg font-semibold text-gray-900">
           Detalle de Indisponibilidades
         </h3>
-        <button class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
-                type="button"
-                @click="onClose">
+        <button
+            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
+            type="button"
+            @click="onClose">
           <svg aria-hidden="true" class="w-3 h-3" fill="none" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
-            <path d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+            <path d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" stroke="currentColor" stroke-linecap="round"
+                  stroke-linejoin="round"
                   stroke-width="2"/>
           </svg>
           <span class="sr-only">Close modal</span>
@@ -65,10 +74,12 @@ function isCurrentlyActive(start, end) {
             <td class="px-6 py-2">
               {{ u.reason }}
             </td>
-            <td :class="{'text-green-800': isCurrentlyActive(formatAsDate(u.start_datetime), formatAsDate(u.end_datetime)), 'text-red-800': !isCurrentlyActive(formatAsDate(u.start_datetime), formatAsDate(u.end_datetime))}"
+            <td :class="{'text-green-800': isCurrentlyActive(formatAsDate(u.start_datetime), formatAsDate(u.end_datetime)) === 'VIGENTE',
+             'text-red-800': isCurrentlyActive(formatAsDate(u.start_datetime), formatAsDate(u.end_datetime)) === 'PASADO',
+              'text-purple-900': isCurrentlyActive(formatAsDate(u.start_datetime), formatAsDate(u.end_datetime)) === 'PRÓXIMAMENTE'}"
                 class="px-6 py-2 font-bold">
               {{
-                isCurrentlyActive(formatAsDate(u.start_datetime), formatAsDate(u.end_datetime)) ? 'ACTIVO' : 'PASADO-FUTURO'
+                isCurrentlyActive(formatAsDate(u.start_datetime), formatAsDate(u.end_datetime))
               }}
             </td>
           </tr>

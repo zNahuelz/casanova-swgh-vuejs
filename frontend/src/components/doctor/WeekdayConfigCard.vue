@@ -36,7 +36,7 @@ const schema = yup.object({
   end_time: yup.string()
       .required('End time is required')
       .test('valid-time', 'Formato de incorrecto (HH:mm)', value => parseTime(value)?.isValid())
-      .test('is-after-start', 'Must be after start time', function (value) {
+      .test('is-after-start', 'Debe ser posterior a la hora de inicio', function (value) {
         const start = parseTime(this.parent.start_time);
         const end = parseTime(value);
         return start && end ? end.isAfter(start) : true;
@@ -44,7 +44,7 @@ const schema = yup.object({
 
   break_start: yup.string()
       .test('valid-time', 'Formato de incorrecto (HH:mm)', value => !value || parseTime(value)?.isValid())
-      .test('within-hours', 'Must be between work hours', function (value) {
+      .test('within-hours', 'Debe estar en el horario laboral.', function (value) {
         if (!value) return true;
         const start = parseTime(this.parent.start_time);
         const end = parseTime(this.parent.end_time);
@@ -54,24 +54,35 @@ const schema = yup.object({
 
   break_end: yup.string()
       .test('valid-time', 'Formato de incorrecto (HH:mm)', value => !value || parseTime(value)?.isValid())
-      .test('after-break-start', 'Must be after break start', function (value) {
+      .test('after-break-start', 'Debe ser posterior al inicio del descanso.', function (value) {
         if (!value || !this.parent.break_start) return true;
         const breakStart = parseTime(this.parent.break_start);
         const breakEnd = parseTime(value);
         return breakStart && breakEnd ? breakEnd.isAfter(breakStart) : true;
       })
-      .test('within-hours', 'Must be between work hours', function (value) {
+      .test('within-hours', 'Debe estar en el horario laboral.', function (value) {
         if (!value || !this.parent.break_start) return true;
         const start = parseTime(this.parent.start_time);
         const end = parseTime(this.parent.end_time);
         const breakEnd = parseTime(value);
         return start && end && breakEnd ? breakEnd.isBetween(start, end, null, '(]') : true;
       })
+      .test('break-max-duration', 'El descanso no debe durar más de 1 hora.', function (value) {
+        if (!value || !this.parent.break_start) return true;
+        const breakStart = parseTime(this.parent.break_start);
+        const breakEnd = parseTime(value);
+        return breakStart && breakEnd
+            ? breakEnd.diff(breakStart, 'minute') <= 60
+            : true;
+      })
 });
 
-const {values, setFieldValue} = useForm({
+const {values, setFieldValue, resetForm} = useForm({
   validationSchema: schema,
   initialValues: props.weekdayInfo,
+  validateOnChange: true,
+  validateOnBlur: true,
+  validateOnMount: true,
 });
 
 watch(values, (newValues) => {
@@ -98,7 +109,20 @@ const handleTimeChange = (field, event) => {
 
 <template>
   <div class="max-w-xl p-6 bg-white border border-gray-200 rounded-lg shadow-sm mb-3 w-full overflow-y-auto">
-    <h5 class="mb-4 text-lg font-bold tracking-tight text-gray-900">{{ weekdayInfo.label }}</h5>
+    <!-- Header with label on left, checkbox on right -->
+    <div class="flex justify-between items-center mb-4">
+      <h5 class="mb-4 text-lg font-bold tracking-tight text-gray-900">
+        {{ weekdayInfo.label }}
+      </h5>
+      <label class="inline-flex items-center space-x-2">
+        <input
+            v-model="weekdayInfo.is_active"
+            class="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500"
+            type="checkbox"
+        />
+        <span class="text-sm font-medium text-gray-900">Activo</span>
+      </label>
+    </div>
 
     <div class="grid grid-cols-2 gap-4">
       <!-- Start Time -->

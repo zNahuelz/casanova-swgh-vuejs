@@ -28,7 +28,7 @@ export const ERROR_MESSAGES = {
     WEEKENDS_CONFIG_NOT_FOUND: 'La llave "ESTADO_TRABAJO_FINDES" no se encuentra definida en la configuración del sistema. Un administrador puede restaurarla, hasta entonces el sistema utilizará la configuración predeterminada: "NO SE PERMITE ASIGNAR HORARIO DE TRABAJO LOS DÍAS SABADO-DOMINGO". Comuniquese con administración.',
     DOCTOR_NOT_FOUND: 'Doctor no encontrado. Intente nuevamente, si el problema persiste comuniquese con administración.',
     UNAVAILABILITY_OVERLAP: 'Ya existe una indisponibilidad que se solapa con el rango de fechas ingresado.',
-
+    INCORRECT_SCHEDULE: 'El horario de trabajo asignado presenta errores. Verifique que los tiempos de trabajo sean adecuados y los espacios de descanso se encuentren dentro del horario laboral. Intente nuevamente, si el problema persiste, comuníquese con administración.',
 }
 
 export const SUPPLIER_SEARCH_MODES = [
@@ -83,13 +83,13 @@ export const WORKER_POSITIONS = [
 ]
 
 export const DEFAULT_DOCTOR_AVAILABILITIES = [
-    {weekday: 1, label: 'LUNES', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40'},
-    {weekday: 2, label: 'MARTES', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40'},
-    {weekday: 3, label: 'MIERCOLES', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40'},
-    {weekday: 4, label: 'JUEVES', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40'},
-    {weekday: 5, label: 'VIERNES', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40'},
-    {weekday: 6, label: 'SABADO', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40'},
-    {weekday: 7, label: 'DOMINGO', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40'},
+    {weekday: 1, label: 'LUNES', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40', is_active: true},
+    {weekday: 2, label: 'MARTES', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40', is_active: true},
+    {weekday: 3, label: 'MIERCOLES', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40', is_active: true},
+    {weekday: 4, label: 'JUEVES', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40', is_active: true},
+    {weekday: 5, label: 'VIERNES', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40', is_active: true},
+    {weekday: 6, label: 'SABADO', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40', is_active: true},
+    {weekday: 7, label: 'DOMINGO', start_time: '09:00', end_time: '18:00', break_start: '13:00', break_end: '13:40', is_active: true},
 ]
 
 export const WEEKDAY_NAMES = [

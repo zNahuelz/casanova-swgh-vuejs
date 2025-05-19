@@ -36,13 +36,11 @@ class Worker extends Model
 
     public function createdBy(): BelongsTo
     {
-        //Wip...
         return $this->belongsTo(User::class,'created_by');
     }
 
     public function updatedBy(): BelongsTo
     {
-        //Wip...
         return $this->belongsTo(User::class, 'created_by');
     }
 }
