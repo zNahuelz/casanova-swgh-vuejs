@@ -3,25 +3,25 @@ import {Http} from "@/stores/http"
 export const UserService = {
     endpoint: '/auth',
     sendRecoveryMail(email) {
-        return Http.POST(`${this.endpoint}/recover_account`, email);
+        return Http.POST(`${this.endpoint}/recover-account`, email);
     },
     verifyRecoveryToken(token) {
-        return Http.POST(`${this.endpoint}/verify_token`, token);
+        return Http.POST(`${this.endpoint}/verify-token`, token);
     },
     changePasswordWithToken(payload) {
-        return Http.PUT(`${this.endpoint}/change_password/token`, payload);
+        return Http.PUT(`${this.endpoint}/change-password/token`, payload);
     },
     getCurrenUserProfile() {
         return Http.GET(`${this.endpoint}/profile`);
     },
     changePasswordAndEmail(payload) {
-        return Http.PUT(`${this.endpoint}/change_password`, payload);
+        return Http.PUT(`${this.endpoint}/change-password`, payload);
     },
     changeUsername(payload) {
-        return Http.PUT(`${this.endpoint}/change_username`, payload);
+        return Http.PUT(`${this.endpoint}/change-username`, payload);
     },
     changePersonalInfo(payload) {
-        return Http.PUT(`${this.endpoint}/change_personal_info`, payload);
+        return Http.PUT(`${this.endpoint}/change-personal-info`, payload);
     },
     get(filters = {}, pagination = {}, sorting = {}) {
         let params = {};

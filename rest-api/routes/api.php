@@ -4,6 +4,7 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\MedicineController;
+use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PresentationController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SupplierController;
@@ -20,12 +21,12 @@ Route::group([
     'middleware' => BaseMiddleware::class,
 ], function($router){
     Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/recover_account', [AuthController::class, 'sendRecoveryMail']);
-    Route::post('/verify_token', [AuthController::class, 'verifyRecoveryToken']);
-    Route::put('/change_password/token', [AuthController::class, 'changePasswordWithToken']);
-    Route::put('/change_password', [AuthController::class, 'changePasswordAndEmail']);
-    Route::put('/change_username', [AuthController::class, 'changeUsername'])->middleware('role:ADMINISTRADOR');
-    Route::put('/change_personal_info', [AuthController::class, 'changeAddressAndPhone'])->middleware('role:SECRETARIA,ENFERMERA,DOCTOR');
+    Route::post('/recover-account', [AuthController::class, 'sendRecoveryMail']);
+    Route::post('/verify-token', [AuthController::class, 'verifyRecoveryToken']);
+    Route::put('/change-password/token', [AuthController::class, 'changePasswordWithToken']);
+    Route::put('/change-password', [AuthController::class, 'changePasswordAndEmail']);
+    Route::put('/change-username', [AuthController::class, 'changeUsername'])->middleware('role:ADMINISTRADOR');
+    Route::put('/change-personal-info', [AuthController::class, 'changeAddressAndPhone'])->middleware('role:SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/profile', [AuthController::class, 'profile']);
 });
 
@@ -107,6 +108,8 @@ Route::group([
     Route::put('/{id}', [DoctorController::class, 'updateDoctorInfo'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::put('/availabilities/{id}', [DoctorController::class, 'updateDoctorAvailabilities'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::get('/', [DoctorController::class, 'getDoctors'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+    Route::get('/available', [DoctorController::class, 'getAvailableDoctors'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
+    Route::get('/all', [DoctorController::class, 'getAllDoctors'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/{id}', [DoctorController::class, 'getDoctor'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
 });
 
@@ -114,4 +117,11 @@ Route::group([
     'prefix' => '/appointment'
 ], function($router){
     Route::get('/', [AppointmentController::class, 'prepareAppointment'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
+});
+
+Route::group([
+    'prefix' => '/patient'
+], function($router){
+    Route::get('/{id}', [PatientController::class, 'getPatient'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+    Route::get('/by-dni/{dni}', [PatientController::class, 'getPatientByDni'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
 });

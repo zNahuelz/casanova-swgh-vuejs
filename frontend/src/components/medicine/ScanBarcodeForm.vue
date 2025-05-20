@@ -76,7 +76,6 @@ async function validateBarcode(value) {
     <h1 class="mt-5 text-2xl font-light">{{ loadingMessage }}</h1>
   </div>
   <Form class="max-w-md mx-auto mt-4" @submit="validateBarcode" :validation-schema="schema" v-if="!isLoading">
-    <label for="barcode" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"></label>
     <div class="relative">
       <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
         <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"

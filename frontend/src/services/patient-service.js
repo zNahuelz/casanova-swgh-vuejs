@@ -1,12 +1,12 @@
 import {Http} from "@/stores/http"
 
-export const DoctorService = {
-    endpoint: '/doctor',
-    create(doctor) {
-        return Http.POST(this.endpoint, doctor);
+export const PatientService = {
+    endpoint: '/patient',
+    create(patient) {
+        return Http.POST(this.endpoint, patient);
     },
     update(id, doctor) {
-        return Http.PUT(`${this.endpoint}/${id}`, doctor);
+        return Http.PUT(`${this.endpoint}/${id}`, patient);
     },
     get(filters = {}, pagination = {}, sorting = {}) {
         let params = {};
@@ -29,16 +29,7 @@ export const DoctorService = {
     getById(id) {
         return Http.GET(`${this.endpoint}/${id}`);
     },
-    getAvailables(){
-        return Http.GET(`${this.endpoint}/available`);
-    },
-    getAll(){
-        return Http.GET(`${this.endpoint}/all`);
-    },
-    setUnavailability(payload) {
-        return Http.POST(`${this.endpoint}/unavailability`, payload);
-    },
-    updateAvailabilities(id, payload) {
-        return Http.PUT(`${this.endpoint}/availabilities/${id}`, {availabilities: payload});
+    getByDni(dni) {
+        return Http.GET(`${this.endpoint}/by-dni/${dni}`);
     },
 };

@@ -29,6 +29,10 @@ export const ERROR_MESSAGES = {
     DOCTOR_NOT_FOUND: 'Doctor no encontrado. Intente nuevamente, si el problema persiste comuniquese con administración.',
     UNAVAILABILITY_OVERLAP: 'Ya existe una indisponibilidad que se solapa con el rango de fechas ingresado.',
     INCORRECT_SCHEDULE: 'El horario de trabajo asignado presenta errores. Verifique que los tiempos de trabajo sean adecuados y los espacios de descanso se encuentren dentro del horario laboral. Intente nuevamente, si el problema persiste, comuníquese con administración.',
+    DOCTORS_NOT_LOADED: 'Error en la carga de doctores con horario disponible. Verifique que algún doctor tenga horario disponible. Intente nuevamente.',
+    EMPTY_DOCTORS_TABLE: 'No se encontraron doctores registrados en el sistema. Realice el ingreso de algunos o comuniquese con administración.',
+    DNI_PATIENT_NOT_FOUND: 'No se encontraron pacientes registrados con el DNI ingresado. Vuelva a intentarlo o registre al paciente.',
+
 }
 
 export const SUPPLIER_SEARCH_MODES = [

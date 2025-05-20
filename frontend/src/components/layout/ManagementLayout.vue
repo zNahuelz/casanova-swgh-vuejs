@@ -56,8 +56,8 @@ onMounted(() => {
           </button>
           <ul id="appointments-dropdown" class="hidden py-2 space-y-2">
             <li>
-              <a class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
-                 href="#">Nueva</a>
+              <router-link :to="{name: 'new-appointment'}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
+                 href="#">Nueva</router-link>
             </li>
             <li>
               <a class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"

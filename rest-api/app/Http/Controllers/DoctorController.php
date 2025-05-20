@@ -37,7 +37,7 @@ class DoctorController extends Controller
             'availabilities.*.end_time' => ['required', 'date_format:H:i'],
             'availabilities.*.break_start' => ['required', 'date_format:H:i'],
             'availabilities.*.break_end' => ['required', 'date_format:H:i'],
-            'availabilities.*.is_active' => ['required','boolean'],
+            'availabilities.*.is_active' => ['required', 'boolean'],
         ]);
 
         $validator->after(function ($validator) use ($request) {
@@ -212,7 +212,7 @@ class DoctorController extends Controller
             'availabilities.*.end_time' => ['required', 'date_format:H:i'],
             'availabilities.*.break_start' => ['required', 'date_format:H:i'],
             'availabilities.*.break_end' => ['required', 'date_format:H:i'],
-            'availabilities.*.is_active' => ['required','boolean']
+            'availabilities.*.is_active' => ['required', 'boolean']
         ]);
 
         $validator->after(function ($validator) use ($request) {
@@ -258,7 +258,7 @@ class DoctorController extends Controller
 
             // Wrap in a Collection, sort it, and then iterate
             collect($availabilities)
-                ->sortBy('weekday') 
+                ->sortBy('weekday')
                 ->each(function ($av) use ($id) {
                     DoctorAvailability::create([
                         'doctor_id'   => $id,
@@ -321,6 +321,48 @@ class DoctorController extends Controller
         }
 
         return response()->json($doctor, 200);
+    }
+
+    public function getAvailableDoctors(Request $request)
+    {
+        $slotLength = 30;
+
+        $doctors = Doctor::whereHas('availabilities', function ($q) {
+            $q->where('is_active', true);
+        })->with(['availabilities' => function ($q) {
+            $q->where('is_active', true);
+        }])->get();
+
+        // Compute weekly availability slots and attach info
+        $doctors = $doctors->map(function ($doctor) use ($slotLength) {
+            // Total slots per week = sum of slots per availability day
+            $weeklySlots = $doctor->availabilities->sum(function ($av) use ($slotLength) {
+                $start      = Carbon::parse($av->start_time);
+                $breakStart = Carbon::parse($av->break_start);
+                $breakEnd   = Carbon::parse($av->break_end);
+                $end        = Carbon::parse($av->end_time);
+
+                // Morning period minutes
+                $morningMinutes   = $breakStart->diffInMinutes($start);
+                // Afternoon period minutes
+                $afternoonMinutes = $end->diffInMinutes($breakEnd);
+
+                $workingMinutes = $morningMinutes + $afternoonMinutes;
+                return intdiv($workingMinutes, $slotLength);
+            });
+
+            // Attach human-readable weekly availability property
+            $weeklySlots = str_replace('-','',$weeklySlots);
+            $doctor->current_week_availabilities = "{$weeklySlots} citas disponibles está semana.";
+            return $doctor;
+        });
+
+        return response()->json($doctors);
+    }
+
+    public function getAllDoctors(){
+        $doctors = Doctor::all();
+        return response()->json($doctors,200);
     }
 
     public function createUnavailability(Request $request)

@@ -28,6 +28,8 @@ import SettingManagementView from "@/views/setting/SettingManagementView.vue";
 import DoctorDetailView from "@/views/doctor/DoctorDetailView.vue";
 import EditDoctorView from "@/views/doctor/EditDoctorView.vue";
 import EditDoctorAvailabilities from "@/views/doctor/EditDoctorAvailabilities.vue";
+import PrepareAppointmentView from "@/views/appointment/PrepareAppointmentView.vue";
+import NewPatientView from "@/views/patient/NewPatientView.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -186,6 +188,18 @@ const router = createRouter({
                     meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA']},
                 },
                 {
+                    path: 'new-appointment',
+                    name: 'new-appointment',
+                    component: PrepareAppointmentView,
+                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA']}
+                },
+                {
+                    path: 'new-patient',
+                    name: 'new-patient',
+                    component: NewPatientView,
+                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA']}
+                },
+                {
                     path: 'my-account',
                     name: 'my-account',
                     component: MyAccountView,
@@ -196,7 +210,7 @@ const router = createRouter({
                     name: 'settings',
                     component: SettingManagementView,
                     meta: {requiresAuth: true, roles: ['ADMINISTRADOR']}
-                }
+                },
             ]
         },
         {
