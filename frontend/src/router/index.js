@@ -30,6 +30,7 @@ import EditDoctorView from "@/views/doctor/EditDoctorView.vue";
 import EditDoctorAvailabilities from "@/views/doctor/EditDoctorAvailabilities.vue";
 import PrepareAppointmentView from "@/views/appointment/PrepareAppointmentView.vue";
 import NewPatientView from "@/views/patient/NewPatientView.vue";
+import SalesModuleView from "@/views/sales/SalesModuleView.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -198,6 +199,12 @@ const router = createRouter({
                     name: 'new-patient',
                     component: NewPatientView,
                     meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA']}
+                },
+                {
+                  path: 'sell-products',
+                  name: 'sell-products',
+                  component: SalesModuleView,
+                  meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA']}
                 },
                 {
                     path: 'my-account',

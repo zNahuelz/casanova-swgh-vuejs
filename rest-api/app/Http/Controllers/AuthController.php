@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendForgotPasswordToken;
 use App\Mail\ForgotPasswordMail;
 use App\Models\Doctor;
 use App\Models\RecoveryToken;
@@ -132,10 +133,11 @@ class AuthController extends Controller
         RecoveryToken::create([
             'email' => trim(strtoupper($request->email)),
             'token' => $token,
-            'expiration' => Carbon::now()->addMinutes(5),
+            'expiration' => Carbon::now()->addMinutes(10),
         ]);
 
-        Mail::to($user->email)->send(new ForgotPasswordMail($user,$recoveryLink));
+        //Mail::to($user->email)->send(new ForgotPasswordMail($user,$recoveryLink));
+        SendForgotPasswordToken::dispatch($user,$recoveryLink)->delay(now()->addMinutes(2)); //TODO: Ver 
         return response()->json([
             'message' => 'Operación completada correctamente. Si el e-mail ingresado pertenece a un usuario las instrucciones para recuperar su cuenta seran enviadas.'
         ],200);

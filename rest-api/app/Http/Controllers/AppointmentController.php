@@ -2,14 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AppointmentStatus;
 use App\Http\Controllers\Controller;
+use App\Jobs\SendAppointmentReminder;
+use App\Mail\AppointmentReminderMail;
 use App\Models\Appointment;
 use App\Models\DoctorAvailability;
 use App\Models\DoctorUnavailability;
 use App\Models\Holiday;
 use App\Models\Patient;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rules\Enum;
 
 class AppointmentController extends Controller
 {
@@ -104,10 +111,17 @@ class AppointmentController extends Controller
         $startDate = $data['on_date'] ?? Carbon::today()->toDateString();
         $endDate   = $data['on_date'] ? $data['on_date'] : Carbon::today()->addDays($data['days_ahead'])->toDateString();
 
-        $all = Appointment::whereBetween('date', [$startDate, $endDate])->get();
+        $all = Appointment::where(function ($q) use ($startDate, $endDate) {
+            $q->whereBetween('date', [$startDate, $endDate])
+                ->orWhereBetween('rescheduling_date', [$startDate, $endDate]);
+        })->get();
 
         $doctorAppts = $all->where('doctor_id', $doctorId)
-            ->map(fn($a) => Carbon::parse("{$a->date} {$a->time}"));
+            ->map(function ($a) {
+                $date = $a->rescheduling_date ?? $a->date;
+                $time = $a->rescheduling_time ?? $a->time;
+                return Carbon::parse("$date $time");
+            });
 
         $patientAppts = $all->where('patient_id', $data['patient_id']);
 
@@ -194,42 +208,210 @@ class AppointmentController extends Controller
 
     private function generateSlotsForDay(Carbon $day, $availability, $unavs, $doctorAppts, $patientAppts, array $data)
     {
-        $slots = [];
         $workStart  = Carbon::parse($availability->start_time);
         $workEnd    = Carbon::parse($availability->end_time);
         $breakStart = Carbon::parse($availability->break_start);
         $breakEnd   = Carbon::parse($availability->break_end);
 
-        foreach ([['from' => $workStart, 'to' => $breakStart], ['from' => $breakEnd, 'to' => $workEnd]] as $p) {
-            $cursor = $p['from']->copy();
-            while ($cursor->lt($p['to'])) {
-                $slotStart = $cursor->copy();
-                $slotEnd   = $slotStart->copy()->addMinutes($data['slot_length']);
-                if ($slotEnd->gt($p['to'])) break;
+        $slots = [];
 
-                $dtStart          = $day->copy()->setTime($slotStart->hour, $slotStart->minute);
-                $bookedByDoctor   = $doctorAppts->contains(fn($c) => $c->equalTo($dtStart));
-                $blocked          = $unavs->contains(fn($u) => $dtStart->betweenIncluded(
-                    Carbon::parse($u->start_datetime),
-                    Carbon::parse($u->end_datetime)
-                ));
-                $conflictPatient  = $patientAppts->contains(
-                    fn($a) =>
-                    $a->doctor_id === $availability->doctor_id &&
-                        $a->date      === $day->toDateString() &&
-                        Carbon::parse($a->time)->equalTo($slotStart)
+        foreach (
+            [
+                ['from' => $workStart, 'to' => $breakStart],
+                ['from' => $breakEnd,  'to' => $workEnd],
+            ] as $p
+        ) {
+            $cursor = $p['from']->copy();
+
+            while ($cursor->lt($p['to'])) {
+                $slotEnd = $cursor->copy()->addMinutes($data['slot_length']);
+                if ($slotEnd->gt($p['to'])) {
+                    break;
+                }
+
+                $dtStart = $day->copy()->setTime($cursor->hour, $cursor->minute);
+
+                $bookedByDoc = $doctorAppts->contains(fn($c) => $c->equalTo($dtStart));
+                $blocked     = $unavs->contains(
+                    fn($u) =>
+                    $dtStart->betweenIncluded(
+                        Carbon::parse($u->start_datetime),
+                        Carbon::parse($u->end_datetime)
+                    )
                 );
 
-                if (! $bookedByDoctor && ! $blocked) {
+                $isRescheduling = $patientAppts->contains(fn($a) => !is_null($a->rescheduling_date) || !is_null($a->rescheduling_time));
+
+                $isOriginalSlot = $patientAppts->contains(function ($a) use ($day, $cursor) {
+                    return $a->date === $day->toDateString() &&
+                        Carbon::parse($a->time)->equalTo($cursor);
+                });
+
+                // Hide this slot if it's the original one for the same patient
+                if ($isRescheduling && $isOriginalSlot) {
+                    $cursor->addMinutes($data['slot_length']);
+                    continue;
+                }
+
+                $conflictPatient = $patientAppts->contains(function ($a) use ($day, $cursor) {
+                    $apptDate = $a->rescheduling_date ?? $a->date;
+                    $apptTime = $a->rescheduling_time ?? $a->time;
+
+                    return $apptDate === $day->toDateString() &&
+                        Carbon::parse($apptTime)->equalTo($cursor);
+                });
+
+                if (! $bookedByDoc && ! $blocked) {
                     $slots[] = [
-                        'start_time'                   => $dtStart->toTimeString(),
-                        'duration'                     => $data['is_treatment'] ? 0 : $data['slot_length'],
+                        'start_time' => $dtStart->toTimeString(),
+                        'duration' => $data['is_treatment'] ? 0 : $data['slot_length'],
                         'is_conflicting_with_patient' => $conflictPatient,
                     ];
                 }
+
                 $cursor->addMinutes($data['slot_length']);
             }
         }
+
+        if ($day->isToday()) {
+            $now = Carbon::now('America/Lima');
+            $nowMins = $now->hour * 60 + $now->minute;
+
+            $slots = array_values(array_filter($slots, function ($slot) use ($nowMins) {
+                [$h, $m]  = explode(':', $slot['start_time']);
+                $slotMins = ((int)$h) * 60 + ((int)$m);
+                return $slotMins >= $nowMins;
+            }));
+        }
+
         return $slots;
+    }
+
+    public function createAppointment(Request $request)
+    {
+        $request->validate([
+            'date' => ['required', 'date_format:Y-m-d'],
+            'time' => ['required', 'date_format:H:i:s'],
+            'status' => ['required', new Enum(AppointmentStatus::class)],
+            'is_remote' => ['required', 'boolean'],
+            'duration' => ['required', 'integer', 'min:15', 'max:60'],
+            'patient_id' => ['required', 'exists:patients,id'],
+            'doctor_id' => ['required', 'exists:doctors,id'],
+            'created_by' => ['required', 'exists:users,id'],
+        ]);
+
+        $date = $request->date;
+        $time = $request->time;
+        $patientId = $request->patient_id;
+        $doctorId = $request->doctor_id;
+
+        $weekday = Carbon::parse($date)->dayOfWeekIso; // ISO dayOfWeek: Monday=1 ... Sunday=7
+
+        $availability = DoctorAvailability::where('doctor_id', $doctorId)
+            ->where('weekday', $weekday)
+            ->first();
+
+        if (!$availability || !$availability->is_active) {
+            return response()->json([
+                'message' => 'El doctor no está disponible para el día seleccionado, intente nuevamente.',
+                'status' => 'UNAVAILABLE_DAY'
+            ], 422);
+        }
+
+        $workStart = $availability->start_time->copy()->setDate(0, 1, 1);
+        $workEnd = $availability->end_time->copy()->setDate(0, 1, 1);
+        $breakStart = $availability->break_start->copy()->setDate(0, 1, 1);
+        $breakEnd = $availability->break_end->copy()->setDate(0, 1, 1);
+
+        $appointmentTimeCarbon = Carbon::createFromFormat('H:i:s', $time)->setDate(0, 1, 1);
+
+        if ($appointmentTimeCarbon->lt($workStart) || $appointmentTimeCarbon->gte($workEnd)) {
+            return response()->json([
+                'message' => 'La hora de la cita está fuera del horario laboral del doctor.',
+                'status' => 'TIME_OUTSIDE_WORK_HOURS'
+            ], 422);
+        }
+
+        if ($appointmentTimeCarbon->gte($breakStart) && $appointmentTimeCarbon->lt($breakEnd)) {
+            return response()->json([
+                'message' => 'La hora de la cita coincide con el descanso del doctor.',
+                'status' => 'TIME_WITHIN_BREAK'
+            ], 422);
+        }
+
+        $conflictPatient = Appointment::where('patient_id', $patientId)
+            ->where(function ($q) use ($date, $time) {
+                $q->where(function ($q2) use ($date, $time) {
+                    $q2->where('date', $date)
+                        ->where('time', $time);
+                })
+                    ->orWhere(function ($q2) use ($date, $time) {
+                        $q2->where('rescheduling_date', $date)
+                            ->where('rescheduling_time', $time);
+                    });
+            })
+            ->exists();
+
+        if ($conflictPatient) {
+            return response()->json([
+                'message' => 'Ya existe una cita para este paciente en esa fecha y hora.',
+                'status' => 'DUPLICATED_APPOINTMENT_CURRENT_PATIENT'
+            ], 422);
+        }
+
+        $conflictDoctor = Appointment::where('doctor_id', $doctorId)
+            ->where(function ($q) use ($date, $time) {
+                $q->where(function ($q2) use ($date, $time) {
+                    $q2->where('date', $date)
+                        ->where('time', $time);
+                })
+                    ->orWhere(function ($q2) use ($date, $time) {
+                        $q2->where('rescheduling_date', $date)
+                            ->where('rescheduling_time', $time);
+                    });
+            })
+            ->exists();
+
+        if ($conflictDoctor) {
+            return response()->json([
+                'message' => 'El doctor ya tiene una cita programada en esa fecha y hora.',
+                'status' => 'DUPLICATED_APPOINTMENT_DIFF_PATIENT'
+            ], 422);
+        }
+
+        try {
+            DB::beginTransaction();
+            $appointment = Appointment::create([
+                'date' => $date,
+                'time' => $time,
+                'notes' => '...',
+                'status' => $request->status,
+                'is_remote' => $request->is_remote,
+                'duration' => $request->duration,
+                'rescheduling_date' => null,
+                'rescheduling_time' => null,
+                'is_treatment' => null,
+                'patient_id' => $patientId,
+                'doctor_id' => $doctorId,
+                'created_by' => $request->created_by
+            ]);
+            DB::commit();
+            if($appointment->patient->email != 'EMAIL@DOMINIO.COM') //TODO: Remove on deployment.
+            {
+                SendAppointmentReminder::dispatch($appointment)->delay(now()->addMinutes(5));
+            }
+            return response()->json([
+                'message' => "Cita correctamente reservada. Asignado ID: {$appointment->id}",
+                'appointment' => $appointment,
+            ], 201);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Error en la reserva de cita. Comuniquese con administración o intente nuevamente.',
+                'ex' => $e
+            ], 500);
+        }
+        //TODO: ---> Then make appointment list per doctor, general, patient etc...
+        //Then do appointment reschedule.... (With the same doctor ONLY...???)
     }
 }

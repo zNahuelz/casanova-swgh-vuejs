@@ -117,6 +117,7 @@ Route::group([
     'prefix' => '/appointment'
 ], function($router){
     Route::get('/', [AppointmentController::class, 'prepareAppointment'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
+    Route::post('/', [AppointmentController::class, 'createAppointment'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
 });
 
 Route::group([

@@ -17,6 +17,7 @@ class Appointment extends Model
         'rescheduling_date',
         'rescheduling_time',
         'is_treatment',
+        'is_remote',
         'patient_id',
         'doctor_id',
         'created_by',

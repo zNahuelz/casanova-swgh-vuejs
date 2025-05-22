@@ -2,7 +2,8 @@ export const SUCCESS_MESSAGES = {
     SUCCESS_TAG: 'Operación completada.',
     SUPPLIER_CREATED: 'Proveedor creado correctamente.',
     PRESENTATION_CREATED: 'Presentación creada correctamente.',
-    MEDICINE_CREATED: 'Medicamento creado correctamente.'
+    MEDICINE_CREATED: 'Medicamento creado correctamente.',
+    CONFIRM_OPERATION: 'Confirmar operación'
 }
 
 export const ERROR_MESSAGES = {
@@ -32,7 +33,8 @@ export const ERROR_MESSAGES = {
     DOCTORS_NOT_LOADED: 'Error en la carga de doctores con horario disponible. Verifique que algún doctor tenga horario disponible. Intente nuevamente.',
     EMPTY_DOCTORS_TABLE: 'No se encontraron doctores registrados en el sistema. Realice el ingreso de algunos o comuniquese con administración.',
     DNI_PATIENT_NOT_FOUND: 'No se encontraron pacientes registrados con el DNI ingresado. Vuelva a intentarlo o registre al paciente.',
-
+    APPOINTMENT_CREATION_ERROR: 'Error durante la reserva de citas. Vuelva a intentarlo, si el problema continua comuniquese con administración',
+    DEFAULT_PATIENT_NOT_AVAILABLE: 'El DNI ingresado pertenece al paciente genérico; por tanto, no puede realizar la reserva de cita. Todo paciente debe reservar la cita con su número de DNI personal, intente nuevamente.',
 }
 
 export const SUPPLIER_SEARCH_MODES = [
@@ -113,3 +115,22 @@ export const UNAVAILABILITY_REASONS = [
     {reason: 'MATERNIDAD'},
     {reason: 'NO ESPECIFICADO'},
 ]
+
+export const APPOINTMENT_TYPE = [
+    {value: 30, label: 'PRIMERA CITA - 30Min.'},
+    {value: 25, label: 'GENERAL - 25Min.'}
+]
+
+export const APPOINTMENT_SEARCH_LENGTH = [
+    {value: 7, label: 'ESTÁ SEMANA'},
+    {value: 15, label: '15 DÍAS'},
+    {value: 30, label: '30 DÍAS'},
+    {value: 60, label: 'DOS MESES'},
+    {value: 90, label: 'TRES MESES'},
+]
+
+export const APPOINTMENT_STATUS = {
+    PENDING: 'PENDIENTE',
+    ATTENDED: 'ATENDIDO',
+    RESCHEDULED: 'REPROGRAMADO'
+}

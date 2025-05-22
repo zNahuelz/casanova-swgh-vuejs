@@ -2,7 +2,7 @@
 
 namespace App\Mail;
 
-use App\Models\User;
+use App\Models\Appointment;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -10,20 +10,18 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ForgotPasswordMail extends Mailable
+class AppointmentReminderMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $user;
-    public $recoveryLink;
+    public $appointment;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(User $user, string $recoveryLink)
+    public function __construct(Appointment $appointment)
     {
-        $this->user = $user;
-        $this->recoveryLink = $recoveryLink;
+        $this->appointment = $appointment;
     }
 
     /**
@@ -32,7 +30,7 @@ class ForgotPasswordMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'ALTERNATIVA CASANOVA - RECUPERACIÓN DE CUENTA',
+            subject: 'ALTERNATIVA CASANOVA - RECORDATORIO DE CITA',
         );
     }
 
@@ -42,10 +40,9 @@ class ForgotPasswordMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.password_recovery_mail',
+            view: 'emails.appointment.reminder',
             with: [
-                'user' => $this->user,
-                'recoveryLink' => $this->recoveryLink
+                'appointment' => $this->appointment
             ]
         );
     }

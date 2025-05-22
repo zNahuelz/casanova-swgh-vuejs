@@ -433,20 +433,13 @@
     </style>
 
 </head>
+
 <body>
-    <span class="preheader">Usa el siguiente enlace para recuperar tu cuenta. El enlace solo es valido por 5
-        minutos.</span>
+    <span class="preheader">Recordatorio de reserva de cita.</span>
     <table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation">
         <tr>
             <td align="center">
                 <table class="email-content" width="100%" cellpadding="0" cellspacing="0" role="presentation">
-                    <tr>
-                        <td class="email-masthead">
-                            <a href="{{ env('VUEJS_FRONTEND_URL','http://localhost:3000') }}" class="f-fallback email-masthead_name">
-                                ALTERNATIVA CASANOVA
-                            </a>
-                        </td>
-                    </tr>
                     <tr>
                         <td class="email-body" width="570" cellpadding="0" cellspacing="0">
                             <table class="email-body_inner" align="center" width="570" cellpadding="0" cellspacing="0"
@@ -454,39 +447,24 @@
                                 <tr>
                                     <td class="content-cell">
                                         <div class="f-fallback">
-                                            <h1>Hola! {{ $user->username }},</h1>
-                                            <p>Solicitaste un enlace para recuperar tu cuenta del sistema de la clinica
-                                                ALTERNATIVA CASANOVA. Puedes usar el botón inferior para continuar el
-                                                proceso. <strong>Este enlace es valido por 10 minutos.</strong></p>
-                                            <table class="body-action" align="center" width="100%" cellpadding="0"
-                                                cellspacing="0" role="presentation">
-                                                <tr>
-                                                    <td align="center">
-                                                        <table width="100%" border="0" cellspacing="0" cellpadding="0"
-                                                            role="presentation">
-                                                            <tr>
-                                                                <td align="center">
-                                                                    <a href="{{ $recoveryLink }}"
-                                                                        class="f-fallback button button--green" style="color: white; font-weight: bold;"
-                                                                        target="_blank">RECUPERAR CUENTA</a>
-                                                                </td>
-                                                            </tr>
-                                                        </table>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                            <p>Gracias,
-                                                <br>ALTERNATIVA CASANOVA - SISTEMAS
+                                            <h1>Hola! {{ $appointment->patient->name . ' ' . $appointment->patient->paternal_surname ?? '' . $appointment->patient->maternal_surname }},</h1>
+                                            <p>Queremos informarte que has reservado una cita médica con el Dr./Dra. {{ $appointment->doctor->name . ' ' . $appointment->doctor->paternal_surname }}.
+                                                <strong>Detalles de la cita:</strong>
                                             </p>
-                                            <table class="body-sub" role="presentation">
-                                                <tr>
-                                                    <td>
-                                                        <p class="f-fallback sub">Si tuvieses algún problema para recuperar tu cuenta puedes comunicarte al siguiente número: </p>
-                                                        <p class="f-fallback sub">+999888777</p>
-                                                        <p class="f-fallback sub">Puedes copiar y pegar el siguiente link si el botón superior no funciona: {{ $recoveryLink }}</p>
-                                                    </td>
-                                                </tr>
-                                            </table>
+                                            <ul>
+                                                <li>📅 Fecha: {{ $appointment->date }}</li>
+                                                <li>⏰ Hora: {{ $appointment->time }}</li>
+                                                <li>📍 Modalidad: {{ $appointment->is_remote ? 'Virtual' : 'Presencial' }}</li>
+                                                <li>⏱️ Duración estimada: {{ $appointment->duration }} minutos</li>
+                                            </ul>
+                                            <p>Por favor, asegúrate de estar disponible con anticipación.
+                                                <br>
+                                                Si necesitas reprogramar o cancelar tu cita, comunícate con nosotros lo antes posible.
+                                                ¡Gracias por confiar en nuestra clínica!
+                                                <br><br>
+                                                Atentamente,
+                                                <strong>Clínica Alternativa Casanova</strong>
+                                            </p>
                                         </div>
                                     </td>
                                 </tr>
@@ -503,6 +481,7 @@
                                             ALTERNATIVA CASANOVA
                                             <br>Av. Primavera 517, Piso 1 Oficina 103
                                             <br>San Borja, Lima
+                                            <br>Contacto: 999888777
                                         </p>
                                     </td>
                                 </tr>
@@ -514,4 +493,5 @@
         </tr>
     </table>
 </body>
+
 </html>

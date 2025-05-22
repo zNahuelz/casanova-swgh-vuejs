@@ -31,4 +31,9 @@ class VoucherDetail extends Model
     {
         return $this->belongsTo(Treatment::class);
     }
+
+    public function appointment(): BelongsTo
+    {
+        return $this->belongsTo(Appointment::class);
+    }
 }
