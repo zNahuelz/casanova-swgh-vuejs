@@ -5,7 +5,7 @@ export const PatientService = {
     create(patient) {
         return Http.POST(this.endpoint, patient);
     },
-    update(id, doctor) {
+    update(id, patient) {
         return Http.PUT(`${this.endpoint}/${id}`, patient);
     },
     get(filters = {}, pagination = {}, sorting = {}) {

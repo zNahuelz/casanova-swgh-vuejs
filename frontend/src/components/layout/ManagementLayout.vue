@@ -56,16 +56,16 @@ onMounted(() => {
           </button>
           <ul id="appointments-dropdown" class="hidden py-2 space-y-2">
             <li>
-              <router-link :to="{name: 'new-appointment'}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
-                 href="#">Nueva</router-link>
+              <router-link :to="{name: 'new-appointment'}"
+                           class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
+                           href="#">Nueva
+              </router-link>
             </li>
             <li>
-              <a class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
-                 href="#">Listado</a>
-            </li>
-            <li>
-              <a class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
-                 href="#">3</a>
+              <router-link :to="{name: 'appointment-list'}"
+                           class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
+              >Listado
+              </router-link>
             </li>
           </ul>
         </li>
@@ -99,10 +99,6 @@ onMounted(() => {
                            class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
               >Listado
               </router-link>
-            </li>
-            <li>
-              <a class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
-                 href="#">3</a>
             </li>
           </ul>
         </li>
@@ -179,6 +175,42 @@ onMounted(() => {
               <router-link :to="{name: 'presentation-list'}"
                            class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500">
                 Presentaciones
+              </router-link>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <button aria-controls="patients-dropdown"
+                  class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-green-500"
+                  data-collapse-toggle="patients-dropdown" type="button">
+
+
+            <svg aria-hidden="true"
+                 class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"
+                 fill="currentColor" height="24" viewBox="0 0 24 24" width="24"
+                 xmlns="http://www.w3.org/2000/svg">
+              <path clip-rule="evenodd"
+                    d="M8 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1h2a2 2 0 0 1 2 2v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2Zm6 1h-4v2H9a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2h-1V4Zm-3 8a1 1 0 0 1 1-1h3a1 1 0 1 1 0 2h-3a1 1 0 0 1-1-1Zm-2-1a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H9Zm2 5a1 1 0 0 1 1-1h3a1 1 0 1 1 0 2h-3a1 1 0 0 1-1-1Zm-2-1a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H9Z"
+                    fill-rule="evenodd"/>
+            </svg>
+
+            <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">Pacientes</span>
+            <svg aria-hidden="true" class="w-3 h-3" fill="none" viewBox="0 0 10 6" xmlns="http://www.w3.org/2000/svg">
+              <path d="m1 1 4 4 4-4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"/>
+            </svg>
+          </button>
+          <ul id="patients-dropdown" class="hidden py-2 space-y-2">
+            <li>
+              <router-link :to="{name: 'new-patient'}"
+                           class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500">
+                Nuevo
+              </router-link>
+            </li>
+            <li>
+              <router-link :to="{name: 'patient-list'}"
+                           class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500">
+                Listado
               </router-link>
             </li>
           </ul>

@@ -105,7 +105,7 @@ async function searchPatient(values) {
       cancelButtonColor: '#e7000b',
     }).then((op) => {
       if (op.isConfirmed) {
-        router.push({name: 'new-patient'});
+        router.push({name: 'new-patient', query: {dni: values.dni.trim()}});
       } else {
         reloadPage();
       }

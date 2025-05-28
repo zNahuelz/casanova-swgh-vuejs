@@ -347,7 +347,7 @@ onMounted(() => {
             <nav aria-label="Table navigation"
                  class="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4 p-4">
             <span
-                class="text-sm font-normal text-gray-500  mb-4 md:mb-0 block w-full md:inline md:w-auto">De un total de <span
+                class="text-sm font-normal text-gray-500  mb-4 md:mb-0 block w-full md:inline md:w-auto">{{users.length}} de un total de <span
                 class="font-semibold text-gray-900 ">{{ totalItems }}</span> usuarios</span>
               <ul class="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
                 <li>

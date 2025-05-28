@@ -35,6 +35,9 @@ export const ERROR_MESSAGES = {
     DNI_PATIENT_NOT_FOUND: 'No se encontraron pacientes registrados con el DNI ingresado. Vuelva a intentarlo o registre al paciente.',
     APPOINTMENT_CREATION_ERROR: 'Error durante la reserva de citas. Vuelva a intentarlo, si el problema continua comuniquese con administración',
     DEFAULT_PATIENT_NOT_AVAILABLE: 'El DNI ingresado pertenece al paciente genérico; por tanto, no puede realizar la reserva de cita. Todo paciente debe reservar la cita con su número de DNI personal, intente nuevamente.',
+    PATIENT_DNI_TAKEN: 'El DNI ingresado ya se encuentra registrado en el sistema.',
+    PATIENT_EMAIL_TAKEN: 'El correo electrónico ingresado ya se encuentra en uso por otro paciente.',
+    PATIENT_NOT_FOUND: 'Paciente no encontrado. Intente nuevamente, si el problema persiste comuniquese con administración',
 }
 
 export const SUPPLIER_SEARCH_MODES = [
@@ -77,6 +80,12 @@ export const TREATMENT_SEARCH_MODES = [
     {value: 'procedure', label: 'POR PROCEDIMIENTO'}
 ]
 
+export const PATIENT_SEARCH_MODES = [
+    {value: 'id', label: 'POR ID'},
+    {value: 'name', label: 'POR NOMBRE'},
+    {value: 'dni', label: 'POR DNI'},
+]
+
 export const DOCTOR_SEARCH_MODES = [
     {value: 'id', label: 'POR ID'},
     {value: 'name', label: 'POR NOMBRE'},
@@ -114,6 +123,7 @@ export const UNAVAILABILITY_REASONS = [
     {reason: 'DÍA LIBRE'},
     {reason: 'MATERNIDAD'},
     {reason: 'NO ESPECIFICADO'},
+    {reason: 'RETIRADO'}
 ]
 
 export const APPOINTMENT_TYPE = [

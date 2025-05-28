@@ -38,6 +38,16 @@ class Patient extends Model
 
     public function updatedBy(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function getCreatedByNameAttribute(): ?string
+    {
+        return $this->createdBy ? $this->createdBy->display_name : null;
+    }
+
+        public function getUpdatedByNameAttribute(): ?string
+    {
+        return $this->updatedBy ? $this->updatedBy->display_name : null;
     }
 }

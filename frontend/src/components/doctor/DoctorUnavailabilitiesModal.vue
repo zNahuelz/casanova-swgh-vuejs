@@ -1,7 +1,10 @@
 <script setup>
-import {formatAsDate} from "@/utils/helpers.js";
+import {formatAsDate, reloadOnDismiss} from "@/utils/helpers.js";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import Swal from "sweetalert2";
+import {ERROR_MESSAGES as EM, SUCCESS_MESSAGES as SM} from "@/utils/constants.js";
+import {DoctorService} from "@/services/doctor-service.js";
 
 dayjs.extend(customParseFormat);
 
@@ -19,6 +22,34 @@ function isCurrentlyActive(start, end) {
   } else {
     return "VIGENTE";
   }
+}
+
+function askForRemoval(unav) {
+  Swal.fire({
+    title: 'Confirmar operación',
+    html: `Está a punto de deshabilitar la siguiente indisponibilidad.
+    <br>
+    <span class="font-bold">ID: </span><span>${unav.id}</span> <br>
+    <span class="font-bold">FECHA DE INICIO: </span><span>${formatAsDate(unav.start_datetime)}</span> <br>
+    <span class="font-bold">FECHA DE FIN: </span><span>${formatAsDate(unav.end_datetime)}</span> <br>
+    <span class="font-bold">RAZÓN: </span><span>${unav.reason}</span> <br>
+    El doctor volverá a estar disponible para reserva de citas.`,
+    icon: 'question',
+    showCancelButton: true,
+    cancelButtonText: 'NO',
+    confirmButtonText: 'SI',
+    confirmButtonColor: '#008236',
+    cancelButtonColor: '#e7000b',
+  }).then(async (op) => {
+    if (op.isConfirmed) {
+      try {
+        const response = await DoctorService.removeUnavailability(unav.id);
+        Swal.fire(SM.SUCCESS_TAG, response.message, 'success').then((r) => reloadOnDismiss(r));
+      } catch (err) {
+        Swal.fire(EM.ERROR_TAG, EM.SERVER_ERROR, 'error').then((r) => reloadOnDismiss(r));
+      }
+    }
+  });
 }
 </script>
 
@@ -60,6 +91,9 @@ function isCurrentlyActive(start, end) {
             <th class="px-6 py-3" scope="col">
               ESTADO
             </th>
+            <th class="px-6 py-3" scope="col">
+              HERRAMIENTAS
+            </th>
           </tr>
           </thead>
           <tbody>
@@ -81,6 +115,15 @@ function isCurrentlyActive(start, end) {
               {{
                 isCurrentlyActive(formatAsDate(u.start_datetime), formatAsDate(u.end_datetime))
               }}
+            </td>
+            <td class="px-6 py-2">
+              <button
+                  :disabled="isCurrentlyActive(formatAsDate(u.start_datetime), formatAsDate(u.end_datetime)) === 'PASADO'"
+                  class="px-3 py-2 text-xs font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 disabled:bg-gray-500 disabled:cursor-not-allowed"
+                  type="button"
+                  @click="askForRemoval(u)">
+                Deshabilitar
+              </button>
             </td>
           </tr>
 

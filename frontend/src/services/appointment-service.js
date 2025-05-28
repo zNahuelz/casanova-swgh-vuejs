@@ -19,6 +19,6 @@ export const AppointmentService = {
             params.show_unavailabilities = query.show_unavailabilities ? 1 : 0;
         }
 
-        return Http.GET(this.endpoint, params);
+        return Http.GET(`${this.endpoint}/prepare`, params);
     }
 };

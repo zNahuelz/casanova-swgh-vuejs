@@ -31,6 +31,11 @@ import EditDoctorAvailabilities from "@/views/doctor/EditDoctorAvailabilities.vu
 import PrepareAppointmentView from "@/views/appointment/PrepareAppointmentView.vue";
 import NewPatientView from "@/views/patient/NewPatientView.vue";
 import SalesModuleView from "@/views/sales/SalesModuleView.vue";
+import PatientListView from "@/views/patient/PatientListView.vue";
+import AppointmentListView from "@/views/appointment/AppointmentListView.vue";
+import EditPatientView from "@/views/patient/EditPatientView.vue";
+import PatientDetailView from "@/views/patient/PatientDetailView.vue";
+import AppointmentDetailView from "@/views/appointment/AppointmentDetailView.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -195,10 +200,40 @@ const router = createRouter({
                     meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA']}
                 },
                 {
+                  path: 'appointment-list',
+                  name: 'appointment-list',
+                  component: AppointmentListView,
+                  meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA','DOCTOR']}
+                },
+                {
+                  path: 'appointment-detail/:id',
+                  name: 'appointment-detail',
+                  component: AppointmentDetailView,
+                  meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA','DOCTOR']}
+                },
+                {
                     path: 'new-patient',
                     name: 'new-patient',
                     component: NewPatientView,
                     meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA']}
+                },
+                {
+                    path: 'patient-list',
+                    name: 'patient-list',
+                    component: PatientListView,
+                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA','DOCTOR']}
+                },
+                {
+                  path: 'edit-patient/:id',
+                  name: 'edit-patient',
+                  component: EditPatientView,
+                  meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA']}
+                },
+                {
+                  path: 'patient-detail/:id',
+                  name: 'patient-detail',
+                  component: PatientDetailView,
+                  meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA','DOCTOR']}
                 },
                 {
                   path: 'sell-products',

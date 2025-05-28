@@ -152,7 +152,7 @@ onMounted(() => {
   <main class="flex flex-col items-center pt-5 relative">
     <div class="container px-12 mx-auto">
       <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm w-full">
-        <h5 class="mb-2 text-2xl font-bold tracking-tight text-black text-start">LISTADO DE PROVEEDORES</h5>
+        <h5 class="mb-2 text-2xl font-bold tracking-tight text-black text-start" v-if="!isLoading">LISTADO DE PROVEEDORES</h5>
 
         <div class="container mt-5 mb-5 flex flex-col items-center" v-if="isLoading">
           <div role="status">
@@ -261,7 +261,7 @@ onMounted(() => {
             <nav class="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4 p-4"
                  aria-label="Table navigation">
             <span
-                class="text-sm font-normal text-gray-500  mb-4 md:mb-0 block w-full md:inline md:w-auto">De un total de <span
+                class="text-sm font-normal text-gray-500  mb-4 md:mb-0 block w-full md:inline md:w-auto">{{suppliers.length}} de un total de <span
                 class="font-semibold text-gray-900 ">{{ totalItems }}</span> proveedores</span>
               <ul class="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
                 <li>

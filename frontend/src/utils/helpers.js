@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 
 export function reloadOnDismiss(r) {
     if (r.dismiss || r.isDismissed || r.isConfirmed) {
@@ -35,4 +36,18 @@ export function getWeekdayName(number){
         case 7:
             return 'DOMINGO';
     }
+}
+
+export function validateDni(dni){
+    const regex = /^[0-9]{8,15}$/;
+    return regex.test(dni);
+}
+
+export function calculateAge(dateStr, format = 'YYYY-MM-DD'){
+    dayjs.extend(customParseFormat);
+    const birth = dayjs(dateStr, format).startOf('day')
+    if (!birth.isValid()) {
+        return 'N/A'
+    }
+    return dayjs().diff(birth, 'year')
 }

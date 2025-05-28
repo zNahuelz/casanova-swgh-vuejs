@@ -352,7 +352,7 @@ class DoctorController extends Controller
             });
 
             // Attach human-readable weekly availability property
-            $weeklySlots = str_replace('-','',$weeklySlots);
+            $weeklySlots = str_replace('-', '', $weeklySlots);
             $doctor->current_week_availabilities = "{$weeklySlots} citas disponibles está semana.";
             return $doctor;
         });
@@ -360,9 +360,10 @@ class DoctorController extends Controller
         return response()->json($doctors);
     }
 
-    public function getAllDoctors(){
+    public function getAllDoctors()
+    {
         $doctors = Doctor::all();
-        return response()->json($doctors,200);
+        return response()->json($doctors, 200);
     }
 
     public function createUnavailability(Request $request)
@@ -411,5 +412,38 @@ class DoctorController extends Controller
             'message' => 'Indisponibilidad creada correctamente. Asignado ID: ' . $unavailability->id,
             'unavailability' => $unavailability
         ], 201);
+    }
+
+    public function removeUnavailability($id)
+    {
+        $unav = DoctorUnavailability::find($id);
+        if (!$unav) {
+            return response()->json([
+                'message' => "Indisponibilidad de ID: {$id} no encontrada. Intente nuevamente o comuníquese con administración."
+            ], 404);
+        }
+
+        $today = Carbon::today();                         
+        $startDate = Carbon::parse($unav->start_datetime)->startOfDay();
+        $endOfToday = $today->copy()->endOfDay();     
+
+        $data = [
+            'end_datetime' => $endOfToday,
+        ];
+
+        //Si startDate es en el futuro setear startDate a HOY inicio día.
+        //Entonces endDate sera HOY al final del día.
+        //Si el inicio de indisponibilidad es en el pasado o HOY, final sera fin del dia, inicio permanece igual.
+        if ($startDate->gt($today)) {
+            $data['start_datetime'] = $today->copy()->startOfDay();
+        }
+
+        $unav->update($data);
+
+        return response()->json([
+            'message' => "Indisponibilidad modificada correctamente. " .
+                "La reserva de citas del doctor se normalizará desde el día: " .
+                $today->format('d-m-Y') . " a la medianoche."
+        ], 200);
     }
 }

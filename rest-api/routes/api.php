@@ -111,18 +111,23 @@ Route::group([
     Route::get('/available', [DoctorController::class, 'getAvailableDoctors'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
     Route::get('/all', [DoctorController::class, 'getAllDoctors'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/{id}', [DoctorController::class, 'getDoctor'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+    Route::delete('/unavailability/{id}', [DoctorController::class, 'removeUnavailability'])->middleware('role:ADMINISTRADOR,SECRETARIA');
 });
 
 Route::group([
     'prefix' => '/appointment'
 ], function($router){
-    Route::get('/', [AppointmentController::class, 'prepareAppointment'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
+    Route::get('/', [AppointmentController::class, 'getAppointments'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+    Route::get('/prepare', [AppointmentController::class, 'prepareAppointment'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
     Route::post('/', [AppointmentController::class, 'createAppointment'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
 });
 
 Route::group([
     'prefix' => '/patient'
 ], function($router){
+    Route::post('/', [PatientController::class,'createPatient'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
+    Route::put('/{id}', [PatientController::class, 'updatePatient'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
+    Route::get('/', [PatientController::class, 'getPatients'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/{id}', [PatientController::class, 'getPatient'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/by-dni/{dni}', [PatientController::class, 'getPatientByDni'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
 });

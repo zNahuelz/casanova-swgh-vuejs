@@ -35,6 +35,10 @@ function goToEdit(id) {
   router.push({name: 'edit-worker', params: {id}});
 }
 
+function goBack(){
+  router.back();
+}
+
 onMounted(() => {
   document.title = 'ALTERNATIVA CASANOVA - DETALLE DE TRABAJADOR'
   const id = route.params.id;
@@ -165,7 +169,7 @@ onMounted(() => {
         <div class="flex justify-center mt-5">
           <div class="inline-flex rounded-md shadow-xs" role="group">
             <button class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
-                    type="button">
+                    type="button" @click="goBack()">
               <i class="bi bi-arrow-return-left w-3 h-3 me-2 flex items-center justify-center"></i>
               Atras
             </button>

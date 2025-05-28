@@ -41,4 +41,7 @@ export const DoctorService = {
     updateAvailabilities(id, payload) {
         return Http.PUT(`${this.endpoint}/availabilities/${id}`, {availabilities: payload});
     },
+    removeUnavailability(id){
+        return Http.DELETE(`${this.endpoint}/unavailability/${id}`);
+    }
 };

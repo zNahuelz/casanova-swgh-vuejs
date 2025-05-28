@@ -40,9 +40,9 @@ const schema = yup.object().shape({
       .trim()
       .test(
           'valid-maternal-surname',
-          'El apellido materno debe tener entre 2 y 30 carácteres y solo letras.',
+          'El apellido materno debe tener entre 2 y 30 carácteres.',
           value => {
-            if (!value) return true; // allow null, undefined or empty
+            if (!value) return true;
             const valid = /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{2,30}$/.test(value.trim());
             return valid;
           }

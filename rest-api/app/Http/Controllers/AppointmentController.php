@@ -396,7 +396,7 @@ class AppointmentController extends Controller
                 'created_by' => $request->created_by
             ]);
             DB::commit();
-            if($appointment->patient->email != 'EMAIL@DOMINIO.COM') //TODO: Remove on deployment.
+            if ($appointment->patient->email != 'EMAIL@DOMINIO.COM') //TODO: Remove on deployment.
             {
                 SendAppointmentReminder::dispatch($appointment)->delay(now()->addMinutes(5));
             }
@@ -412,6 +412,61 @@ class AppointmentController extends Controller
             ], 500);
         }
         //TODO: ---> Then make appointment list per doctor, general, patient etc...
-        //Then do appointment reschedule.... (With the same doctor ONLY...???)
+        //TODO: Then do appointment reschedule.... (With the same doctor ONLY...???)
+    }
+
+    public function getAppointments(Request $request)
+    {
+        //TODO: Make UI and modify.
+        $query = Appointment::with(['doctor', 'patient']);
+
+        if ($request->filled('patient_dni')) {
+            $dni = $request->input('patient_dni');
+            $query->whereHas(
+                'patient',
+                fn($q) =>
+                $q->where('dni', 'like', "%{$dni}%")
+            );
+        }
+
+        if ($request->filled('doctor_id')) {
+            $query->where('doctor_id', $request->input('doctor_id'));
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        if ($request->filled('date')) {
+            // exact date match YYYY-MM-DD
+            $query->whereDate('date', $request->input('date'));
+        }
+
+        if ($request->filled('is_remote')) {
+            $query->where(
+                'is_remote',
+                filter_var($request->input('is_remote'), FILTER_VALIDATE_BOOLEAN)
+            );
+        }
+
+        $today = Carbon::today();
+        $query->whereDate('date', '>=', $today);
+
+        $query->orderBy('date')->orderBy('time');
+
+        $appointments = $query->get();
+
+        $grouped = $appointments
+            ->groupBy('doctor_id')
+            ->map(function ($aps) {
+                $doctor = $aps->first()->doctor;  // already eager-loaded
+                return [
+                    'doctor'       => $doctor->toArray(),
+                    'appointments' => $aps->map->toArray()->values(),
+                ];
+            })
+            ->values(); // reset keys
+
+        return response()->json($grouped, 200);
     }
 }

@@ -136,7 +136,6 @@ class AuthController extends Controller
             'expiration' => Carbon::now()->addMinutes(10),
         ]);
 
-        //Mail::to($user->email)->send(new ForgotPasswordMail($user,$recoveryLink));
         SendForgotPasswordToken::dispatch($user,$recoveryLink)->delay(now()->addMinutes(2)); //TODO: Ver 
         return response()->json([
             'message' => 'Operación completada correctamente. Si el e-mail ingresado pertenece a un usuario las instrucciones para recuperar su cuenta seran enviadas.'
