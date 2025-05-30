@@ -5,6 +5,9 @@ export const AppointmentService = {
     create(appointment) {
         return Http.POST(this.endpoint, appointment);
     },
+    reschedule(payload){
+        return Http.PUT(this.endpoint,payload);
+    },
     prepare(query = {}) {
         let params = {};
         params.doctor_id = query.doctor_id;
@@ -20,5 +23,24 @@ export const AppointmentService = {
         }
 
         return Http.GET(`${this.endpoint}/prepare`, params);
+    },
+    get(filters = {}, pagination = {}, sorting = {}){
+        const params = {};
+        Object.entries(filters).forEach(([key, val]) => {
+            if (val !== null && val !== undefined && val !== "") {
+                params[key] = val;
+            }
+        });
+
+        if (pagination.page)       params.page = pagination.page;
+        if (pagination.per_page)   params.per_page = pagination.per_page;
+
+        if (sorting.by)    params.sort_by  = sorting.by;
+        if (sorting.dir)   params.sort_dir = sorting.dir;
+
+        return Http.GET(this.endpoint, params );
+    },
+    getById(id){
+        return Http.GET(`${this.endpoint}/${id}`);
     }
 };

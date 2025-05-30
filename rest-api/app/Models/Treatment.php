@@ -27,6 +27,11 @@ class Treatment extends Model
         return $this->hasMany(VoucherDetail::class);
     }
 
+    public function pendingPayments(): HasMany
+    {
+        return $this->hasMany(PendingPayment::class);
+    }
+
     public function appointments(): BelongsToMany
     {
         return $this->belongsToMany(Appointment::class);

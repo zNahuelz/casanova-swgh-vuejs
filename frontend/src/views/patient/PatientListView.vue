@@ -95,7 +95,7 @@ function goToEdit(id) {
   router.push({name: 'edit-patient', params: {id}});
 }
 
-function goToDetails(id){
+function goToDetails(id) {
   router.push({name: 'patient-detail', params: {id}});
 }
 
@@ -109,7 +109,8 @@ onMounted(() => {
   <main class="flex flex-col items-center pt-5 relative">
     <div class="container px-12 mx-auto">
       <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm w-full">
-        <h5 class="mb-2 text-2xl font-bold tracking-tight text-black text-start" v-if="!isLoading">LISTADO DE PACIENTES</h5>
+        <h5 v-if="!isLoading" class="mb-2 text-2xl font-bold tracking-tight text-black text-start">LISTADO DE
+          PACIENTES</h5>
         <div v-if="isLoading" class="container mt-5 mb-5 flex flex-col items-center">
           <div role="status">
             <svg aria-hidden="true" class="inline w-30 h-30 text-gray-200 animate-spin  fill-green-600"
@@ -209,14 +210,14 @@ onMounted(() => {
                   <div class="inline-flex rounded-md shadow-xs" role="group">
                     <button
                         class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
-                        title="EDITAR" @click="goToEdit(p.id)"
-                        type="button">
+                        title="EDITAR" type="button"
+                        @click="goToEdit(p.id)">
                       <i class="bi bi-pencil-square w-4 h-4"></i>
                     </button>
                     <button
                         class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-e border-t border-b border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue  -700 disabled:bg-gray-200 disabled:cursor-not-allowed"
-                        title="DETALLES" @click="goToDetails(p.id)"
-                        type="button">
+                        title="DETALLES" type="button"
+                        @click="goToDetails(p.id)">
                       <i class="bi bi-three-dots w-4 h-4"></i>
                     </button>
                   </div>
@@ -228,7 +229,7 @@ onMounted(() => {
             <nav aria-label="Table navigation"
                  class="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4 p-4">
             <span
-                class="text-sm font-normal text-gray-500  mb-4 md:mb-0 block w-full md:inline md:w-auto">{{patients.length}} de un total de <span
+                class="text-sm font-normal text-gray-500  mb-4 md:mb-0 block w-full md:inline md:w-auto">{{ patients.length }} de un total de <span
                 class="font-semibold text-gray-900 ">{{ totalItems }}</span> pacientes</span>
               <ul class="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
                 <li>

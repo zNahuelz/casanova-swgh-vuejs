@@ -5,16 +5,20 @@ namespace App\Http\Controllers;
 use App\Enums\AppointmentStatus;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendAppointmentReminder;
+use App\Jobs\SendAppointmentRescheduledReminder;
 use App\Mail\AppointmentReminderMail;
 use App\Models\Appointment;
 use App\Models\DoctorAvailability;
 use App\Models\DoctorUnavailability;
 use App\Models\Holiday;
 use App\Models\Patient;
+use App\Models\PendingPayment;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Enum;
 
@@ -378,9 +382,13 @@ class AppointmentController extends Controller
                 'status' => 'DUPLICATED_APPOINTMENT_DIFF_PATIENT'
             ], 422);
         }
-
+        $costValue = Setting::where('key', 'COSTO_CITA_REGULAR')->first();
         try {
             DB::beginTransaction();
+            $appointmentCost = 120;
+            if ($costValue) {
+                $appointmentCost = doubleval($costValue->value);
+            }
             $appointment = Appointment::create([
                 'date' => $date,
                 'time' => $time,
@@ -395,30 +403,156 @@ class AppointmentController extends Controller
                 'doctor_id' => $doctorId,
                 'created_by' => $request->created_by
             ]);
+            //TODO: Remove if doesnt work.
+            $pendingPayment = PendingPayment::create([
+                'appointment_id' => $appointment->id,
+                'value' => $appointmentCost,
+                'notes' => "PAGO PENDIENTE DE CITA: $appointment->id -- FECHA RESERVA: $appointment->date / HORA RESERVA: $appointment->time"
+            ]);
             DB::commit();
             if ($appointment->patient->email != 'EMAIL@DOMINIO.COM') //TODO: Remove on deployment.
             {
                 SendAppointmentReminder::dispatch($appointment)->delay(now()->addMinutes(5));
             }
             return response()->json([
-                'message' => "Cita correctamente reservada. Asignado ID: {$appointment->id}",
+                'message' => "Cita correctamente reservada. Asignado ID: $appointment->id - Solicitud de pago generada bajo ID: $pendingPayment->id",
                 'appointment' => $appointment,
+                'pending_payment' => $pendingPayment,
             ], 201);
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json([
                 'message' => 'Error en la reserva de cita. Comuniquese con administración o intente nuevamente.',
-                'ex' => $e
+                'ex' => $e,
+                'exm' => $e->getMessage(),
             ], 500);
         }
-        //TODO: ---> Then make appointment list per doctor, general, patient etc...
-        //TODO: Then do appointment reschedule.... (With the same doctor ONLY...???)
+    }
+
+    //TODO: TEST...!!
+    public function rescheduleAppointment(Request $request)
+    {
+        $request->validate([
+            'appointment_id'   => ['required', 'exists:appointments,id'],
+            'new_date'         => ['required', 'date_format:Y-m-d'],
+            'new_time'         => ['required', 'date_format:H:i:s'],
+            'doctor_id'        => ['required', 'exists:doctors,id'],
+            'status'           => ['required', new Enum(AppointmentStatus::class)], // e.g. REPROGRAMADO
+            'updated_by'       => ['required', 'exists:users,id'],
+        ]);
+
+        $appointment = Appointment::with(['patient', 'doctor'])->findOrFail($request->appointment_id);
+        $patientId   = $appointment->patient_id;
+        $newDoctorId = $request->doctor_id;
+        $newDate     = $request->new_date;
+        $newTime     = $request->new_time;
+
+        $weekday = Carbon::parse($newDate)->dayOfWeekIso;
+        $avail   = DoctorAvailability::where('doctor_id', $newDoctorId)
+            ->where('weekday', $weekday)
+            ->first();
+
+        if (!$avail || !$avail->is_active) {
+            return response()->json([
+                'message' => 'El doctor no está disponible para el día seleccionado.',
+                'status'  => 'UNAVAILABLE_DAY'
+            ], 422);
+        }
+
+        $workStart  = $avail->start_time->copy()->setDate(0, 1, 1);
+        $workEnd    = $avail->end_time->copy()->setDate(0, 1, 1);
+        $breakStart = $avail->break_start->copy()->setDate(0, 1, 1);
+        $breakEnd   = $avail->break_end->copy()->setDate(0, 1, 1);
+        $newTimeC   = Carbon::createFromFormat('H:i:s', $newTime)->setDate(0, 1, 1);
+
+        if ($newTimeC->lt($workStart) || $newTimeC->gte($workEnd)) {
+            return response()->json([
+                'message' => 'La nueva hora está fuera del horario laboral del doctor.',
+                'status'  => 'TIME_OUTSIDE_WORK_HOURS'
+            ], 422);
+        }
+        if ($newTimeC->gte($breakStart) && $newTimeC->lt($breakEnd)) {
+            return response()->json([
+                'message' => 'La nueva hora coincide con el descanso del doctor.',
+                'status'  => 'TIME_WITHIN_BREAK'
+            ], 422);
+        }
+
+        $conflictQuery = function ($query, $field, $value) use ($newDate, $newTime, $appointment) {
+            $query->where($field, $value)
+                ->where(function ($q) use ($newDate, $newTime) {
+                    $q->where(fn($q2) => $q2->where('date', $newDate)->where('time', $newTime))
+                        ->orWhere(fn($q2) => $q2->where('rescheduling_date', $newDate)
+                            ->where('rescheduling_time', $newTime));
+                })
+                ->where('id', '!=', $appointment->id);
+        };
+
+        $patientConflict = Appointment::where('patient_id', $patientId)
+            ->where(fn($q) => $conflictQuery($q, 'patient_id', $patientId))
+            ->exists();
+        if ($patientConflict) {
+            return response()->json([
+                'message' => 'El paciente ya tiene una cita en esa fecha y hora.',
+                'status'  => 'DUPLICATED_APPOINTMENT_CURRENT_PATIENT'
+            ], 422);
+        }
+
+        $doctorConflict = Appointment::where('doctor_id', $newDoctorId)
+            ->where(fn($q) => $conflictQuery($q, 'doctor_id', $newDoctorId))
+            ->exists();
+        if ($doctorConflict) {
+            return response()->json([
+                'message' => 'El doctor ya tiene una cita en esa fecha y hora.',
+                'status'  => 'DUPLICATED_APPOINTMENT_DIFF_PATIENT'
+            ], 422);
+        }
+
+        try {
+            DB::beginTransaction();
+            $appointment->update([
+                'doctor_id'           => $newDoctorId,
+                'rescheduling_date'   => $newDate,
+                'rescheduling_time'   => $newTime,
+                'status'              => $request->status,
+                'updated_by'          => $request->updated_by,
+            ]);
+            DB::commit();
+
+            if ($appointment->patient->email !== 'EMAIL@DOMINIO.COM') {
+                SendAppointmentRescheduledReminder::dispatch($appointment)
+                    ->delay(now()->addMinutes(5));
+            }
+
+            return response()->json([
+                'message'     => "Cita reprogramada correctamente con nuevo doctor. ID: {$appointment->id}",
+                'appointment' => $appointment,
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Error al reprogramar la cita. Intente nuevamente.',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function getAppointments(Request $request)
     {
-        //TODO: Make UI and modify.
         $query = Appointment::with(['doctor', 'patient']);
+
+        if ($request->has('id')) {
+            $query->where('id', $request->input('id'));
+        }
+
+        if ($request->filled('doctor_dni')) {
+            $dni = $request->input('doctor_dni');
+            $query->whereHas(
+                'doctor',
+                fn($q) =>
+                $q->where('dni', 'like', "%{$dni}%")
+            );
+        }
 
         if ($request->filled('patient_dni')) {
             $dni = $request->input('patient_dni');
@@ -429,44 +563,53 @@ class AppointmentController extends Controller
             );
         }
 
-        if ($request->filled('doctor_id')) {
-            $query->where('doctor_id', $request->input('doctor_id'));
-        }
-
         if ($request->filled('status')) {
             $query->where('status', $request->input('status'));
         }
 
-        if ($request->filled('date')) {
-            // exact date match YYYY-MM-DD
-            $query->whereDate('date', $request->input('date'));
-        }
-
         if ($request->filled('is_remote')) {
-            $query->where(
-                'is_remote',
-                filter_var($request->input('is_remote'), FILTER_VALIDATE_BOOLEAN)
-            );
+            $isRemote = filter_var($request->input('is_remote'), FILTER_VALIDATE_BOOLEAN);
+            $query->where('is_remote', $isRemote);
         }
 
-        $today = Carbon::today();
-        $query->whereDate('date', '>=', $today);
+        if ($request->filled('date')) {
+            $exact = Carbon::createFromFormat('Y-m-d', $request->input('date'));
+            $query->whereDate('date', $exact);
+        }
 
-        $query->orderBy('date')->orderBy('time');
+        $usingDateFrom = false;
+        if ($request->filled('date_from')) {
+            $usingDateFrom = true;
+            $from = Carbon::createFromFormat('Y-m-d', $request->input('date_from'))->startOfDay();
+            $query->whereDate('date', '>=', $from);
+        }
 
-        $appointments = $query->get();
+        if ($usingDateFrom) {
+            $query->orderBy('date', 'asc')
+                ->orderBy('time', 'asc')
+                ->orderBy('doctor_id', 'asc');
+        } else {
+            $query->orderBy('doctor_id', 'asc')
+                ->orderByDesc('date')
+                ->orderByDesc('time');
+        }
 
-        $grouped = $appointments
-            ->groupBy('doctor_id')
-            ->map(function ($aps) {
-                $doctor = $aps->first()->doctor;  // already eager-loaded
-                return [
-                    'doctor'       => $doctor->toArray(),
-                    'appointments' => $aps->map->toArray()->values(),
-                ];
-            })
-            ->values(); // reset keys
+        $perPage = (int) $request->input('per_page', 15);
+        $paginated = $query->paginate($perPage);
+        return response()->json($paginated);
+    }
 
-        return response()->json($grouped, 200);
+    public function getAppointmentById($id)
+    {
+        $appointment = Appointment::where('id', $id)->with(['doctor', 'patient'])->first();
+        if (!$appointment) {
+            return response()->json([
+                'message' => "Cita de ID: {$id} no encontrada."
+            ], 404);
+        }
+
+        return response()->json($appointment, 200);
+
+        //When "buying" the appointment remove it from pending_payments and mark it as paid. -- Later...
     }
 }

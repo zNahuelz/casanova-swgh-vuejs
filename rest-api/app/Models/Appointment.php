@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\AppointmentStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Appointment extends Model
 {
@@ -42,6 +43,16 @@ class Appointment extends Model
     public function treatment(): BelongsTo
     {
         return $this->belongsTo(Treatment::class, 'is_treatment');
+    }
+
+    public function voucherDetails(): HasMany
+    {
+        return $this->hasMany(VoucherDetail::class); //TODO: If something fails here's the problem.
+    }
+
+    public function pendingPayments(): HasMany
+    {
+        return $this->hasMany(PendingPayment::class); //U too.
     }
 
     public function createdBy(): BelongsTo

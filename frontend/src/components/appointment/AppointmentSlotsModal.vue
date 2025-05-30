@@ -65,13 +65,14 @@ async function onSubmit(selectedDay, s) {
       created_by: authService.getUserId(),
     };
     const response = await AppointmentService.create(payload);
-    Swal.fire(SM.SUCCESS_TAG, `${response.message} <br> Será redirigido a la sección de ventas para generar comprobante de pago.`, 'success').then((r) => {
+    Swal.fire(SM.SUCCESS_TAG, `${response.message} <br> Será redirigido a la sección de ventas para proceder con el pago.`, 'success').then((r) => {
       if (r.isConfirmed || r.dismiss || r.isDismissed) {
         router.push({name: 'sell-products'}); //TODO: Pasar como parametro de ruta el "servicio" de cita,
         //TODO para que este agregado en pendiente de pago. Maybe DNI paciente tmb. --> ID CITA TAMBIEN?
       }
     });
   } catch (err) {
+    console.log(err);
     if (err?.status === 'UNAVAILABLE_DAY') {
       Swal.fire(EM.ERROR_TAG, err.message, 'warning');
     } else if (err?.status === 'TIME_OUTSIDE_WORK_HOURS') {

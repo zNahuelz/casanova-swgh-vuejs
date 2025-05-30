@@ -19,6 +19,11 @@ export function formatAsDate(date){
     return date ? dayjs(date).format('DD/MM/YYYY') : '';
 }
 
+export function formatAsTime(time){
+    dayjs.extend(customParseFormat);
+    return time ? dayjs(time,'HH:mm:ss').format('hh:mm A') : '';
+}
+
 export function getWeekdayName(number){
     switch(number){
         case 1:

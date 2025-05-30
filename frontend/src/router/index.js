@@ -36,6 +36,7 @@ import AppointmentListView from "@/views/appointment/AppointmentListView.vue";
 import EditPatientView from "@/views/patient/EditPatientView.vue";
 import PatientDetailView from "@/views/patient/PatientDetailView.vue";
 import AppointmentDetailView from "@/views/appointment/AppointmentDetailView.vue";
+import RescheduleAppointmentView from "@/views/appointment/RescheduleAppointmentView.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -197,6 +198,12 @@ const router = createRouter({
                     path: 'new-appointment',
                     name: 'new-appointment',
                     component: PrepareAppointmentView,
+                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA']}
+                },
+                {
+                    path: 'appointment-reschedule/:id',
+                    name: 'appointment-reschedule',
+                    component: RescheduleAppointmentView,
                     meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA']}
                 },
                 {

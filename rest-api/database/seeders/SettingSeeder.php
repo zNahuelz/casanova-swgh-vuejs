@@ -29,5 +29,9 @@ class SettingSeeder extends Seeder
             'key' => 'ESTADO_TRABAJO_FINDES',
             'value' => 'false'
         ]);
+        Setting::create([
+            'key' => 'COSTO_CITA_REGULAR',
+            'value' => '120'
+        ]);
     }
 }

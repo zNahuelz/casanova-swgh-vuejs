@@ -37,7 +37,8 @@ export const ERROR_MESSAGES = {
     DEFAULT_PATIENT_NOT_AVAILABLE: 'El DNI ingresado pertenece al paciente genérico; por tanto, no puede realizar la reserva de cita. Todo paciente debe reservar la cita con su número de DNI personal, intente nuevamente.',
     PATIENT_DNI_TAKEN: 'El DNI ingresado ya se encuentra registrado en el sistema.',
     PATIENT_EMAIL_TAKEN: 'El correo electrónico ingresado ya se encuentra en uso por otro paciente.',
-    PATIENT_NOT_FOUND: 'Paciente no encontrado. Intente nuevamente, si el problema persiste comuniquese con administración',
+    PATIENT_NOT_FOUND: 'Paciente no encontrado. Intente nuevamente, si el problema persiste comuniquese con administración.',
+    APPOINTMENT_NOT_FOUND: 'Cita no encontrada. Intente nuevamente, si el problema persiste comuniquese con administración.'
 }
 
 export const SUPPLIER_SEARCH_MODES = [
@@ -90,6 +91,23 @@ export const DOCTOR_SEARCH_MODES = [
     {value: 'id', label: 'POR ID'},
     {value: 'name', label: 'POR NOMBRE'},
     {value: 'dni', label: 'POR DNI'},
+]
+
+export const APPOINTMENT_SEARCH_MODES = [
+    {value: 'id', label: 'POR ID'},
+    {value: 'patient_dni', label: 'POR DNI - PACIENTE'},
+    {value: 'doctor_dni', label: 'POR DNI - DOCTOR'},
+    {value: 'status', label: 'POR ESTADO'},
+    {value: 'date', label: 'POR FECHA'},
+    {value: 'date_from', label: 'POR FECHA - EN ADELANTE'}
+]
+
+export const APPOINTMENT_STATUS_SEARCH_MODES = [
+    {value: '', label: '- ESTADO DE CITA -'},
+    {value: 'PENDIENTE', label: 'SOLO PENDIENTES'},
+    {value: 'ATENDIDO', label: 'SOLO ATENDIDAS'},
+    {value: 'REPROGRAMADO', label: 'SOLO REPROGRAMADAS'},
+    {value: 'CANCELADO', label: 'SOLO CANCELADAS'},
 ]
 
 export const WORKER_POSITIONS = [
