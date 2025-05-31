@@ -56,7 +56,6 @@ async function loadAvailableDoctors() {
       isLoading.value = false;
       doctorId.value = doctors.value[0]?.id;
     }
-    //console.log(doctors.value);
   } catch (err) {
     Swal.fire(EM.ERROR_TAG, EM.DOCTORS_NOT_LOADED, 'error').then((r) => reloadOnDismiss(r));
   }
@@ -116,7 +115,6 @@ async function searchPatient(values) {
 }
 
 async function onPrepareAppointments() {
-  console.log(showUnavailabilities.value);
   if (verifySearchValues()) {
     if (isCurrentDate(onDate.value)) {
       //Proceder con busqueda por RANGO.
@@ -129,7 +127,6 @@ async function onPrepareAppointments() {
         patient_dni: patient.value.dni,
         show_unavailabilities: showUnavailabilities.value,
       };
-      console.log(query);
       await prepareAppointments(query);
 
     } else {
@@ -143,11 +140,10 @@ async function onPrepareAppointments() {
         show_unavailabilities: showUnavailabilities.value,
         on_date: onDate.value,
       };
-      console.log(query);
       await prepareAppointments(query);
     }
   } else {
-    console.error('error pibe');
+    Swal.fire(EM.ERROR_TAG, EM.INVALID_APPOINTMENT_PREPARATION, 'error').then((r) => reloadOnDismiss(r));
   }
 }
 
@@ -155,9 +151,9 @@ async function prepareAppointments(query) {
   try {
     availableAppointments.value = await AppointmentService.prepare(query);
     appointmentsLoaded.value = true;
-    console.log(availableAppointments.value);
   } catch (err) {
-    console.log(err);
+    appointmentsLoaded.value = false;
+    Swal.fire(EM.ERROR_TAG, EM.SERVER_ERROR, 'error').then((r) => reloadOnDismiss(r));
   } finally {
     isLoading.value = false;
   }

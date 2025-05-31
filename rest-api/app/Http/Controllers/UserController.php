@@ -3,13 +3,44 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
+    public function createAdmin(Request $request)
+    {
+        $request->validate([
+            'username' => ['required','string','min:5','max:20','regex:/^[a-zA-Z0-9@_.-]{5,20}$/',Rule::unique('users','username')],
+            'email' => ['required','email','max:50',Rule::unique('users','email'),Rule::unique('doctors','email'),Rule::unique('workers','email')]
+        ]);
+
+        $role = Role::where('name','ADMINISTRADOR')->first();
+        if(!$role)
+        {
+            return response()->json([
+                'message' => 'El sistema no pudo encontrar el rol de ADMINISTRADOR. Comuniquese con administración.'
+            ],500);
+        }
+
+        $password = trim(strrev($request->username));
+        $user = User::create([
+            'username' => trim($request->username),
+            'password' => Hash::make($password),
+            'email' => trim(strtoupper($request->email)),
+            'role_id' => $role->id,
+        ]);
+
+        return response()->json([
+            'message' => "Administrador creado correctamente con el nombre de usuario $user->username e ID: $user->id <br> La contraseña de la cuenta es el nombre de usuario invertido.",
+            'user' => $user,
+        ],201);
+    }
+
     public function getUsers(Request $request)
     {
         $query = User::withTrashed()->with('role','doctor','worker');

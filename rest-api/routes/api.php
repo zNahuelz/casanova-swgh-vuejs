@@ -36,6 +36,7 @@ Route::group([
     'middleware' => 'role:ADMINISTRADOR'
 ], function($router){
     Route::get('/', [UserController::class, 'getUsers']);
+    Route::post('/', [UserController::class, 'createAdmin']);
     Route::post('/reset', [UserController::class, 'resetPassword']);
     Route::delete('/disable/{id}', [UserController::class, 'deleteUser']);
     Route::put('/enable/{id}', [UserController::class, 'restoreUser']);

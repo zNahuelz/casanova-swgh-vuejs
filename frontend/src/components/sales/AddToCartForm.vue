@@ -1,61 +1,26 @@
 <script setup>
-import {ErrorMessage, Field, Form, validate} from "vee-validate";
-import * as yup from "yup";
+import {ErrorMessage, Field, Form} from "vee-validate";
 import {ref} from "vue";
-import {MedicineService} from "@/services/medicine-service.js";
-import Swal from "sweetalert2";
-import {ERROR_MESSAGES as EM} from "@/utils/constants.js";
-import {reloadOnDismiss, reloadPage} from "@/utils/helpers.js";
 import {useRouter} from "vue-router";
+import * as yup from "yup";
 
 const isLoading = ref(false);
-const emit = defineEmits(['barcodeGenerated']);
+const emit = defineEmits(['foundProduct']);
 const loadingMessage = ref('');
 const router = useRouter();
 
 
 const schema = yup.object({
-  barcode: yup.string().min(8, 'El código de barras debe tener entre 8 y 30 carácteres.').max(30, 'El código de barras debe tener entre 8 y 30 carácteres.').matches(/^[A-Za-z0-9]{8,30}$/, 'El código de barras debe contener solo números y letras.').required('Debe ingresar un código de barras o generar uno aleatorio.'),
+  barcode: yup
+      .string()
+      .min(8, 'El código de barras debe tener entre 8 y 30 carácteres.')
+      .max(30, 'El código de barras debe tener entre 8 y 30 carácteres.')
+      .matches(/^[A-Za-z0-9]{8,30}$/, 'El código de barras debe contener solo números y letras.')
+      .required('Debe ingresar un código de barras.'),
 });
 
-
-async function loadRandomBarcode() {
-  loadingMessage.value = 'Generando código de barras...'
-  isLoading.value = true;
-  try {
-    const response = await MedicineService.generateRandomBarcode();
-    isLoading.value = false;
-    emit('barcodeGenerated', response.barcode);
-  } catch (err) {
-    Swal.fire(EM.ERROR_TAG, EM.BARCODE_GENERATION_ERROR, 'error').then((r) => reloadOnDismiss(r))
-  }
-}
-
-async function validateBarcode(value) {
-  loadingMessage.value = 'Validando código de barras...'
-  isLoading.value = true;
-  try {
-    const response = await MedicineService.getByBarcode(value.barcode);
-    let text = `El código de barras ingresado pertenece al siguiente producto: </br>ID: ${response.id} </br>NOMBRE: ${response.name} </br> CÓDIGO DE BARRAS: ${response.barcode} </br> ¿Desea modificar el stock del producto mencionado?`
-    Swal.fire({
-      title: 'Información',
-      html: text,
-      icon: 'question',
-      showCancelButton: true,
-      cancelButtonText: 'NO',
-      confirmButtonText: 'SI',
-      confirmButtonColor: '#008236',
-      cancelButtonColor: '#e7000b',
-    }).then((op) => {
-      if (op.isConfirmed) {
-        router.push({name: 'edit-medicine', params: {id: response.id}});
-      } else {
-        reloadPage();
-      }
-    });
-  } catch (err) {
-    emit('barcodeGenerated', value.barcode)
-  }
+async function onSubmit(values){
+  console.log(values); //TODO....! **CONTINUE
 }
 </script>
 
@@ -75,7 +40,7 @@ async function validateBarcode(value) {
     </div>
     <h1 class="mt-5 text-2xl font-light">{{ loadingMessage }}</h1>
   </div>
-  <Form class="max-w-md mx-auto mt-4" @submit="validateBarcode" :validation-schema="schema" v-if="!isLoading">
+  <Form class="max-w-md mx-auto mt-4" @submit="onSubmit" :validation-schema="schema" v-if="!isLoading">
     <div class="relative">
       <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
         <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
@@ -93,20 +58,13 @@ async function validateBarcode(value) {
       />
       <div class="absolute flex gap-2 end-2.5 bottom-2.5">
         <button
-            type="button" :disabled="isLoading" @click="loadRandomBarcode"
-            class="text-gray-700 bg-yellow-400 hover:bg-yellow-200 focus:ring-4 focus:outline-none focus:ring-yellow-400 font-medium rounded-lg text-sm px-4 py-2"
-        >
-          Aleatorio
-        </button>
-        <button
             type="submit" :disabled="isLoading"
             class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2"
         >
-          Asignar
+          Añadir
         </button>
       </div>
     </div>
     <ErrorMessage name="barcode" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
   </Form>
 </template>
-

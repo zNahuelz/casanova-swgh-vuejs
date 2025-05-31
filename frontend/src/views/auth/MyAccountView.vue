@@ -185,7 +185,6 @@ onMounted(() => {
                     authService.getTokenDetails().role === 'ADMINISTRADOR' ? 'Cambiar usuario' : 'Modificar datos personales'
                   }}
                 </button>
-                <!--TODO: Admin debe cambiar nombre de usuario. Trabajador: Direccion y telefono-->
               </div>
             </div>
           </div>

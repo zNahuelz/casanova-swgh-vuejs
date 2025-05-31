@@ -20,7 +20,7 @@ const pageSize = ref(10);
 const router = useRouter();
 const authService = useAuthStore();
 const selectedStatus = ref('');
-const selectedDate = ref(today); // TODO : ?
+const selectedDate = ref(today);
 const searchForm = ref();
 
 const activeFilters = ref({});

@@ -8,6 +8,7 @@ import * as yup from "yup";
 import {UserService} from "@/services/user-service.js";
 import Swal from "sweetalert2";
 import {useRouter} from "vue-router";
+import AdminCreationFormModal from "@/components/user/AdminCreationFormModal.vue";
 
 const searchMode = ref('id');
 const users = ref([]);
@@ -19,6 +20,7 @@ const totalItems = ref(0);
 const pageSize = ref(10);
 const authService = useAuthStore();
 const router = useRouter();
+const showAdminCreationModal = ref(false);
 
 const dynamicSchema = computed(() => {
   let keywordValidation = yup.string().required();
@@ -137,9 +139,13 @@ async function resetPassword(id) {
   }
 }
 
+function handleAdminCreationModal(){
+  showAdminCreationModal.value = !showAdminCreationModal.value;
+}
+
 function goToDetails(u) {
   if (u.role.name === 'DOCTOR') {
-    router.push({name: 'doctor-detail', params: {id: u.doctor.id}}); //TODO: Make doctor detail.
+    router.push({name: 'doctor-detail', params: {id: u.doctor.id}});
   }
   if (u.role.name === 'ENFERMERA' || u.role.name === 'SECRETARIA') {
     router.push({name: 'worker-detail', params: {id: u.worker.id}});
@@ -148,7 +154,7 @@ function goToDetails(u) {
 
 function goToEdit(u) {
   if (u.role.name === 'DOCTOR') {
-    router.push({name: 'edit-doctor', params: {id: u.doctor.id}}); //TODO: Make doctor edit form.
+    router.push({name: 'edit-doctor', params: {id: u.doctor.id}});
   }
   if (u.role.name === 'ENFERMERA' || u.role.name === 'SECRETARIA') {
     router.push({name: 'edit-worker', params: {id: u.worker.id}});
@@ -173,6 +179,7 @@ onMounted(() => {
   document.title = 'ALTERNATIVA CASANOVA - LISTADO DE USUARIOS';
   loadUsers();
 });
+//TODO:: ~~~ Add button to create an admin!
 </script>
 
 <template>
@@ -183,6 +190,13 @@ onMounted(() => {
         <div v-if="!isLoading && !loadError" class="container mt-5 mb-3 flex flex-col items-end">
           <Form v-slot="{ validate }" :validation-schema="dynamicSchema" @submit="onSubmit">
             <div class="flex">
+              <button type="button"
+                      v-if="authService.getTokenDetails().role === 'ADMINISTRADOR'"
+                      @click="handleAdminCreationModal"
+                      class="p-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500 me-3">
+                <i class="bi bi-plus"></i> Nuevo
+              </button>
+
               <Field id="searchMode" v-model="searchMode" as="select"
                      class="shrink-0 z-10 inline-flex w-45 items-center py-2.5 px-4 text-sm font-medium text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100"
                      name="searchMode"
@@ -282,7 +296,7 @@ onMounted(() => {
                 </td>
                 <td :hidden="u.id === authService.getUserId()" class="px-6 py-3 flex justify-center items-center">
                   <div class="inline-flex rounded-md shadow-xs" role="group">
-                    <button
+                    <button :disabled="u.role === 'ADMINISTRADOR'"
                         class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-s border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
                         title="EDITAR" type="button"
                         @click="goToEdit(u)">
@@ -299,7 +313,7 @@ onMounted(() => {
                     })">
                       <i class="bi bi-arrow-clockwise w-4 h-4"></i>
                     </button>
-                    <button
+                    <button :disabled="u.role === 'ADMINISTRADOR'"
                         class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-e border-gray-200 hover:bg-gray-100 hover:text-yellow-700 focus:z-10 focus:ring-2 focus:ring-yellow-700 focus:text-yellow-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
                         title="E-MAIL DE RECUPERACIÓN"
                         type="button" @click="showUserActionDialog({
@@ -332,12 +346,11 @@ onMounted(() => {
                     })">
                       <i class="bi bi-trash-fill w-4 h-4"></i>
                     </button>
-                    <button
+                    <button :disabled="u.role === 'ADMINISTRADOR'"
                         class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue  -700 disabled:bg-gray-200 disabled:cursor-not-allowed"
                         title="DETALLES" type="button"
                         @click="goToDetails(u)">
                       <i class="bi bi-three-dots w-4 h-4"></i>
-                      <!-----TODO: Redirect to worker or doctor details. Check if edit usernames will be worth...-->
                     </button>
                   </div>
                 </td>
@@ -378,5 +391,6 @@ onMounted(() => {
         </div>
       </div>
     </div>
+    <AdminCreationFormModal v-if="showAdminCreationModal" :onClose="handleAdminCreationModal"></AdminCreationFormModal>
   </main>
 </template>

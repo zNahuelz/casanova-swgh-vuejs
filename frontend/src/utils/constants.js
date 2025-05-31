@@ -38,7 +38,8 @@ export const ERROR_MESSAGES = {
     PATIENT_DNI_TAKEN: 'El DNI ingresado ya se encuentra registrado en el sistema.',
     PATIENT_EMAIL_TAKEN: 'El correo electrónico ingresado ya se encuentra en uso por otro paciente.',
     PATIENT_NOT_FOUND: 'Paciente no encontrado. Intente nuevamente, si el problema persiste comuniquese con administración.',
-    APPOINTMENT_NOT_FOUND: 'Cita no encontrada. Intente nuevamente, si el problema persiste comuniquese con administración.'
+    APPOINTMENT_NOT_FOUND: 'Cita no encontrada. Intente nuevamente, si el problema persiste comuniquese con administración.',
+    INVALID_APPOINTMENT_PREPARATION: 'Los datos del formulario son invalidos, la busqueda no es posible. Comuniquese con administración.',
 }
 
 export const SUPPLIER_SEARCH_MODES = [

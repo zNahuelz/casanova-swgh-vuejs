@@ -437,7 +437,8 @@ class AppointmentController extends Controller
             'new_date'         => ['required', 'date_format:Y-m-d'],
             'new_time'         => ['required', 'date_format:H:i:s'],
             'doctor_id'        => ['required', 'exists:doctors,id'],
-            'status'           => ['required', new Enum(AppointmentStatus::class)], // e.g. REPROGRAMADO
+            'status'           => ['required', new Enum(AppointmentStatus::class)],
+            'is_remote' => ['required', 'boolean'],
             'updated_by'       => ['required', 'exists:users,id'],
         ]);
 
@@ -515,6 +516,7 @@ class AppointmentController extends Controller
                 'rescheduling_date'   => $newDate,
                 'rescheduling_time'   => $newTime,
                 'status'              => $request->status,
+                'is_remote'           => $request->is_remote,  
                 'updated_by'          => $request->updated_by,
             ]);
             DB::commit();
@@ -525,7 +527,7 @@ class AppointmentController extends Controller
             }
 
             return response()->json([
-                'message'     => "Cita reprogramada correctamente con nuevo doctor. ID: {$appointment->id}",
+                'message'     => "Cita reprogramada correctamente. ID: {$appointment->id}",
                 'appointment' => $appointment,
             ], 200);
         } catch (Exception $e) {

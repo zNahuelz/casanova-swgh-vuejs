@@ -9,7 +9,7 @@ const {
 const router = useRouter();
 
 function goToDetails(id) {
-  router.push({name: 'appointment-detail', params: {id}}); //TODO!!!
+  router.push({name: 'appointment-detail', params: {id}});
 }
 </script>
 

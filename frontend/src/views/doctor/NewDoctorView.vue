@@ -18,7 +18,7 @@ import {SettingService} from "@/services/setting-service.js";
 
 const isLoading = ref(false);
 const submitting = ref(false);
-const weekendsAllowed = ref('false'); //TODO: Get config value from db.
+const weekendsAllowed = ref('false');
 const workDays = ref([...WORK_DAYS]);
 const doctorForm = ref();
 const router = useRouter();

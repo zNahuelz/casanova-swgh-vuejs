@@ -23,6 +23,9 @@ export const UserService = {
     changePersonalInfo(payload) {
         return Http.PUT(`${this.endpoint}/change-personal-info`, payload);
     },
+    createAdmin(payload){
+      return Http.POST('/user',payload);
+    },
     get(filters = {}, pagination = {}, sorting = {}) {
         let params = {};
 
