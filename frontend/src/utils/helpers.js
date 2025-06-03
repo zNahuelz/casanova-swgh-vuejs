@@ -56,3 +56,9 @@ export function calculateAge(dateStr, format = 'YYYY-MM-DD'){
     }
     return dayjs().diff(birth, 'year')
 }
+
+export function formatTwoDecimals(val){
+    let number = typeof val === 'number' ? val : parseFloat(val);
+    if(isNaN(number)) number = 0;
+    return number.toFixed(2);
+}

@@ -16,6 +16,8 @@ class TreatmentController extends Controller
             'description' => ['max:255'],
             'procedure' => ['required','string','min:5','max:255'],
             'price' => ['required','numeric','regex:/^\d+(\.\d{1,2})?$/'],
+            'igv' => ['required','numeric','regex:/^\d+(\.\d{1,2})?$/'],
+            'profit' => ['required','numeric','regex:/^\d+(\.\d{1,2})?$/'],
             'created_by' => ['required','numeric','exists:users,id']
         ]);
 
@@ -24,6 +26,8 @@ class TreatmentController extends Controller
             'description' => trim($request->description ?? '-----'),
             'procedure' => trim($request->procedure ?? '-----'),
             'price' => $request->price,
+            'igv' => $request->igv,
+            'profit' => $request->profit,
             'created_by' => $request->created_by
         ]);
 
@@ -48,6 +52,8 @@ class TreatmentController extends Controller
             'description' => ['max:255'],
             'procedure' => ['required','string','min:5','max:255'],
             'price' => ['required','numeric','regex:/^\d+(\.\d{1,2})?$/'],
+            'igv' => ['required','numeric','regex:/^\d+(\.\d{1,2})?$/'],
+            'profit' => ['required','numeric','regex:/^\d+(\.\d{1,2})?$/'],
             'updated_by' => ['required','numeric','exists:users,id']
         ]);
 
@@ -56,6 +62,8 @@ class TreatmentController extends Controller
             'description' => trim($request->description ?? '-----'),
             'procedure' => trim($request->procedure ?? '-----'),
             'price' => $request->price,
+            'igv' => $request->igv,
+            'profit' => $request->profit,
             'updated_by' => $request->updated_by
         ]);
 
@@ -114,6 +122,8 @@ class TreatmentController extends Controller
             'procedure' => $treatment->procedure,
             'description' => $treatment->description,
             'price' => $treatment->price,
+            'igv' => $treatment->igv,
+            'profit' => $treatment->profit,
             'created_at' => $treatment->created_at,
             'updated_at' => $treatment->updated_at,
             'created_by' => $treatment->created_by,

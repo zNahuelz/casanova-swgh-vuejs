@@ -15,4 +15,9 @@ class VoucherType extends Model
     {
         return $this->hasMany(Voucher::class);
     }
+
+    public function voucherSeries(): HasMany
+    {
+        return $this->hasMany(VoucherSeries::class);
+    }
 }

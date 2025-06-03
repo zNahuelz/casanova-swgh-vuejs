@@ -3,6 +3,10 @@ import {ErrorMessage, Field, Form} from "vee-validate";
 import {ref} from "vue";
 import {useRouter} from "vue-router";
 import * as yup from "yup";
+import {PatientService} from "@/services/patient-service.js";
+import Swal from "sweetalert2";
+import {SUCCESS_MESSAGES as SM, ERROR_MESSAGES as EM} from "@/utils/constants.js";
+import {reloadPage} from "@/utils/helpers.js";
 
 const isLoading = ref(false);
 const emit = defineEmits(['buyerInfo']);
@@ -20,7 +24,33 @@ const schema = yup.object({
 });
 //TODO: CONTINUE **
 async function onSubmit(values) {
-  console.log(values); //TODO: searchPatient!
+  isLoading.value = true;
+  try{
+    loadingMessage.value = 'Buscando paciente...';
+    const response = await PatientService.getByDni(values.dni.trim());
+    emit('buyerInfo',response);
+  }
+  catch(err){
+    //** TODO: IF RESPONSE ISNT 404 THROW SERVER ERROR.
+    Swal.fire({
+      title: 'Información',
+      html: `<p class="font-light">Paciente con DNI: ${values.dni.trim()} no encontrado.
+    <br> <span class="font-bold">¿Desea registrarlo?</span> <br>
+    <strong class="text-red-600">Recuerde que puede realizar ventas ingresando DNI 0 siempre y cuando el valor de venta no supere los 700 soles.</strong></p>`,
+      icon: 'question',
+      showCancelButton: true,
+      cancelButtonText: 'NO',
+      confirmButtonText: 'SI',
+      confirmButtonColor: '#008236',
+      cancelButtonColor: '#e7000b',
+    }).then((op) => {
+      if (op.isConfirmed) {
+        router.push({name: 'new-patient', query: {dni: values.dni}});
+      } else {
+        reloadPage();
+      }
+    });
+  }
 }
 </script>
 
@@ -50,7 +80,7 @@ async function onSubmit(values) {
         </svg>
       </div>
       <Field
-          id="dni"
+          id="dni" :validate-on-input="true"
           class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-green-500 focus:border-green-500"
           name="dni"
           placeholder="Ingrese DNI del comprador."
@@ -65,6 +95,6 @@ async function onSubmit(values) {
         </button>
       </div>
     </div>
-    <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium" name="barcode"></ErrorMessage>
+    <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium" name="dni"></ErrorMessage>
   </Form>
 </template>

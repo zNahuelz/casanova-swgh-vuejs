@@ -15,7 +15,12 @@ const router = useRouter();
 
 
 const schema = yup.object({
-  barcode: yup.string().min(8, 'El código de barras debe tener entre 8 y 30 carácteres.').max(30, 'El código de barras debe tener entre 8 y 30 carácteres.').matches(/^[A-Za-z0-9]{8,30}$/, 'El código de barras debe contener solo números y letras.').required('Debe ingresar un código de barras o generar uno aleatorio.'),
+  barcode: yup
+      .string()
+      .min(8, 'El código de barras debe tener entre 8 y 30 carácteres.')
+      .max(30, 'El código de barras debe tener entre 8 y 30 carácteres.')
+      .matches(/^[A-Za-z0-9]{8,30}$/, 'El código de barras debe contener solo números y letras.')
+      .required('Debe ingresar un código de barras o generar uno aleatorio.'),
 });
 
 
@@ -87,7 +92,7 @@ async function validateBarcode(value) {
       <Field
           type="text"
           id="barcode"
-          name="barcode"
+          name="barcode" :validate-on-input="true"
           class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-green-500 focus:border-green-500"
           placeholder="Ingrese código de barras"
       />

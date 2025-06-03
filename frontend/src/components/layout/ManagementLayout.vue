@@ -16,8 +16,8 @@ onMounted(() => {
          class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0">
     <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50">
       <a class="flex items-center ps-2.5 mb-5">
-        <img alt="Logo Compañia" class="h-6 me-3 sm:h-7" height="24" src="/images/logo_nw_transparent.png"
-             width="24"/>
+        <img alt="Logo Compañia" class="h-6 me-3 sm:h-7" draggable="false" height="24"
+             src="/images/logo_nw_transparent.png" width="24" @contextmenu.prevent/>
         <span class="self-center text-lg font-semibold whitespace-nowrap text-green-900">Alternativa Casanova</span>
       </a>
       <ul class="space-y-2 font-medium">
@@ -38,7 +38,8 @@ onMounted(() => {
                        class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-green-500 group">
             <svg aria-hidden="true" class="w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"
                  fill="currentColor" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12.268 6A2 2 0 0 0 14 9h1v1a2 2 0 0 0 3.04 1.708l-.311 1.496a1 1 0 0 1-.979.796H8.605l.208 1H16a3 3 0 1 1-2.83 2h-2.34a3 3 0 1 1-4.009-1.76L4.686 5H4a1 1 0 0 1 0-2h1.5a1 1 0 0 1 .979.796L6.939 6h5.329Z"/>
+              <path
+                  d="M12.268 6A2 2 0 0 0 14 9h1v1a2 2 0 0 0 3.04 1.708l-.311 1.496a1 1 0 0 1-.979.796H8.605l.208 1H16a3 3 0 1 1-2.83 2h-2.34a3 3 0 1 1-4.009-1.76L4.686 5H4a1 1 0 0 1 0-2h1.5a1 1 0 0 1 .979.796L6.939 6h5.329Z"/>
               <path d="M18 4a1 1 0 1 0-2 0v2h-2a1 1 0 1 0 0 2h2v2a1 1 0 1 0 2 0V8h2a1 1 0 1 0 0-2h-2V4Z"/>
             </svg>
             <span class="ms-3">Nueva venta</span>

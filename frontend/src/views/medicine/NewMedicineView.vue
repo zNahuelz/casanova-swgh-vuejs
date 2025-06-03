@@ -108,7 +108,6 @@ function onPricesChanges() {
 function handleBarcodeGeneration(newBarcode) {
   barcode.value = newBarcode;
   barcodeLocked.value = true;
-  console.log(barcode.value);
 }
 
 function handleSearchPresentationModal(p) {

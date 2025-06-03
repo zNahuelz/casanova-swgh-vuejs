@@ -6,8 +6,9 @@ import Swal from "sweetalert2";
 import {ERROR_MESSAGES as EM, SUCCESS_MESSAGES as SM} from "@/utils/constants.js";
 import {TreatmentService} from "@/services/treatment-service.js";
 import * as yup from "yup";
-import {formatAsDatetime, reloadOnDismiss} from "@/utils/helpers.js";
+import {formatAsDatetime, reloadOnDismiss, reloadPage} from "@/utils/helpers.js";
 import {useAuthStore} from "@/stores/auth.js";
+import {SettingService} from "@/services/setting-service.js";
 
 const submitting = ref(false);
 const isLoading = ref(false);
@@ -17,6 +18,11 @@ const router = useRouter();
 const route = useRoute();
 const authService = useAuthStore();
 const treatmentForm = ref();
+
+const igv = ref(0);
+const profit = ref(0);
+const IGV_VALUE = ref(0.18);
+const igvStatus = ref(true);
 
 const schema = yup.object().shape({
   name: yup
@@ -46,8 +52,12 @@ async function loadTreatment(id) {
   isLoading.value = true;
   try {
     treatment.value = await TreatmentService.getById(id);
+    igv.value = treatment.value.igv;
+    profit.value = treatment.value.profit;
+    igvStatus.value = treatment.value.igv > 0;
     loadError.value = false;
     isLoading.value = false;
+    await loadIgvValue();
   } catch (err) {
     loadError.value = true;
     Swal.fire(EM.ERROR_TAG, EM.TREATMENT_NOT_FOUND, 'error').then((r) => {
@@ -60,11 +70,14 @@ async function loadTreatment(id) {
 
 async function onSubmit(values) {
   submitting.value = true;
+  onPriceChange();
   if (values.description === undefined) {
     values.description = null;
   }
   const payload = {
     ...values,
+    igv: igv.value,
+    profit: profit.value,
     updated_by: authService.getUserId(),
   }
   try {
@@ -82,8 +95,33 @@ async function onSubmit(values) {
   }
 }
 
+function onPriceChange() {
+  const getPrice = parseFloat(treatmentForm.value.values.price);
+  if (igvStatus.value) {
+    igv.value = (getPrice * IGV_VALUE.value).toFixed(2);
+    profit.value = parseFloat((getPrice - igv.value).toFixed(2));
+  } else {
+    igv.value = 0;
+    profit.value = getPrice;
+  }
+  console.log(getPrice);
+}
+
 function goBack() {
   router.back();
+}
+
+async function loadIgvValue() {
+  isLoading.value = true;
+  try {
+    const response = await SettingService.getByKey('VALOR_IGV');
+    IGV_VALUE.value = parseFloat(response.value);
+  } catch (err) {
+    Swal.fire(EM.ERROR_TAG, EM.IGV_VAL_NOT_LOADED, 'error');
+    IGV_VALUE.value = 0.18;
+  } finally {
+    isLoading.value = false;
+  }
 }
 
 onMounted(() => {
@@ -192,9 +230,42 @@ onMounted(() => {
           <Field id="price" :disabled="submitting" :model-value="treatment?.price" :validate-on-input="true"
                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                  name="price"
-                 type="number"/>
+                 type="number"
+                 @change="onPriceChange"/>
           <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium" name="price"></ErrorMessage>
         </div>
+
+        <div class="grid grid-cols-3 gap-4 ">
+          <div>
+            <label class="block mb-1 text-sm font-medium text-gray-900">IGV</label>
+            <div class="flex items-center ps-4 border border-gray-300 rounded-lg h-10 bg-gray-50">
+
+              <input id="igvStatus" v-model="igvStatus" :disabled="submitting"
+                     class="w-4 h-4 bg-gray-50 border-gray-300 rounded-sm focus:ring-red-500 text-red-600"
+                     name="igvStatus"
+                     type="checkbox"
+                     @change="onPriceChange"/>
+              <label class="ms-2 text-sm font-medium text-gray-900" for="igvStatus">Afecto al IGV</label>
+            </div>
+          </div>
+          <div>
+            <label class="block mb-1 text-sm font-medium text-gray-900 ">IGV</label>
+            <input id="igv" v-model="igv"
+                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                   disabled
+                   name="igv"
+                   type="number"/>
+          </div>
+          <div>
+            <label class="block mb-1 text-sm font-medium text-gray-900 ">Ganancia</label>
+            <input id="profit" v-model="profit"
+                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                   disabled
+                   name="profit"
+                   type="number"/>
+          </div>
+        </div>
+
         <div class="flex justify-center mt-5">
           <div class="inline-flex rounded-md shadow-xs" role="group">
             <button :disabled="submitting"
@@ -204,9 +275,9 @@ onMounted(() => {
               <i class="bi bi-x-circle w-3 h-3 me-2 flex items-center justify-center"></i>
               Cancelar
             </button>
-            <button :disabled="submitting"
-                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
-                    type="reset">
+            <button :disabled="submitting" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                    type="reset"
+                    @click="reloadPage()">
               <i class="bi bi-arrow-clockwise w-3 h-3 me-2 flex items-center justify-center"></i>
               Limpiar
             </button>

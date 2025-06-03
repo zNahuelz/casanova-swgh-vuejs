@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('vouchers', function (Blueprint $table) {
             $table->id();
             $table->double('subtotal');
-            $table->double('total');
             $table->double('igv');
+            $table->double('total');
+            $table->double('change')->default(0);
             $table->boolean('paid');
             $table->string('set',15); //Serie de Boleta. B604
             $table->string('correlative',15); //Correlativo. 008069

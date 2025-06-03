@@ -17,6 +17,8 @@ class Treatment extends Model
         'description',
         'procedure',
         'price',
+        'igv',
+        'profit',
         'created_by',
         'updated_by'
     ];

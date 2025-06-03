@@ -3,6 +3,9 @@ import {ErrorMessage, Field, Form} from "vee-validate";
 import {ref} from "vue";
 import {useRouter} from "vue-router";
 import * as yup from "yup";
+import {MedicineService} from "@/services/medicine-service.js";
+import Swal from "sweetalert2";
+import {ERROR_MESSAGES as EM} from "@/utils/constants.js";
 
 const isLoading = ref(false);
 const emit = defineEmits(['foundProduct']);
@@ -20,7 +23,22 @@ const schema = yup.object({
 });
 
 async function onSubmit(values){
-  console.log(values); //TODO....! **CONTINUE
+  loadingMessage.value = 'Buscando producto...'
+  isLoading.value = true;
+  try {
+    const response = await MedicineService.getByBarcode(values.barcode);
+    if(response.salable === true){
+      emit('foundProduct',response);
+    }
+    else {
+      Swal.fire(EM.ERROR_TAG,`El producto: ${response.name} no se encuentra disponible para la venta.`,'warning');
+    }
+  } catch (err) {
+    Swal.fire(EM.ERROR_TAG,`Producto con código de barras: ${values.barcode} no encontrado. Debe registrar el producto para su venta.`,'warning');
+  }
+  finally{
+    isLoading.value = false;
+  }
 }
 </script>
 
@@ -52,7 +70,7 @@ async function onSubmit(values){
       <Field
           type="text"
           id="barcode"
-          name="barcode"
+          name="barcode" :validate-on-input="true"
           class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-green-500 focus:border-green-500"
           placeholder="Ingrese código de barras"
       />

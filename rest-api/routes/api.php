@@ -11,6 +11,7 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TreatmentController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\WorkerController;
 use App\Http\Middleware\BaseMiddleware;
 use Illuminate\Http\Request;
@@ -140,5 +141,14 @@ Route::group([
     'prefix' => '/payment'
 ], function($router){
     Route::get('/', [PaymentController::class, 'getPendingPayments'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+    Route::get('/types', [PaymentController::class, 'getPaymentTypes'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/{id}', [PaymentController::class, 'getInfoByAppointmentId'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+    Route::get('/by-dni/{dni}', [PaymentController::class, 'getPendingPaymentsByDni'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+    Route::post('/verify-cart', [PaymentController::class, 'verifyShoppingCart'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
+});
+
+Route::group([
+    'prefix' => '/voucher'
+], function($router){
+    Route::post('/', [VoucherController::class, 'createVoucher'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
 });

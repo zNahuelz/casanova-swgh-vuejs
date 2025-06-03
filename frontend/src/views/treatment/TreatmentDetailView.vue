@@ -131,13 +131,32 @@ onMounted(() => {
                     rows="5"
                     type="text"/>
         </div>
-        <div>
-          <label class="block mb-1 text-sm font-medium text-gray-900 ">Precio</label>
-          <input id="price" v-model="treatment.price"
-                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                 disabled
-                 name="price"
-                 type="number"/>
+
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block mb-1 text-sm font-medium text-gray-900 ">IGV</label>
+            <input id="igv" v-model="treatment.igv"
+                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                   disabled
+                   name="igv"
+                   type="number"/>
+          </div>
+          <div>
+            <label class="block mb-1 text-sm font-medium text-gray-900 ">Ganancia</label>
+            <input id="profit" v-model="treatment.profit"
+                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                   disabled
+                   name="profit"
+                   type="number"/>
+          </div>
+          <div>
+            <label class="block mb-1 text-sm font-medium text-gray-900 ">Precio</label>
+            <input id="price" v-model="treatment.price"
+                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                   disabled
+                   name="price"
+                   type="number"/>
+          </div>
         </div>
         <div class="flex justify-center mt-5">
           <div class="inline-flex rounded-md shadow-xs" role="group">

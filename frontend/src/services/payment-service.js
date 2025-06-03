@@ -5,4 +5,13 @@ export const PaymentService = {
     getByAppointmentId(id) {
         return Http.GET(`${this.endpoint}/${id}`);
     },
+    getByPatientDni(dni){
+        return Http.GET(`${this.endpoint}/by-dni/${dni}`);
+    },
+    getPaymentTypes(){
+        return Http.GET(`${this.endpoint}/types`);
+    },
+    verifyShoppingCart(payload){
+        return Http.POST(`${this.endpoint}/verify-cart`,payload);
+    }
 };

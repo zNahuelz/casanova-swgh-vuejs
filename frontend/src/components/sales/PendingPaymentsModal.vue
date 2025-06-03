@@ -1,23 +1,20 @@
 <script setup>
-import {WEEKDAY_NAMES} from "@/utils/constants.js";
 import {useRouter} from "vue-router";
+import {formatAsDate, formatAsTime} from "@/utils/helpers.js";
 
-const {onClose} = defineProps(['onClose','availabilities']);
+const {onClose,pendingPayments} = defineProps(['onClose','pendingPayments']);
+const emit = defineEmits(['addToList']);
 const router = useRouter();
-function getWeekdayName(weekday){
-  const found = WEEKDAY_NAMES.find(w => w.weekday === weekday);
-  return found ? found.name : `DÍA DESCONOCIDO: ${weekday}`
-}
 </script>
 
 <template>
-  <div id="schedule-modal" tabindex="-1"
+  <div id="ppayments-modal" tabindex="-1"
        class="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-sm">
     <div class="relative bg-white rounded-lg shadow-lg w-full max-w-3xl">
       <div
           class="flex items-center justify-between p-4 md:p-5 border-b rounded-t  border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900">
-          Detalle de Horario
+          Pagos Pendientes
         </h3>
         <button type="button"
                 class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
@@ -33,46 +30,52 @@ function getWeekdayName(weekday){
         <table class="w-full text-sm text-left rtl:text-right text-gray-500">
           <thead class="text-xs text-gray-700 uppercase bg-gray-50">
           <tr>
-            <th scope="col" class="px-6 py-3">
-              DÍA
-            </th>
-            <th scope="col" class="px-6 py-3">
-              HORA INICIO
-            </th>
-            <th scope="col" class="px-6 py-3">
-              HORA FIN
-            </th>
-            <th scope="col" class="px-6 py-3">
-              INICIO DESCANSO
-            </th>
-            <th scope="col" class="px-6 py-3">
-              FIN DESCANSO
+            <th scope="col" class="px-6 py-3 text-center">
+              #
             </th>
             <th scope="col" class="px-6 py-3 text-center">
-              ESTADO
+              ID CITA
+            </th>
+            <th scope="col" class="px-6 py-3">
+              FECHA CITA
+            </th>
+            <th scope="col" class="px-6 py-3">
+              HORA CITA
+            </th>
+            <th scope="col" class="px-6 py-3">
+              VALOR
+            </th>
+            <th scope="col" class="px-6 py-3 text-center">
+              ACCIÓN
             </th>
           </tr>
           </thead>
           <tbody>
           <tr
-              class="bg-white border-b border-gray-200 hover:bg-green-100" v-for="a in availabilities" :key="a.id">
+              class="bg-white border-b border-gray-200 hover:bg-green-100" v-for="pp in pendingPayments" :key="pp.id">
             <th scope="row" class="px-6 py-2 whitespace-nowrap">
-              {{getWeekdayName(a.weekday)}}
+              {{pp.id}}
             </th>
-            <td class="px-6 py-2 font-medium text-gray-900">
-              {{a.start_time}}
+            <td class="px-6 py-2 font-medium text-gray-900 text-center">
+              {{pp.appointment_id}}
             </td>
             <td class="px-6 py-2 font-medium text-gray-900">
-              {{a.end_time}}
+              {{pp.appointment.rescheduling_date ? formatAsDate(pp.appointment.rescheduling_date) : formatAsDate(pp.appointment.date)}}
             </td>
             <td class="px-6 py-2">
-              {{a.break_start}}
+              {{pp.appointment.rescheduling_time ? formatAsTime(pp.appointment.rescheduling_time) : formatAsTime(pp.appointment.time)}}
             </td>
-            <td class="px-6 py-2">
-              {{a.break_end}}
+            <td class="px-6 py-2 text-green-700 font-bold">
+              S./ {{pp.value}}
             </td>
-            <td class="px-6 py-2" :class="{'text-green-900 font-bold': a.is_active, 'text-red-900 font-bold': !a.is_active}">
-              {{a.is_active ? 'HABILITADO' : 'DESHABILITADO'}}
+            <td class="px-6 py-2 text-center">
+              <button
+                  class="px-3 py-2 text-xs font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 disabled:bg-gray-500 disabled:cursor-not-allowed"
+                  type="button" title="AÑADIR AL CARRITO"
+                  @click="() => {emit('addToList',pp)}"
+                  >
+                <i class="bi bi-plus-lg"></i>
+              </button>
             </td>
           </tr>
           </tbody>

@@ -12,6 +12,7 @@ class Voucher extends Model
         'subtotal',
         'total',
         'igv',
+        'change',
         'paid',
         'set',
         'correlative',

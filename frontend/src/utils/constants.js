@@ -40,6 +40,8 @@ export const ERROR_MESSAGES = {
     PATIENT_NOT_FOUND: 'Paciente no encontrado. Intente nuevamente, si el problema persiste comuniquese con administración.',
     APPOINTMENT_NOT_FOUND: 'Cita no encontrada. Intente nuevamente, si el problema persiste comuniquese con administración.',
     INVALID_APPOINTMENT_PREPARATION: 'Los datos del formulario son invalidos, la busqueda no es posible. Comuniquese con administración.',
+    PAYMENT_TYPES_NOT_LOADED: 'Error en la busqueda de tipos de pagos. El módulo de ventas se encuentra deshabilitado. Comuniquese con el área de sistemas.',
+    INVALID_CART_ITEMS_REMOVED: 'Algunos elementos del carrito de compras no se encuentran disponibles y fueron eliminados del mismo automáticamente. Verifique el listado y notifique al cliente. Puede proceder al pago con normalidad.',
 }
 
 export const SUPPLIER_SEARCH_MODES = [
