@@ -1,8 +1,11 @@
 <script setup>
 import {computed, onMounted, ref} from "vue";
-import {formatTwoDecimals} from "../../utils/helpers.js";
+import {formatTwoDecimals, reloadOnDismiss} from "@/utils/helpers.js";
 import {useAuthStore} from "@/stores/auth.js";
 import {VoucherService} from "@/services/voucher-service.js";
+import Swal from "sweetalert2";
+import {ERROR_MESSAGES as EM, SUCCESS_MESSAGES as SM} from "@/utils/constants.js";
+import {useRouter} from "vue-router";
 
 const {
   onClose,
@@ -13,14 +16,15 @@ const {
   igv,
   total
 } = defineProps(['onClose', 'paymentTypes', 'cart', 'clientInfo', 'subtotal', 'igv', 'total']);
-
+//TODO: TEST...:!
 const submitting = ref(false);
 const selectedPaymentId = ref(0);
 const paymentObject = ref({});
 const cashInputValue = ref(0);
-const cashChangeValue = ref(0);
+const cashChangeValue = ref(0.0);
 const paymentHash = ref('');
 const authService = useAuthStore();
+const router = useRouter();
 
 
 function onCashInput(e) {
@@ -96,10 +100,14 @@ async function onSubmit() {
       payment_hash: paymentHash.value,
     }
     const response = await VoucherService.create(payload);
-    //TODO: **** Modify endpoint so it saves the sale and generate the voucher.
-    console.log(response);
+    Swal.fire(SM.SUCCESS_TAG, response.message, 'success').then((r) => {
+      if(r.dismiss || r.isDismissed || r.isConfirmed){
+        router.push({name: 'voucher-viewer', params: {id: response.voucher?.id}});
+      }
+    });
+
   } catch (err) {
-    console.log(err);
+    Swal.fire(EM.ERROR_TAG, err.message, 'error').then((r) => reloadOnDismiss(r));
   }
 }
 
@@ -114,6 +122,7 @@ function generatePayload() {
         price: parseFloat(e.cost),
         igv: parseFloat(e.igv),
       }
+      payloadItem.subtotal = payloadItem.amount * payloadItem.price;
       payload.push(payloadItem);
     }
     if (e.type === 'SERVICE_APP') {
@@ -124,6 +133,7 @@ function generatePayload() {
         price: parseFloat(e.cost),
         igv: parseFloat(e.igv),
       }
+      payloadItem.subtotal = payloadItem.amount * payloadItem.price;
       payload.push(payloadItem);
     }
     if (e.type === 'SERVICE_TRT') {
@@ -134,6 +144,8 @@ function generatePayload() {
         price: parseFloat(e.cost),
         igv: parseFloat(e.igv),
       }
+      payloadItem.subtotal = payloadItem.amount * payloadItem.price;
+      payload.push(payloadItem);
     }
   });
   return payload;
@@ -143,8 +155,6 @@ onMounted(() => {
   selectedPaymentId.value = paymentTypes[0].id;
   setPaymentType();
 });
-//TODO:: -->> Form de vuelto y pago // Form de hash de pago ** ->>
-//TODO:: save data.
 </script>
 
 <template>

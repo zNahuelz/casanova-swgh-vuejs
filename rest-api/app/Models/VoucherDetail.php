@@ -14,12 +14,13 @@ class VoucherDetail extends Model
         'subtotal',
         'voucher_id',
         'medicine_id',
-        'treatment_id'
+        'treatment_id',
+        'appointment_id',
     ];
 
     public function voucher(): BelongsTo
     {
-        return $this->belongsTo(Voucher::class);
+        return $this->belongsTo(Voucher::class,'voucher_id');
     }
 
     public function medicine(): BelongsTo

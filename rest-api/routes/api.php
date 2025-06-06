@@ -14,6 +14,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\WorkerController;
 use App\Http\Middleware\BaseMiddleware;
+use App\Http\Middleware\BlobResponseMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -151,4 +152,7 @@ Route::group([
     'prefix' => '/voucher'
 ], function($router){
     Route::post('/', [VoucherController::class, 'createVoucher'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
+    Route::get('/pdf/{id}', [VoucherController::class, 'getVoucherPdfById']);
+    Route::get('/{id}', [VoucherController::class, 'getVoucherById'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
+    
 });

@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'base' => \App\Http\Middleware\BaseMiddleware::class,
+            'blobResponse' => \App\Http\Middleware\BlobResponseMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

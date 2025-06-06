@@ -37,6 +37,8 @@ import EditPatientView from "@/views/patient/EditPatientView.vue";
 import PatientDetailView from "@/views/patient/PatientDetailView.vue";
 import AppointmentDetailView from "@/views/appointment/AppointmentDetailView.vue";
 import RescheduleAppointmentView from "@/views/appointment/RescheduleAppointmentView.vue";
+import VoucherPdfViewer from "@/views/voucher/VoucherPdfViewer.vue";
+import VoucherDetailView from "@/views/voucher/VoucherDetailView.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -246,6 +248,18 @@ const router = createRouter({
                   path: 'sell-products',
                   name: 'sell-products',
                   component: SalesModuleView,
+                  meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA']}
+                },
+                {
+                    path: 'voucher-detail/:id',
+                    name: 'voucher-detail',
+                    component: VoucherDetailView,
+                    meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA']}
+                },
+                {
+                  path: 'voucher-viewer/:id',
+                  name: 'voucher-viewer',
+                  component: VoucherPdfViewer,
                   meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA']}
                 },
                 {

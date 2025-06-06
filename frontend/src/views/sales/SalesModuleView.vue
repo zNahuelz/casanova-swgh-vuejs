@@ -41,7 +41,7 @@ async function handleBuyerInfo(buyer) {
     try {
       isLoading.value = true;
       pendingPayments.value = await PaymentService.getByPatientDni(buyerInfo.value.dni);
-      console.log(pendingPayments.value);
+      //console.log(pendingPayments.value);
     } catch (err) {
       pendingPayments.value = [];
     } finally {
@@ -69,7 +69,7 @@ async function loadPaymentTypes() {
   try {
     PAYMENT_TYPES.value = await PaymentService.getPaymentTypes();
     isLoading.value = false;
-    console.log(PAYMENT_TYPES.value)
+    //console.log(PAYMENT_TYPES.value)
   } catch (err) {
     Swal.fire(EM.ERROR_TAG, EM.PAYMENT_TYPES_NOT_LOADED, 'error').then((r) => {
       if (r.isConfirmed || r.isDismissed || r.dismiss) {
@@ -152,12 +152,12 @@ function addServiceToList(treatment) {
   }
   doMath();
   isValidSale();
-  console.log(treatment);
+  //console.log(treatment);
 }
 
 function removeItemFromCart(item) {
-  console.log(item)
-  console.log(cart.value);
+  //console.log(item)
+  //console.log(cart.value);
 
   if (item.type === 'SERVICE_APP') {
     const itemIndex = cart.value.findIndex(e => e.details.id === item.details.id && e.type === 'SERVICE_APP');
@@ -247,7 +247,7 @@ async function verifyPayload() {
     submitting.value = false;
     makePayment();
   } catch (err) {
-    console.log(err);
+    //console.log(err);
     if (err.itemsToRemove?.products?.length >= 1) {
       err.itemsToRemove?.products.forEach((p) => {
         let itemIndex = cart.value.findIndex((e) => e.details.id === p && e.type === 'PRODUCT');

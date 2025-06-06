@@ -17,6 +17,8 @@ class Voucher extends Model
         'set',
         'correlative',
         'voucher_type',
+        'payment_type_id',
+        'payment_serial',
         'patient_id',
         'created_by',
         'updated_by'
@@ -27,7 +29,7 @@ class Voucher extends Model
         return $this->belongsTo(VoucherType::class, 'voucher_type');
     }
 
-    public function voucherDetail(): HasMany
+    public function voucherDetails(): HasMany
     {
         return $this->hasMany(VoucherDetail::class);
     }
@@ -36,6 +38,7 @@ class Voucher extends Model
     {
         return $this->belongsTo(Patient::class);
     }
+    
 
     public function paymentType(): BelongsTo
     {
