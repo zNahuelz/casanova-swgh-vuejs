@@ -113,6 +113,13 @@ export const APPOINTMENT_STATUS_SEARCH_MODES = [
     {value: 'CANCELADO', label: 'SOLO CANCELADAS'},
 ]
 
+export const VOUCHER_SEARCH_MODES = [
+    {value: 'id', label: 'POR ID'},
+    {value: 'correlative', label: 'POR CORRELATIVO'},
+    {value: 'set', label: 'POR SERIE'},
+    {value: 'dni', label: 'POR DNI PACIENTE'},
+];
+
 export const WORKER_POSITIONS = [
     {value: 'SECRETARIA', label: 'SECRETARIA'},
     {value: 'ENFERMERA', label: 'ENFERMERA'},

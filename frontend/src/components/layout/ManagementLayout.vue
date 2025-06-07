@@ -138,16 +138,10 @@ onMounted(() => {
           </button>
           <ul id="vouchers-dropdown" class="hidden py-2 space-y-2">
             <li>
-              <a class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
-                 href="#">Listado</a>
-            </li>
-            <li>
-              <a class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
-                 href="#">2</a>
-            </li>
-            <li>
-              <a class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
-                 href="#">3</a>
+              <router-link :to="{name: 'voucher-list'}"
+                           class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
+              >Listado
+              </router-link>
             </li>
           </ul>
         </li>

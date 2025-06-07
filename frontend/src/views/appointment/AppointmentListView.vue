@@ -164,7 +164,7 @@ onMounted(() => {
           <h1 class="mt-5 text-2xl font-light">Cargando citas...</h1>
         </div>
 
-        <div v-if="!isLoading && !loadError" class="container mt-5 mb-3 flex flex-col items-end">
+        <div v-if="!isLoading " class="container mt-5 mb-3 flex flex-col items-end">
           <Form v-slot="{ validate, meta }" :validation-schema="dynamicSchema" @submit="onSubmit">
             <div class="flex items-center"> <!-- Added gap for spacing -->
               <Field id="date"

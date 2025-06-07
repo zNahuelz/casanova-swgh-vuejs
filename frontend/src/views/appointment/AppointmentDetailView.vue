@@ -94,6 +94,8 @@ function goToReschedule(id) {
   router.push({name: 'appointment-reschedule', params: {id}});
 }
 
+//TODO: *** HACER CANCELACION DE CITA (CREAR REEMBOLSO EN PENDING PAYMENTS) -- (HACER LISTADO DE PAGOS PENDIENTES-REEMBOLSOS?)
+
 function goToPayOrDetails(type) {
   if (type === 'PENDING_PAYMENT') {
     router.push({name: 'sell-products'}); //TODO: PASAR PARAMETROS DE SER NECESARIO!! (LINKEADO CON CREACION DE CITA...)

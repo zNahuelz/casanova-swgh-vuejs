@@ -3,9 +3,28 @@ import {Http} from "@/stores/http"
 export const VoucherService = {
     endpoint: '/voucher',
     create(payload) {
-        return Http.POST(`${this.endpoint}`,payload);
+        return Http.POST(`${this.endpoint}`, payload);
     },
-    get(id){
+    get(filters = {}, pagination = {}, sorting = {}) {
+        let params = {};
+
+        // Filtros
+        if (filters.id) params.id = filters.id;
+        if (filters.correlative) params.correlative = filters.correlative;
+        if (filters.dni) params.dni = filters.dni;
+        if (filters.set) params.set = filters.set;
+
+        // Paginado
+        if (pagination.page) params.page = pagination.page;
+        if (pagination.per_page) params.per_page = pagination.per_page;
+
+        // Ordenado
+        if (sorting.sort_by) params.sort_by = sorting.sort_by;
+        if (sorting.sort_dir) params.sort_dir = sorting.sort_dir;
+
+        return Http.GET(this.endpoint, params);
+    },
+    getById(id) {
         return Http.GET(`${this.endpoint}/${id}`)
-    }
+    },
 };

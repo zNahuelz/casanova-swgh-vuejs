@@ -13,9 +13,8 @@ const voucher = ref({});
 async function verifyVoucher(id) {
   try {
     isLoading.value = true;
-    const response = await VoucherService.get(id);
+    const response = await VoucherService.getById(id);
     voucher.value = response;
-    console.log(voucher.value)
     if (response) {
       isValidId.value = true;
       isLoading.value = false;
@@ -26,7 +25,6 @@ async function verifyVoucher(id) {
     isLoading.value = false;
   }
 }
-//TODO: REVIEW...
 
 function goBack() {
   router.back();
@@ -38,7 +36,6 @@ function goToDetails() {
 
 onMounted(() => {
   document.title = 'ALTERNATIVA CASANOVA - VISOR DE PDF'
-
   const id = route.params.id;
   if (isNaN(id)) {
     router.back();

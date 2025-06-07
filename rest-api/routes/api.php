@@ -152,6 +152,7 @@ Route::group([
     'prefix' => '/voucher'
 ], function($router){
     Route::post('/', [VoucherController::class, 'createVoucher'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
+    Route::get('/', [VoucherController::class, 'getVouchers'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
     Route::get('/pdf/{id}', [VoucherController::class, 'getVoucherPdfById']);
     Route::get('/{id}', [VoucherController::class, 'getVoucherById'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
     

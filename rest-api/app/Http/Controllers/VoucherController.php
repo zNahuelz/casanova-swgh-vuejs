@@ -200,9 +200,46 @@ class VoucherController extends Controller
         }
     }
 
+    public function getVouchers(Request $request)
+    {
+        $query = Voucher::with(['voucherDetails', 'voucherDetails.medicine', 'voucherDetails.appointment', 'voucherDetails.treatment', 'paymentType', 'patient']);
+
+        if ($request->has('id')) { //TODO: Something fails? HERE!
+            $query->where('id', $request->input('id'));
+        }
+        // Filtrar por nombre si esta presente.
+        if ($request->has('correlative')) {
+            $query->where('correlative', 'ilike', '%' . $request->input('correlative') . '%');
+        }
+
+        if ($request->has('set')) {
+            $query->where('set', 'ilike', '%' . $request->input('set') . '%');
+        }
+
+        if ($request->has('dni')) {
+            $query->whereHas('patient', function ($q) use ($request) {
+                $q->where('dni', 'ilike', '%' . $request->input('dni') . '%');
+            });
+        }
+
+        // Ordenado
+        $sortField = $request->input('sort_by', 'created_at');
+        $sortDirection = $request->input('sort_dir', 'desc');
+
+        if (in_array($sortField, ['id', 'created_at', 'updated_at', 'correlative'])) {
+            $query->orderBy($sortField, $sortDirection);
+        }
+
+        // Pagination
+        $perPage = $request->input('per_page', 10);
+        $vouchers = $query->paginate($perPage);
+
+        return response()->json($vouchers, 200);
+    }
+
     public function getVoucherById($id)
     {
-        $voucher = Voucher::with(['voucherDetails', 'voucherDetails.medicine', 'voucherDetails.appointment', 'voucherDetails.treatment'])->find($id);
+        $voucher = Voucher::with(['voucherDetails', 'voucherDetails.medicine', 'voucherDetails.appointment', 'voucherDetails.treatment','paymentType','patient', 'voucherDetails.medicine.presentation'])->find($id);
         if (!$voucher) {
             return response()->json([
                 'message' => "Voucher de ID: $id no encontrado, intente nuevamente.",
@@ -211,8 +248,7 @@ class VoucherController extends Controller
         return response()->json($voucher);
     }
 
-    //TODO: MAKE A METHOD TO DOWNLOAD PDF DIRECTLY. ->DOWNLOAD(NAME.PDF)
-    public function getVoucherPdfById($id)
+    public function getVoucherPdfById(Request $request, $id)
     {
         $voucher = Voucher::find($id);
         if (!$voucher) {
@@ -241,6 +277,9 @@ class VoucherController extends Controller
             'logo' => $image,
         ]);
         $fileName = $voucher->set . '-' . $voucher->correlative . '.pdf';
+        if($request->has('download')){
+            return $pdf->download($fileName);
+        }
         return $pdf->stream($fileName);
     }
 }
