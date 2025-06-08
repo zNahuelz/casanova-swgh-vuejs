@@ -36,6 +36,32 @@ class PaymentController extends Controller
         return response()->json($pendingPayments);
     }
 
+    public function getPendingRefunds()
+    {
+        $refunds = PendingPayment::where('notes', 'like', '%REEMBOLSO%')->with(['appointment', 'treatment'])->orderBy('created_at', 'desc')->get();
+        return response()->json($refunds, sizeof($refunds) <= 0 ? 404 : 200);
+    }
+
+    public function deleteRefund($id)
+    {
+        $refund = PendingPayment::find($id);
+        if (!$refund) {
+            return response()->json([
+                'message' => "Reembolso de ID: $id no encontrado. Intente nuevamente o comuniquese con administración."
+            ], 404);
+        }
+        if (str_contains($refund->notes, 'REEMBOLSO')) {
+            $refund->delete();
+            return response()->json([
+                'message' => "Recordatorio de reembolso de ID: $id eliminado correctamente."
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'El elemento seleccionado no pertenece a un reembolso pendiente, comuniquese con administración'
+            ], 500);
+        }
+    }
+
     public function getInfoByAppointmentId($id)
     {
         $pendingPayment = PendingPayment::where('appointment_id', $id)->first();
@@ -51,9 +77,10 @@ class PaymentController extends Controller
                 'type' => 'PAYMENT_OK'
             ], 200);
         }
+        $pendingPaymentType = str_contains($pendingPayment->notes, 'REEMBOLSO') ? 'REFUND_PENDING' : 'PENDING_PAYMENT';
         return response()->json([
             'payment' => $pendingPayment,
-            'type' => 'PENDING_PAYMENT'
+            'type' => $pendingPaymentType //'PENDING_PAYMENT'
         ], 200);
     }
 

@@ -126,6 +126,7 @@ Route::group([
     Route::get('/{id}', [AppointmentController::class, 'getAppointmentById'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::post('/', [AppointmentController::class, 'createAppointment'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
     Route::put('/', [AppointmentController::class, 'rescheduleAppointment'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
+    Route::delete('/{id}', [AppointmentController::class, 'cancelAppointment'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
 });
 
 Route::group([
@@ -143,6 +144,8 @@ Route::group([
 ], function($router){
     Route::get('/', [PaymentController::class, 'getPendingPayments'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/types', [PaymentController::class, 'getPaymentTypes'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+    Route::get('/refunds', [PaymentController::class, 'getPendingRefunds'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
+    Route::delete('/refunds/{id}', [PaymentController::class, 'deleteRefund'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
     Route::get('/{id}', [PaymentController::class, 'getInfoByAppointmentId'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/by-dni/{dni}', [PaymentController::class, 'getPendingPaymentsByDni'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::post('/verify-cart', [PaymentController::class, 'verifyShoppingCart'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');

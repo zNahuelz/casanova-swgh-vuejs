@@ -220,8 +220,8 @@
                     : ($vd->treatment_id != null
                       ? $vd->treatment->name
                       : ($vd->appointment_id != null
-                        ? 'CITA - DÍA: ' . $vd->appointment->date 
-                              . ' HORA: ' . $vd->appointment->time
+                        ? 'CITA - DÍA: ' . $vd->appointment?->date 
+                              . ' HORA: ' . $vd->appointment?->time 
                         : 'OTROS ~'))
                 }}
           </td>

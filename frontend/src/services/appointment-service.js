@@ -42,5 +42,8 @@ export const AppointmentService = {
     },
     getById(id){
         return Http.GET(`${this.endpoint}/${id}`);
+    },
+    cancel(id){
+        return Http.DELETE(`${this.endpoint}/${id}`);
     }
 };

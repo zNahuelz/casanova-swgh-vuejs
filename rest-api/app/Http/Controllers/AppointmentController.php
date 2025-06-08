@@ -14,6 +14,7 @@ use App\Models\Holiday;
 use App\Models\Patient;
 use App\Models\PendingPayment;
 use App\Models\Setting;
+use App\Models\VoucherDetail;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -516,14 +517,14 @@ class AppointmentController extends Controller
                 'rescheduling_date'   => $newDate,
                 'rescheduling_time'   => $newTime,
                 'status'              => $request->status,
-                'is_remote'           => $request->is_remote,  
+                'is_remote'           => $request->is_remote,
                 'updated_by'          => $request->updated_by,
             ]);
             DB::commit();
 
             if ($appointment->patient->email !== 'EMAIL@DOMINIO.COM') {
                 SendAppointmentRescheduledReminder::dispatch($appointment)
-                    ->delay(now()->addMinutes(5));
+                    ->delay(now()->addSeconds(15));
             }
 
             return response()->json([
@@ -539,9 +540,50 @@ class AppointmentController extends Controller
         }
     }
 
+    public function cancelAppointment($id)
+    {
+        //TODO: SEND EMAIL NOTIFICATION.
+        $appointment = Appointment::find($id);
+        if (!$appointment) {
+            return response()->json([
+                'message' => "Cita de ID: $id no encontrada, intente nuevamente o comuniquese con administración."
+            ]);
+        }
+        $pendingPayment = PendingPayment::where('appointment_id', $appointment->id)->first();
+        $voucherDetail = VoucherDetail::where('appointment_id', $appointment->id)->first();
+        try {
+            DB::beginTransaction();
+            if ($pendingPayment) {
+                $pendingPayment->delete();
+            }
+            if ($voucherDetail) {
+                $refund = PendingPayment::create([
+                    'appointment_id' => $appointment->id,
+                    'treatment_id' => null,
+                    'notes' => "REEMBOLSO PENDIENTE DE CITA CANCELADA: $appointment->id -- FECHA RESERVA: $appointment->date / HORA RESERVA: $appointment->time",
+                    'value' => $voucherDetail->subtotal,
+                ]);
+            }
+            $appointment->update([
+                'status' => AppointmentStatus::Canceled,
+            ]);
+            $appointment->delete();
+            DB::commit();
+            $response = !$pendingPayment ? "Cita de ID: $id cancelada correctamente. Recordatorio de reembolso generado bajo ID: $refund->id" : "Cita de ID: $id cancelada correctamente, no requiere reembolso debido a que el paciente no realizó el pago.";
+            return response()->json([
+                'message' => $response
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Error interno del servidor, operación cancelada. Comuniquese con administración.',
+            ], 500);
+        }
+    }
+
     public function getAppointments(Request $request)
     {
-        $query = Appointment::with(['doctor', 'patient']);
+        $query = Appointment::withTrashed()->with(['doctor', 'patient']);
 
         if ($request->has('id')) {
             $query->where('id', $request->input('id'));
@@ -603,7 +645,10 @@ class AppointmentController extends Controller
 
     public function getAppointmentById($id)
     {
-        $appointment = Appointment::where('id', $id)->with(['doctor', 'patient'])->first();
+        $appointment = Appointment::withTrashed()
+            ->where('id', $id)
+            ->with(['doctor', 'patient'])
+            ->first();
         if (!$appointment) {
             return response()->json([
                 'message' => "Cita de ID: {$id} no encontrada."
@@ -611,7 +656,5 @@ class AppointmentController extends Controller
         }
 
         return response()->json($appointment, 200);
-
-        //When "buying" the appointment remove it from pending_payments and mark it as paid. -- Later...
     }
 }

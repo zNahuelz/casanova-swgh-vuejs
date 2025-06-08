@@ -8,7 +8,7 @@ import {SettingService} from "@/services/setting-service.js";
 import Swal from "sweetalert2";
 import {ERROR_MESSAGES as EM} from "@/utils/constants.js";
 import PendingPaymentsModal from "@/components/sales/PendingPaymentsModal.vue";
-import {formatAsDate, formatAsTime, formatTwoDecimals} from "../../utils/helpers.js";
+import {formatAsDate, formatAsTime, formatTwoDecimals} from "@/utils/helpers.js";
 import AddServiceModal from "@/components/sales/AddServiceModal.vue";
 import MakePaymentModal from "@/components/sales/MakePaymentModal.vue";
 

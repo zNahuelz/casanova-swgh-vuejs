@@ -449,11 +449,11 @@
                                         <div class="f-fallback">
                                             <h1>Hola! {{ $appointment->patient->name . ' ' . $appointment->patient->paternal_surname ?? '' . $appointment->patient->maternal_surname }},</h1>
                                             <p>Queremos informarte que has reservado una cita médica con el Dr./Dra. {{ $appointment->doctor->name . ' ' . $appointment->doctor->paternal_surname }}.
-                                                <strong>Detalles de la cita:</strong>
+                                              <br>  <strong>Detalles de la cita:</strong>
                                             </p>
                                             <ul>
                                                 <li>📅 Fecha: {{ $appointment->date }}</li>
-                                                <li>⏰ Hora: {{ $appointment->time }}</li>
+                                                <li>⏰ Hora: {{ \Carbon\Carbon::parse($appointment->time)->format('g:i A') }}</li>
                                                 <li>📍 Modalidad: {{ $appointment->is_remote ? 'Virtual' : 'Presencial' }}</li>
                                                 <li>⏱️ Duración estimada: {{ $appointment->duration }} minutos</li>
                                             </ul>

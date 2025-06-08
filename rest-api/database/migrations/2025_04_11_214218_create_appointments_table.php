@@ -34,7 +34,7 @@ return new class extends Migration
             $table->timestamps();
         });
         DB::statement('ALTER SEQUENCE appointments_id_seq INCREMENT BY 10 START WITH 100');
-        DB::statement("ALTER TABLE appointments ADD CONSTRAINT appointments_status_check CHECK(status IN('PENDIENTE','ATENDIDO','REPROGRAMADO','CANCELADO'))");
+        DB::statement("ALTER TABLE appointments ADD CONSTRAINT appointments_status_check CHECK(status IN('PENDIENTE','ATENDIDO','REPROGRAMADO','CANCELADO','NO_ASISTIO'))");
     }
 
     /**

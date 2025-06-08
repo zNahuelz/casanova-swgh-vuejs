@@ -2,6 +2,8 @@
 import {onMounted, ref} from "vue";
 import {VoucherService} from "@/services/voucher-service.js";
 import {useRoute, useRouter} from "vue-router";
+import {ERROR_MESSAGES as EM} from "@/utils/constants.js";
+import Swal from "sweetalert2";
 
 const isLoading = ref(false);
 const loadError = ref(false);
@@ -13,12 +15,14 @@ async function loadVoucher(id) {
   try {
     isLoading.value = true;
     voucher.value = await VoucherService.getById(id);
-    console.log(voucher.value);
+    isLoading.value = false;
   } catch (err) {
     loadError.value = true;
-    console.log(err);
-  } finally {
-    isLoading.value = false;
+    Swal.fire(EM.ERROR_TAG, EM.VOUCHER_DETAIL_NOT_FOUND, 'error').then((r) => {
+      if (r.isConfirmed || r.dismiss || r.isDismissed) {
+        router.back();
+      }
+    });
   }
 }
 

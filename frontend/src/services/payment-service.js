@@ -13,5 +13,11 @@ export const PaymentService = {
     },
     verifyShoppingCart(payload){
         return Http.POST(`${this.endpoint}/verify-cart`,payload);
+    },
+    getPendingRefunds(){
+        return Http.GET(`${this.endpoint}/refunds`);
+    },
+    deleteRefund(id){
+        return Http.DELETE(`${this.endpoint}/refunds/${id}`);
     }
 };

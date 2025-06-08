@@ -7,6 +7,7 @@ import {useAuthStore} from "@/stores/auth.js";
 import {AppointmentService} from "@/services/appointment-service.js";
 import * as yup from "yup";
 import {ErrorMessage, Field, Form} from "vee-validate";
+import dayjs from "dayjs";
 
 const today = new Date().toISOString().slice(0, 10);
 const searchMode = ref('id');
@@ -133,6 +134,25 @@ function goToDetails(id){
 
 function goToReschedule(id) {
   router.push({name: 'appointment-reschedule', params: {id}});
+}
+
+function canReschedule(appointment){
+  if(appointment.status === 'NO_ASISTIO'){
+    return true;
+  }
+  if(!['PENDIENTE', 'REPROGRAMADO'].includes(appointment.status)){ //TODO: Check this...
+    return false;
+  }
+  const now = dayjs();
+  let scheduledDateTime;
+  if(appointment.rescheduling_date && appointment.rescheduling_time){
+    scheduledDateTime = dayjs(`${appointment.rescheduling_date} ${appointment.rescheduling_time}`);
+  }
+  else{
+    scheduledDateTime = dayjs(`${appointment.date} ${appointment.time}`);
+  }
+
+  return scheduledDateTime.isAfter(now);
 }
 
 onMounted(() => {
@@ -286,12 +306,13 @@ onMounted(() => {
                 <td class="px-6 py-2" :class="{'text-blue-600 font-bold': !a.is_remote, 'text-purple-600 font-bold': a.is_remote}">
                   {{a.is_remote ? 'VIRTUAL' : 'PRESENCIAL'}}
                 </td>
-                <td class="px-6 py-2" :class="{'text-yellow-500 font-bold': a.status === 'PENDIENTE', 'text-green-600 font-bold': a.status === 'ATENDIDO', 'text-rose-600 font-bold': a.status === 'REPROGRAMADO'}">
+                <td class="px-6 py-2" :class="{'text-yellow-500 font-bold': a.status === 'PENDIENTE', 'text-green-600 font-bold': a.status === 'ATENDIDO', 'text-rose-600 font-bold': a.status === 'REPROGRAMADO', 'text-red-800 font-bold': a.status === 'CANCELADO'}">
                   {{a.status}}
                 </td>
                 <td class="px-6 py-3 flex justify-center items-center">
                   <div class="inline-flex rounded-md shadow-xs" role="group">
                     <button @click="goToReschedule(a.id)"
+                            :disabled="!canReschedule(a)"
                         class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
                         title="REPROGRAMAR" type="button"
                     >

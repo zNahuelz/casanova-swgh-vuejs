@@ -5,8 +5,9 @@ import {useAuthStore} from "@/stores/auth.js";
 import Swal from "sweetalert2";
 import {ERROR_MESSAGES as EM, SUCCESS_MESSAGES as SM} from "@/utils/constants.js";
 import {AppointmentService} from "@/services/appointment-service.js";
-import {formatAsDate, formatAsTime} from "@/utils/helpers.js";
+import {formatAsDate, formatAsTime, reloadOnDismiss} from "@/utils/helpers.js";
 import {PaymentService} from "@/services/payment-service.js";
+import dayjs from "dayjs";
 
 const router = useRouter();
 const route = useRoute();
@@ -73,7 +74,14 @@ function cancelAppointment() {
     cancelButtonColor: '#e7000b',
   }).then(async (op) => {
     if (op.isConfirmed) {
-      console.log('SIII')
+      try{
+        const response = await AppointmentService.cancel(appointment.value.id);
+        Swal.fire(SM.SUCCESS_TAG,response.message,'success').then((r) => reloadOnDismiss(r));
+      }
+      catch(err){
+        Swal.fire(EM.ERROR_TAG,EM.SERVER_ERROR,'error').then((r) => reloadOnDismiss(r));
+        console.log(err);
+      }
     }
   });
 }
@@ -94,14 +102,31 @@ function goToReschedule(id) {
   router.push({name: 'appointment-reschedule', params: {id}});
 }
 
-//TODO: *** HACER CANCELACION DE CITA (CREAR REEMBOLSO EN PENDING PAYMENTS) -- (HACER LISTADO DE PAGOS PENDIENTES-REEMBOLSOS?)
+function canReschedule(appointment){
+  if(appointment.status === 'NO_ASISTIO'){
+    return true;
+  }
+  if(!['PENDIENTE', 'REPROGRAMADO'].includes(appointment.status)){
+    return false;
+  }
+  const now = dayjs();
+  let scheduledDateTime;
+  if(appointment.status === 'REPROGRAMADO'){
+    scheduledDateTime = dayjs(`${appointment?.rescheduling_date} ${appointment?.rescheduling_time}`);
+  }
+  else{
+    scheduledDateTime = dayjs(`${appointment.date} ${appointment.time}`);
+  }
+
+  return scheduledDateTime.isAfter(now);
+}
 
 function goToPayOrDetails(type) {
   if (type === 'PENDING_PAYMENT') {
-    router.push({name: 'sell-products'}); //TODO: PASAR PARAMETROS DE SER NECESARIO!! (LINKEADO CON CREACION DE CITA...)
+    router.push({name: 'sell-products'});
   }
   if (type === 'PAYMENT_OK') {
-    console.log('VOUCHER DETAIL....!') //TODO: Ir a voucher detail.
+    router.push({name: 'voucher-detail', params: {id: paymentInfo.value.payment.voucher_id}})
   }
 }
 
@@ -146,14 +171,14 @@ onMounted(() => {
               <i class="bi bi-arrow-return-left w-3 h-3 me-2 flex items-center justify-center"></i>
               Atras
             </button>
-            <button
+            <button :disabled="appointment.status === 'CANCELADO'"
                 class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 border-e hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
                 type="button" @click="cancelAppointment()"
             >
               <i class="bi bi-journal-x w-3 h-3 me-2 flex items-center justify-center"></i>
               Cancelar
             </button>
-            <button
+            <button :disabled="!canReschedule(appointment)"
                 class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-e border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
                 type="button" @click="goToReschedule(appointment.id)"
             >
@@ -183,7 +208,7 @@ onMounted(() => {
             <div class="mb-3">
               <label class="block mb-1 text-sm font-medium text-gray-900">Estado</label>
               <input
-                  :class="{'text-yellow-500 font-bold': appointment.status === 'PENDIENTE', 'text-green-600 font-bold': appointment.status === 'ATENDIDO', 'text-rose-600 font-bold': appointment.status === 'REPROGRAMADO'}"
+                  :class="{'text-yellow-500 font-bold': appointment.status === 'PENDIENTE', 'text-green-600 font-bold': appointment.status === 'ATENDIDO', 'text-rose-600 font-bold': appointment.status === 'REPROGRAMADO', 'text-red-800 font-bold': appointment.status === 'CANCELADO'}"
                   :value="appointment.status"
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"
                   disabled
@@ -349,14 +374,14 @@ onMounted(() => {
             <div class="mb-3">
               <label class="block mb-1 text-sm font-medium text-gray-900 ">Estado</label>
               <input
-                  :class="{'text-green-700 font-bold': paymentInfo.type !== 'PENDING_PAYMENT', 'text-red-800 font-bold': paymentInfo.type === 'PENDING_PAYMENT'}"
-                  :value="paymentInfo.type === 'PENDING_PAYMENT' ? 'PAGO PENDIENTE' : 'PAGO REALIZADO'"
+                  :class="{'text-green-700 font-bold': paymentInfo.type !== 'PENDING_PAYMENT', 'text-red-800 font-bold': paymentInfo.type === 'PENDING_PAYMENT', 'text-stone-800 font-bold': paymentInfo.type === 'REFUND_PENDING'}"
+                  :value="paymentInfo.type === 'PAYMENT_OK' && appointment.status === 'CANCELADO' ? 'REEMBOLSO REALIZADO' : paymentInfo.type === 'PENDING_PAYMENT' ? 'PAGO PENDIENTE' : paymentInfo.type === 'PAYMENT_OK' ? 'PAGO REALIZADO' : paymentInfo.type === 'REFUND_PENDING' ? 'REEMBOLSO PENDIENTE' : ''"
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"
                   disabled
                   type="text"/>
             </div>
 
-            <div v-if="paymentInfo.type === 'PENDING_PAYMENT'" class="mb-3">
+            <div v-if="paymentInfo.type === 'PENDING_PAYMENT' || paymentInfo.type === 'REFUND_PENDING'" class="mb-3">
               <label class="block mb-1 text-sm font-medium text-gray-900 ">Notas</label>
               <textarea :value="paymentInfo.payment?.notes"
 
@@ -370,19 +395,19 @@ onMounted(() => {
             <div class="mb-3 mt-5 pt-5">
               <label class="block mb-1 text-sm font-medium text-gray-900 ">Valor Pago</label>
               <input
-                  :value="paymentInfo.type === 'PENDING_PAYMENT' ? 'S./ '+paymentInfo.payment.value : paymentInfo.payment?.subtotal"
+                  :value="paymentInfo.type === 'PENDING_PAYMENT' || paymentInfo.type === 'REFUND_PENDING' ? 'S./ '+paymentInfo.payment.value : paymentInfo.payment?.subtotal"
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"
                   disabled
                   type="text"/>
             </div>
 
             <div class="mb-3 mt-5 pt-5">
-              <button
+              <button :disabled="paymentInfo.type === 'REFUND_PENDING' || paymentInfo.type === 'PAYMENT_OK' && appointment.status === 'CANCELADO'"
                   class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed w-full"
                   type="button"
                   @click="goToPayOrDetails(paymentInfo.type)">
                 <i class="bi bi-receipt w-3 h-3 me-2 flex items-center justify-center"></i>
-                {{ paymentInfo.type === 'PENDING_PAYMENT' ? 'REALIZAR PAGO' : 'DETALLE DE VOUCHER' }}
+                {{ paymentInfo.type === 'PENDING_PAYMENT' ? 'REALIZAR PAGO' : paymentInfo.type === 'PAYMENT_OK' ? 'DETALLE DE VOUCHER' : paymentInfo.type === 'REFUND_PENDING' ? 'COORDINAR REEMBOLSO' : '...' }}
               </button>
             </div>
           </div>
@@ -390,7 +415,7 @@ onMounted(() => {
         <div v-if="!isLoading && !paymentInfoLoaded" class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50"
              role="alert">
           <span class="font-medium">INFORMACIÓN</span> No se encontro información sobre el pago de la cita de ID:
-          {{ appointment.id }} Intente nuevamente o comuniquese con administración.
+          {{ appointment.id }} Intente nuevamente o comuniquese con administración. <br><span class="font-medium">NOTA: </span>Si el estado de cita es CANCELADO significa que el paciente no realizó el pago y no requiere reembolso.
         </div>
 
 

@@ -42,6 +42,7 @@ export const ERROR_MESSAGES = {
     INVALID_APPOINTMENT_PREPARATION: 'Los datos del formulario son invalidos, la busqueda no es posible. Comuniquese con administración.',
     PAYMENT_TYPES_NOT_LOADED: 'Error en la busqueda de tipos de pagos. El módulo de ventas se encuentra deshabilitado. Comuniquese con el área de sistemas.',
     INVALID_CART_ITEMS_REMOVED: 'Algunos elementos del carrito de compras no se encuentran disponibles y fueron eliminados del mismo automáticamente. Verifique el listado y notifique al cliente. Puede proceder al pago con normalidad.',
+    VOUCHER_DETAIL_NOT_FOUND: 'Detalle de voucher no encontrado. Vuelva a intentarlo o comuniquese con administración.',
 }
 
 export const SUPPLIER_SEARCH_MODES = [

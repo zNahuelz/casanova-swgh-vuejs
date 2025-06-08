@@ -8,4 +8,6 @@ enum AppointmentStatus: string
     case Attended = 'ATENDIDO';
     case Rescheduled = 'REPROGRAMADO';
     case Canceled = 'CANCELADO';
+    case NotAttended = 'NO_ASISTIO';
+
 }
