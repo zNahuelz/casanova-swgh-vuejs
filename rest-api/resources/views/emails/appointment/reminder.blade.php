@@ -452,7 +452,7 @@
                                               <br>  <strong>Detalles de la cita:</strong>
                                             </p>
                                             <ul>
-                                                <li>📅 Fecha: {{ $appointment->date }}</li>
+                                                <li>📅 Fecha: {{ \Carbon\Carbon::parse($appointment->date)->format('d/m/Y') }}</li>
                                                 <li>⏰ Hora: {{ \Carbon\Carbon::parse($appointment->time)->format('g:i A') }}</li>
                                                 <li>📍 Modalidad: {{ $appointment->is_remote ? 'Virtual' : 'Presencial' }}</li>
                                                 <li>⏱️ Duración estimada: {{ $appointment->duration }} minutos</li>

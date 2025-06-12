@@ -7,6 +7,7 @@ use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PresentationController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TreatmentController;
@@ -126,6 +127,7 @@ Route::group([
     Route::get('/{id}', [AppointmentController::class, 'getAppointmentById'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::post('/', [AppointmentController::class, 'createAppointment'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
     Route::put('/', [AppointmentController::class, 'rescheduleAppointment'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
+    Route::put('/notes', [AppointmentController::class, 'fillAppointmentNotes'])->middleware('role:ADMINISTRADOR,DOCTOR');
     Route::delete('/{id}', [AppointmentController::class, 'cancelAppointment'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
 });
 
@@ -157,6 +159,12 @@ Route::group([
     Route::post('/', [VoucherController::class, 'createVoucher'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
     Route::get('/', [VoucherController::class, 'getVouchers'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
     Route::get('/pdf/{id}', [VoucherController::class, 'getVoucherPdfById']);
-    Route::get('/{id}', [VoucherController::class, 'getVoucherById'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
-    
+    Route::get('/{id}', [VoucherController::class, 'getVoucherById'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA'); 
+});
+
+Route::group([
+    'prefix' => '/report'
+], function($router){
+    Route::get('/sales', [ReportController::class, 'generateSalesReport'])->middleware(BlobResponseMiddleware::class);
+    Route::get('/appointments', [ReportController::class, 'generateAppointmentsReport'])->middleware(BlobResponseMiddleware::class);
 });

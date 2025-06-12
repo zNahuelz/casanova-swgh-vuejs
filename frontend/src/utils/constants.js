@@ -43,6 +43,7 @@ export const ERROR_MESSAGES = {
     PAYMENT_TYPES_NOT_LOADED: 'Error en la busqueda de tipos de pagos. El módulo de ventas se encuentra deshabilitado. Comuniquese con el área de sistemas.',
     INVALID_CART_ITEMS_REMOVED: 'Algunos elementos del carrito de compras no se encuentran disponibles y fueron eliminados del mismo automáticamente. Verifique el listado y notifique al cliente. Puede proceder al pago con normalidad.',
     VOUCHER_DETAIL_NOT_FOUND: 'Detalle de voucher no encontrado. Vuelva a intentarlo o comuniquese con administración.',
+    INVALID_NOTES_FORMAT: 'Debe llenar el campo notas con el formato correcto, intente nuevamente.',
 }
 
 export const SUPPLIER_SEARCH_MODES = [
@@ -112,6 +113,7 @@ export const APPOINTMENT_STATUS_SEARCH_MODES = [
     {value: 'ATENDIDO', label: 'SOLO ATENDIDAS'},
     {value: 'REPROGRAMADO', label: 'SOLO REPROGRAMADAS'},
     {value: 'CANCELADO', label: 'SOLO CANCELADAS'},
+    {value: 'NO_ASISTIO', label: 'SOLO NO ASISTIDAS'},
 ]
 
 export const VOUCHER_SEARCH_MODES = [
@@ -171,5 +173,21 @@ export const APPOINTMENT_SEARCH_LENGTH = [
 export const APPOINTMENT_STATUS = {
     PENDING: 'PENDIENTE',
     ATTENDED: 'ATENDIDO',
-    RESCHEDULED: 'REPROGRAMADO'
+    RESCHEDULED: 'REPROGRAMADO',
+    NOT_ATTENDED: 'NO_ASISTIO'
 }
+
+export const DOCTOR_APPOINTMENT_STATUS = [
+    {value: 'ATENDIDO', label: 'ATENDIDO'},
+    {value: 'NO_ASISTIO', label: 'NO ASISTIÓ'},
+]
+
+export const SALES_REPORT_TYPES = [
+    {value: 'by_month', label: 'POR MES'},
+    {value: 'by_year', label: 'POR AÑO'}
+]
+
+export const APPOINTMENTS_REPORT_TYPES = [
+    {value: 'by_month', label: 'POR MES'},
+    {value: 'by_year', label: 'POR AÑO'}
+]

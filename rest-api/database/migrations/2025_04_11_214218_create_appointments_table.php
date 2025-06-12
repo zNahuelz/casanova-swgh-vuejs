@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->date('date');
             $table->time('time');
-            $table->string('notes',150);
+            $table->string('notes',255);
             $table->string('status',20)->default('PENDIENTE'); // 0 PENDIENTE - 1 ATENTIDO - 2 REASIGNADO
             $table->boolean('is_remote')->default(false);
             $table->integer('duration');

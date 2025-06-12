@@ -8,6 +8,8 @@ import {AppointmentService} from "@/services/appointment-service.js";
 import {formatAsDate, formatAsTime, reloadOnDismiss} from "@/utils/helpers.js";
 import {PaymentService} from "@/services/payment-service.js";
 import dayjs from "dayjs";
+import AppointmentNotesModal from "@/components/appointment/AppointmentNotesModal.vue";
+import FillAppointmentNotesModal from "@/components/appointment/FillAppointmentNotesModal.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -18,13 +20,15 @@ const loadError = ref(false);
 const paymentInfo = ref({});
 const paymentInfoLoaded = ref(false);
 
+const showNotesModal = ref(false);
+const showFillNotesModal = ref(false);
+
 async function loadAppointment(id) {
   isLoading.value = true;
   try {
     appointment.value = await AppointmentService.getById(id);
     loadError.value = false;
     isLoading.value = false;
-    console.log(appointment.value);
     await loadPaymentInfo(appointment.value.id);
   } catch (err) {
     loadError.value = true;
@@ -44,7 +48,6 @@ async function loadPaymentInfo(id) {
     loadError.value = false;
     isLoading.value = false;
     paymentInfoLoaded.value = true;
-    console.log(paymentInfo.value);
   } catch (err) {
     isLoading.value = false;
     paymentInfoLoaded.value = false;
@@ -74,12 +77,11 @@ function cancelAppointment() {
     cancelButtonColor: '#e7000b',
   }).then(async (op) => {
     if (op.isConfirmed) {
-      try{
+      try {
         const response = await AppointmentService.cancel(appointment.value.id);
-        Swal.fire(SM.SUCCESS_TAG,response.message,'success').then((r) => reloadOnDismiss(r));
-      }
-      catch(err){
-        Swal.fire(EM.ERROR_TAG,EM.SERVER_ERROR,'error').then((r) => reloadOnDismiss(r));
+        Swal.fire(SM.SUCCESS_TAG, response.message, 'success').then((r) => reloadOnDismiss(r));
+      } catch (err) {
+        Swal.fire(EM.ERROR_TAG, EM.SERVER_ERROR, 'error').then((r) => reloadOnDismiss(r));
         console.log(err);
       }
     }
@@ -102,19 +104,18 @@ function goToReschedule(id) {
   router.push({name: 'appointment-reschedule', params: {id}});
 }
 
-function canReschedule(appointment){
-  if(appointment.status === 'NO_ASISTIO'){
+function canReschedule(appointment) {
+  if (appointment.status === 'NO_ASISTIO') {
     return true;
   }
-  if(!['PENDIENTE', 'REPROGRAMADO'].includes(appointment.status)){
+  if (!['PENDIENTE', 'REPROGRAMADO'].includes(appointment.status)) {
     return false;
   }
   const now = dayjs();
   let scheduledDateTime;
-  if(appointment.status === 'REPROGRAMADO'){
+  if (appointment.status === 'REPROGRAMADO') {
     scheduledDateTime = dayjs(`${appointment?.rescheduling_date} ${appointment?.rescheduling_time}`);
-  }
-  else{
+  } else {
     scheduledDateTime = dayjs(`${appointment.date} ${appointment.time}`);
   }
 
@@ -128,6 +129,14 @@ function goToPayOrDetails(type) {
   if (type === 'PAYMENT_OK') {
     router.push({name: 'voucher-detail', params: {id: paymentInfo.value.payment.voucher_id}})
   }
+}
+
+function handleNotesModal() {
+  showNotesModal.value = !showNotesModal.value;
+}
+
+function handleFillNotesModal(){
+  showFillNotesModal.value = !showFillNotesModal.value;
 }
 
 onMounted(() => {
@@ -171,16 +180,29 @@ onMounted(() => {
               <i class="bi bi-arrow-return-left w-3 h-3 me-2 flex items-center justify-center"></i>
               Atras
             </button>
-            <button :disabled="appointment.status === 'CANCELADO'"
-                class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 border-e hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
-                type="button" @click="cancelAppointment()"
+            <button :disabled="appointment.status === 'CANCELADO' || appointment.status === 'ATENDIDO'"
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 border-e hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                    type="button" @click="cancelAppointment()"
             >
               <i class="bi bi-journal-x w-3 h-3 me-2 flex items-center justify-center"></i>
               Cancelar
             </button>
+            <button
+                v-if="authService.getTokenDetails().role === 'DOCTOR' || authService.getTokenDetails().role === 'ADMINISTRADOR'"
+                :disabled="(!(authService.getTokenDetails().role === 'ADMINISTRADOR' || authService.getUserData()?.id === a.doctor?.id)
+                        || appointment.status === 'CANCELADO'
+                        || appointment.status === 'ATENDIDO'
+                        || appointment.status === 'NO_ASISTIO')"
+                class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 border-e hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                type="button"
+                @click="handleFillNotesModal"
+            >
+              <i class="bi bi-person-lines-fill w-3 h-3 me-2 flex items-center justify-center"></i>
+              Atender
+            </button>
             <button :disabled="!canReschedule(appointment)"
-                class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-e border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
-                type="button" @click="goToReschedule(appointment.id)"
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-e border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                    type="button" @click="goToReschedule(appointment.id)"
             >
               <i class="bi bi-calendar2-plus w-3 h-3 me-2 flex items-center justify-center"></i>
               Reprogramar
@@ -256,6 +278,15 @@ onMounted(() => {
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"
                   disabled
                   type="text"/>
+            </div>
+            <div class="mb-3">
+              <button v-if="appointment.status === 'ATENDIDO' && appointment.notes"
+                      class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed w-full"
+                      type="button"
+                      @click="handleNotesModal">
+                <i class="bi bi-person-lines-fill w-3 h-3 me-2 flex items-center justify-center"></i>
+                VER NOTAS
+              </button>
             </div>
           </div>
 
@@ -402,12 +433,15 @@ onMounted(() => {
             </div>
 
             <div class="mb-3 mt-5 pt-5">
-              <button :disabled="paymentInfo.type === 'REFUND_PENDING' || paymentInfo.type === 'PAYMENT_OK' && appointment.status === 'CANCELADO'"
+              <button
+                  :disabled="paymentInfo.type === 'REFUND_PENDING' || paymentInfo.type === 'PAYMENT_OK' && appointment.status === 'CANCELADO'"
                   class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed w-full"
                   type="button"
                   @click="goToPayOrDetails(paymentInfo.type)">
                 <i class="bi bi-receipt w-3 h-3 me-2 flex items-center justify-center"></i>
-                {{ paymentInfo.type === 'PENDING_PAYMENT' ? 'REALIZAR PAGO' : paymentInfo.type === 'PAYMENT_OK' ? 'DETALLE DE VOUCHER' : paymentInfo.type === 'REFUND_PENDING' ? 'COORDINAR REEMBOLSO' : '...' }}
+                {{
+                  paymentInfo.type === 'PENDING_PAYMENT' ? 'REALIZAR PAGO' : paymentInfo.type === 'PAYMENT_OK' ? 'DETALLE DE VOUCHER' : paymentInfo.type === 'REFUND_PENDING' ? 'COORDINAR REEMBOLSO' : '...'
+                }}
               </button>
             </div>
           </div>
@@ -415,11 +449,21 @@ onMounted(() => {
         <div v-if="!isLoading && !paymentInfoLoaded" class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50"
              role="alert">
           <span class="font-medium">INFORMACIÓN</span> No se encontro información sobre el pago de la cita de ID:
-          {{ appointment.id }} Intente nuevamente o comuniquese con administración. <br><span class="font-medium">NOTA: </span>Si el estado de cita es CANCELADO significa que el paciente no realizó el pago y no requiere reembolso.
+          {{ appointment.id }} Intente nuevamente o comuniquese con administración. <br><span
+            class="font-medium">NOTA: </span>Si el estado de cita es CANCELADO significa que el paciente no realizó el
+          pago y no requiere reembolso.
         </div>
 
 
       </div>
     </div>
+    <AppointmentNotesModal
+        v-if="showNotesModal"
+        :notes="appointment.notes"
+        :onClose="handleNotesModal"></AppointmentNotesModal>
+    <FillAppointmentNotesModal v-if="showFillNotesModal"
+                               :appointment="appointment"
+                               :onClose="handleFillNotesModal">
+    </FillAppointmentNotesModal>
   </main>
 </template>
