@@ -8,6 +8,7 @@ import {AppointmentService} from "@/services/appointment-service.js";
 import * as yup from "yup";
 import {ErrorMessage, Field, Form} from "vee-validate";
 import dayjs from "dayjs";
+import FillAppointmentNotesModal from "@/components/appointment/FillAppointmentNotesModal.vue";
 
 const today = new Date().toISOString().slice(0, 10);
 const searchMode = ref('id');
@@ -25,6 +26,8 @@ const selectedDate = ref(today);
 const searchForm = ref();
 
 const activeFilters = ref({});
+const showFillNotesModal = ref(false);
+const selectedAppointment = ref({});
 
 
 const dynamicSchema = computed(() => {
@@ -66,14 +69,13 @@ async function loadAppointments(filters) {
   isLoading.value = true;
   loadError.value = false;
   if (filters !== undefined) {
-    activeFilters.value = { ...filters }
+    activeFilters.value = {...filters}
     // reset back to page 1 whenever you run a *new* search
     currentPage.value = 1
   }
   try {
     const pagination = {page: currentPage.value, per_page: pageSize.value}
     const response = await AppointmentService.get(activeFilters.value, pagination);
-    console.log(response);
     appointments.value = response.data;
     totalPages.value = response.last_page;
     totalItems.value = response.total;
@@ -101,13 +103,13 @@ function onSubmit(values) {
   if (values.searchMode === 'doctor_dni') {
     filters = {doctor_dni: keyword};
   }
-  if(values.searchMode === 'status'){
+  if (values.searchMode === 'status') {
     filters = {status: status};
   }
-  if(values.searchMode === 'date'){
+  if (values.searchMode === 'date') {
     filters = {date: date};
   }
-  if(values.searchMode === 'date_from'){
+  if (values.searchMode === 'date_from') {
     filters = {date_from: date};
   }
   currentPage.value = 1
@@ -128,7 +130,7 @@ const nextPage = () => {
   }
 };
 
-function goToDetails(id){
+function goToDetails(id) {
   router.push({name: 'appointment-detail', params: {id}});
 }
 
@@ -136,28 +138,32 @@ function goToReschedule(id) {
   router.push({name: 'appointment-reschedule', params: {id}});
 }
 
-function canReschedule(appointment){
-  if(appointment.status === 'NO_ASISTIO'){
+function canReschedule(appointment) {
+  if (appointment.status === 'NO_ASISTIO') {
     return true;
   }
-  if(!['PENDIENTE', 'REPROGRAMADO'].includes(appointment.status)){ //TODO: Check this...
+  if (!['PENDIENTE', 'REPROGRAMADO'].includes(appointment.status)) { //TODO: Check this...
     return false;
   }
   const now = dayjs();
   let scheduledDateTime;
-  if(appointment.rescheduling_date && appointment.rescheduling_time){
+  if (appointment.rescheduling_date && appointment.rescheduling_time) {
     scheduledDateTime = dayjs(`${appointment.rescheduling_date} ${appointment.rescheduling_time}`);
-  }
-  else{
+  } else {
     scheduledDateTime = dayjs(`${appointment.date} ${appointment.time}`);
   }
 
   return scheduledDateTime.isAfter(now);
 }
 
+
+function handleFillNotesModal(appointment) {
+  selectedAppointment.value = appointment;
+  showFillNotesModal.value = !showFillNotesModal.value;
+}
+
 onMounted(() => {
   document.title = 'ALTERNATIVA CASANOVA - LISTADO DE CITAS';
-  console.log(today);
   loadAppointments({date_from: today});
 });
 </script>
@@ -188,15 +194,16 @@ onMounted(() => {
           <Form v-slot="{ validate, meta }" :validation-schema="dynamicSchema" @submit="onSubmit">
             <div class="flex items-center"> <!-- Added gap for spacing -->
               <Field id="date"
-                     :disabled="searchMode === 'id' || searchMode === 'patient_dni' || searchMode === 'doctor_dni' || searchMode === 'status'"
                      v-model="selectedDate"
+                     :disabled="searchMode === 'id' || searchMode === 'patient_dni' || searchMode === 'doctor_dni' || searchMode === 'status'"
                      class="text-sm text-gray-900 bg-gray-50 border-l border border-gray-300 focus:ring-green-500 focus:border-green-500 rounded-lg me-3"
                      name="date"
                      type="date"
                      @input="validate"/>
 
               <!-- STATUS Field -->
-              <Field id="status" v-model="selectedStatus" :disabled="searchMode === 'date' || searchMode === 'date_from' || searchMode === 'id' || searchMode === 'patient_dni' || searchMode === 'doctor_dni'"
+              <Field id="status" v-model="selectedStatus"
+                     :disabled="searchMode === 'date' || searchMode === 'date_from' || searchMode === 'id' || searchMode === 'patient_dni' || searchMode === 'doctor_dni'"
                      as="select"
                      class="shrink-0 text-sm font-medium text-gray-900 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 h-10 px-3 me-3"
                      name="status"
@@ -279,48 +286,64 @@ onMounted(() => {
               <tr
                   v-for="a in appointments" :key="a.id" class="bg-white border-b border-gray-200 hover:bg-gray-50">
                 <th class="px-6 py-2 whitespace-nowrap" scope="row">
-                  {{a.id}}
+                  {{ a.id }}
                 </th>
                 <td class="px-6 py-2 font-medium text-gray-900">
-                  {{a.rescheduling_date ? formatAsDate(a.rescheduling_date) : formatAsDate(a.date)}}
+                  {{ a.rescheduling_date ? formatAsDate(a.rescheduling_date) : formatAsDate(a.date) }}
                 </td>
                 <td class="px-6 py-2 font-medium text-gray-900">
-                  {{a.rescheduling_time ? formatAsTime(a.rescheduling_time) : formatAsTime(a.time)}}
+                  {{ a.rescheduling_time ? formatAsTime(a.rescheduling_time) : formatAsTime(a.time) }}
                 </td>
                 <td class="px-6 py-2">
-                  {{`${a.patient?.name} ${a.patient?.paternal_surname} ${a.patient?.maternal_surname}`}}
+                  {{ `${a.patient?.name} ${a.patient?.paternal_surname} ${a.patient?.maternal_surname}` }}
                   <br>
-                  {{a.patient.dni}}
+                  {{ a.patient.dni }}
                 </td>
                 <td class="px-6 py-2">
-                  {{`${a.doctor?.name} ${a.doctor?.paternal_surname} ${a.doctor?.maternal_surname}`}}
+                  {{ `${a.doctor?.name} ${a.doctor?.paternal_surname} ${a.doctor?.maternal_surname}` }}
                   <br>
-                  {{a.doctor.dni}}
+                  {{ a.doctor.dni }}
                 </td>
                 <td class="px-6 py-2">
-                  {{a.patient.phone === '000000000' ? '---' : a.patient.phone}}
+                  {{ a.patient.phone === '000000000' ? '---' : a.patient.phone }}
                 </td>
-                <td class="px-6 py-2" :class="{'text-red-600 font-bold': a.rescheduling_date !== null, 'text-green-600 font-bold': a.rescheduling_date === null}">
-                  {{a.rescheduling_date ? 'SI' : 'NO'}}
+                <td :class="{'text-red-600 font-bold': a.rescheduling_date !== null, 'text-green-600 font-bold': a.rescheduling_date === null}"
+                    class="px-6 py-2">
+                  {{ a.rescheduling_date ? 'SI' : 'NO' }}
                 </td>
-                <td class="px-6 py-2" :class="{'text-blue-600 font-bold': !a.is_remote, 'text-purple-600 font-bold': a.is_remote}">
-                  {{a.is_remote ? 'VIRTUAL' : 'PRESENCIAL'}}
+                <td :class="{'text-blue-600 font-bold': !a.is_remote, 'text-purple-600 font-bold': a.is_remote}"
+                    class="px-6 py-2">
+                  {{ a.is_remote ? 'VIRTUAL' : 'PRESENCIAL' }}
                 </td>
-                <td class="px-6 py-2" :class="{'text-yellow-500 font-bold': a.status === 'PENDIENTE', 'text-green-600 font-bold': a.status === 'ATENDIDO', 'text-rose-600 font-bold': a.status === 'REPROGRAMADO', 'text-red-800 font-bold': a.status === 'CANCELADO'}">
-                  {{a.status}}
+                <td :class="{'text-yellow-500 font-bold': a.status === 'PENDIENTE', 'text-green-600 font-bold': a.status === 'ATENDIDO', 'text-rose-600 font-bold': a.status === 'REPROGRAMADO', 'text-red-800 font-bold': a.status === 'CANCELADO', 'text-stone-800 font-bold': a.status === 'NO_ASISTIO'}"
+                    class="px-6 py-2">
+                  {{ a.status === 'NO_ASISTIO' ? 'NO ASISTIÓ' : a.status }}
                 </td>
                 <td class="px-6 py-3 flex justify-center items-center">
                   <div class="inline-flex rounded-md shadow-xs" role="group">
-                    <button @click="goToReschedule(a.id)"
-                            :disabled="!canReschedule(a)"
-                        class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
-                        title="REPROGRAMAR" type="button"
+                    <button :disabled="!canReschedule(a)"
+                            class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                            title="REPROGRAMAR"
+                            type="button" @click="goToReschedule(a.id)"
                     >
                       <i class="bi bi-calendar2-plus w-4 h-4"></i>
                     </button>
-                    <button @click="goToDetails(a.id)"
-                        class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-e border-t border-b border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue  -700 disabled:bg-gray-200 disabled:cursor-not-allowed"
-                        title="DETALLES" type="button"
+                    <button
+                        v-if="authService.getTokenDetails().role === 'DOCTOR' || authService.getTokenDetails().role === 'ADMINISTRADOR'"
+                        :disabled="(!(authService.getTokenDetails().role === 'ADMINISTRADOR' || authService.getUserData()?.id === a.doctor?.id)
+                        || a.status === 'CANCELADO'
+                        || a.status === 'ATENDIDO'
+                        || a.status === 'NO_ASISTIO')"
+                        class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 hover:bg-gray-100 hover:text-teal-600 focus:z-10 focus:ring-2 focus:ring-teal-600 focus:text-teal-600 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                        title="ATENDER CITA"
+                        type="button" @click="handleFillNotesModal(a)"
+                    >
+                      <i class="bi bi-person-lines-fill w-4 h-4"></i>
+                    </button>
+                    <button
+                        class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-e border-t border-b border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                        title="DETALLES"
+                        type="button" @click="goToDetails(a.id)"
                     >
                       <i class="bi bi-three-dots w-4 h-4"></i>
                     </button>
@@ -367,5 +390,9 @@ onMounted(() => {
         </div>
       </div>
     </div>
+    <FillAppointmentNotesModal v-if="showFillNotesModal"
+                               :appointment="selectedAppointment"
+                               :onClose="() => {showFillNotesModal = !showFillNotesModal;}">
+    </FillAppointmentNotesModal>
   </main>
 </template>

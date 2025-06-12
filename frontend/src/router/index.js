@@ -41,6 +41,7 @@ import VoucherPdfViewer from "@/views/voucher/VoucherPdfViewer.vue";
 import VoucherDetailView from "@/views/voucher/VoucherDetailView.vue";
 import VoucherListView from "@/views/voucher/VoucherListView.vue";
 import RefundsListView from "@/views/voucher/RefundsListView.vue";
+import GeneralReportsView from "@/views/report/GeneralReportsView.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -275,6 +276,12 @@ const router = createRouter({
                     name: 'refunds-list',
                     component: RefundsListView,
                     meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA','ENFERMERA']}
+                },
+                {
+                  path: 'reports',
+                  name: 'reports',
+                  component: GeneralReportsView,
+                  meta: {requiresAuth: true, roles: ['ADMINISTRADOR']}
                 },
                 {
                     path: 'my-account',

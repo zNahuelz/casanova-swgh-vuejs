@@ -109,7 +109,7 @@ class PatientController extends Controller
     {
         $patient = Patient::with(['appointments' => function ($query) {
             $query->orderBy('date', 'desc')->orderBy('time', 'desc')->limit(5);
-        }, 'createdBy:id,username','updatedBy:id,username','appointments.doctor'])->findOrFail($id);
+        }, 'createdBy:id,username','updatedBy:id,username','appointments.doctor','vouchers'])->findOrFail($id);
 
         return response()->json($patient);
     }

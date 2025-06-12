@@ -7,6 +7,7 @@ import {useRoute, useRouter} from "vue-router";
 import {useAuthStore} from "@/stores/auth.js";
 import {calculateAge, formatAsDatetime} from "@/utils/helpers.js";
 import AppointmentListModal from "@/components/appointment/AppointmentListModal.vue";
+import VouchersListModal from "@/components/voucher/VouchersListModal.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -15,6 +16,7 @@ const patient = ref({});
 const isLoading = ref(false);
 const loadError = ref(false);
 const showAppointmentsModal = ref(false);
+const showVouchersModal = ref(false);
 
 async function loadPatient(id) {
   isLoading.value = true;
@@ -43,6 +45,10 @@ async function loadPatient(id) {
 
 function handleAppointmentsModal() {
   showAppointmentsModal.value = !showAppointmentsModal.value;
+}
+
+function handleVouchersModal() {
+  showVouchersModal.value = !showVouchersModal.value;
 }
 
 function goBack() {
@@ -188,7 +194,8 @@ onMounted(() => {
           </div>
 
           <div>
-            <button :disabled="patient?.appointments?.length <= 0" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-purple-700 focus:z-10 focus:ring-2 focus:ring-purple-700 focus:text-purple-700 disabled:bg-gray-200 disabled:cursor-not-allowed w-full"
+            <button :disabled="patient?.appointments?.length <= 0"
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-purple-700 focus:z-10 focus:ring-2 focus:ring-purple-700 focus:text-purple-700 disabled:bg-gray-200 disabled:cursor-not-allowed w-full"
                     type="button"
                     @click="handleAppointmentsModal"
             >
@@ -198,9 +205,11 @@ onMounted(() => {
           </div>
 
           <div>
-            <button :disabled="true"
+            <button :disabled="patient?.vouchers?.length <= 0"
                     class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-rose-700 focus:z-10 focus:ring-2 focus:ring-rose-700 focus:text-rose-700 disabled:bg-gray-200 disabled:cursor-not-allowed w-full"
-                    type="button">
+                    type="button"
+                    @click="handleVouchersModal"
+            >
               <i class="bi bi-basket w-3 h-3 me-2 flex items-center justify-center"></i>
               HISTORIAL DE COMPRAS
             </button>
@@ -217,6 +226,7 @@ onMounted(() => {
               Atras
             </button>
             <button
+                :disabled="patient.dni === '00000000'"
                 class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-e border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
                 type="button"
                 @click="goToEdit(patient?.id)">
@@ -229,5 +239,7 @@ onMounted(() => {
     </div>
     <AppointmentListModal v-if="showAppointmentsModal" :appointments="patient?.appointments"
                           :onClose="handleAppointmentsModal"></AppointmentListModal>
+    <VouchersListModal v-if="showVouchersModal" :onClose="handleVouchersModal"
+                       :vouchers="patient?.vouchers"></VouchersListModal>
   </main>
 </template>

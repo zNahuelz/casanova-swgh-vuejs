@@ -45,5 +45,8 @@ export const AppointmentService = {
     },
     cancel(id){
         return Http.DELETE(`${this.endpoint}/${id}`);
+    },
+    fillNotes(payload){
+        return Http.PUT(`${this.endpoint}/notes`,payload);
     }
 };

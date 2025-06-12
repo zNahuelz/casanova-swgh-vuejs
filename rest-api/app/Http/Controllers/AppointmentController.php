@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\AppointmentStatus;
 use App\Http\Controllers\Controller;
+use App\Jobs\SendAppointmentCanceledReminder;
 use App\Jobs\SendAppointmentReminder;
 use App\Jobs\SendAppointmentRescheduledReminder;
 use App\Mail\AppointmentReminderMail;
@@ -413,7 +414,7 @@ class AppointmentController extends Controller
             DB::commit();
             if ($appointment->patient->email != 'EMAIL@DOMINIO.COM') //TODO: Remove on deployment.
             {
-                SendAppointmentReminder::dispatch($appointment)->delay(now()->addMinutes(5));
+                SendAppointmentReminder::dispatch($appointment)->delay(now()->addSeconds(15));
             }
             return response()->json([
                 'message' => "Cita correctamente reservada. Asignado ID: $appointment->id - Solicitud de pago generada bajo ID: $pendingPayment->id",
@@ -569,6 +570,12 @@ class AppointmentController extends Controller
             ]);
             $appointment->delete();
             DB::commit();
+
+            if ($appointment->patient->email !== 'EMAIL@DOMINIO.COM') {
+                SendAppointmentCanceledReminder::dispatch($appointment,$voucherDetail ? true : false)
+                    ->delay(now()->addSeconds(15));
+            }
+
             $response = !$pendingPayment ? "Cita de ID: $id cancelada correctamente. Recordatorio de reembolso generado bajo ID: $refund->id" : "Cita de ID: $id cancelada correctamente, no requiere reembolso debido a que el paciente no realizó el pago.";
             return response()->json([
                 'message' => $response
@@ -656,5 +663,39 @@ class AppointmentController extends Controller
         }
 
         return response()->json($appointment, 200);
+    }
+
+    public function fillAppointmentNotes(Request $request)
+    {
+        $request->validate([
+            'appointment_id' => ['required', 'exists:appointments,id'],
+            'updated_by' => ['required', 'exists:users,id'],
+            'notes' => ['required', 'string', 'min:5', 'max:255'],
+            'status' => ['required', new Enum(AppointmentStatus::class)],
+        ]);
+        $appointment = Appointment::find($request->appointment_id);
+        if (!$appointment) {
+            return response()->json([
+                'message' => "Cita de ID: $request->appointment_id no encontrada, vuelva a intentarlo."
+            ], 404);
+        }
+        try {
+            DB::beginTransaction();
+            $appointment->update([
+                'notes' => trim(strtoupper($request->notes)),
+                'updated_by' => $request->updated_by,
+                'status' => $request->status,
+            ]);
+            DB::commit();
+            return response()->json([
+                'message' => "Notas y estado de cita de ID: $request->appointment_id actualizados correctamente."
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => "Actualización de notas de la cita de ID: $request->appointment_id fallida. Vuelva a intentarlo.",
+                'ex' => $e,
+            ], 500);
+        }
     }
 }

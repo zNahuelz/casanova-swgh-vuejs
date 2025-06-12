@@ -435,7 +435,7 @@
 </head>
 
 <body>
-    <span class="preheader">Recordatorio de reprogramación de cita.</span>
+    <span class="preheader">Cancelación de cita.</span>
     <table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation">
         <tr>
             <td align="center">
@@ -448,18 +448,22 @@
                                     <td class="content-cell">
                                         <div class="f-fallback">
                                             <h1>Hola! {{ $appointment->patient->name . ' ' . $appointment->patient->paternal_surname ?? '' . $appointment->patient->maternal_surname }},</h1>
-                                            <p>Queremos informarte que tu cita médica con el Dr./Dra. {{ $appointment->doctor->name . ' ' . $appointment->doctor->paternal_surname }} ha sido reprogramada según tu solicitud.
+                                            <p>Queremos informarte que tu cita médica con el Dr./Dra. {{ $appointment->doctor->name . ' ' . $appointment->doctor->paternal_surname }} ha sido cancelada según tu solicitud.
                                                 <br> <strong>Detalles de la cita:</strong>
                                             </p>
                                             <ul>
-                                                <li>📅 Fecha: {{ \Carbon\Carbon::parse($appointment->rescheduling_date)->format('d/m/Y') }} (Anteriormente: {{ \Carbon\Carbon::parse($appointment->date)->format('d/m/Y') }})</li>
-                                                <li>⏰ Hora: {{ \Carbon\Carbon::parse($appointment->rescheduling_time)->format('g:i A') }} (Anteriormente: {{ \Carbon\Carbon::parse($appointment->time)->format('g:i A') }})</li>
+                                                <li>📅 Fecha: {{ $appointment->rescheduling_date ? \Carbon\Carbon::parse($appointment->rescheduling_date)->format('d/m/Y') : \Carbon\Carbon::parse($appointment->date)->format('d/m/Y') }}</li>
+                                                <li>⏰ Hora: {{ $appointment->rescheduling_time ? \Carbon\Carbon::parse($appointment->rescheduling_time)->format('g:i A') : \Carbon\Carbon::parse($appointment->time)->format('g:i A') }}</li>
                                                 <li>📍 Modalidad: {{ $appointment->is_remote ? 'Virtual' : 'Presencial' }}</li>
-                                                <li>⏱️ Duración estimada: {{ $appointment->duration }} minutos</li>
                                             </ul>
-                                            <p>Por favor, asegúrate de estar disponible con anticipación.
+                                            <p>Esperamos que puedas visitarnos nuevamente,
                                                 <br>
-                                                Si necesitas reprogramar o cancelar tu cita, comunícate con nosotros lo antes posible.
+                                                @if ($refund)
+                                                respecto al reembolso de tu pago, nos estaremos comunicando a tu número de celular: {{ $appointment->patient->phone }} en las próximas horas.
+                                                @else
+                                                debido a que no realizaste el pago de tu cita, no existe reembolso pendiente.
+                                                @endif
+                                                <br>
                                                 ¡Gracias por confiar en nuestra clínica!
                                                 <br><br>
                                                 Atentamente,

@@ -97,6 +97,9 @@ onMounted(() => {
                 <th class="px-6 py-3" scope="col">
                   DESCRIPCIÓN
                 </th>
+                <th class="px-6 py-3" scope="col">
+                  MONTO
+                </th>
                 <th class="px-6 py-3 text-center" scope="col">
                   HERRAMIENTAS
                 </th>
@@ -110,6 +113,9 @@ onMounted(() => {
                 </th>
                 <td class="px-6 py-2 font-medium text-gray-900">
                   {{ r.notes }}
+                </td>
+                <td class="px-6 py-2 font-medium text-gray-900">
+                  S./ {{ r.value }}
                 </td>
                 <td class="px-6 py-3 flex justify-center items-center">
                   <div class="inline-flex rounded-md shadow-xs" role="group">
