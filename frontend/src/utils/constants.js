@@ -123,6 +123,13 @@ export const VOUCHER_SEARCH_MODES = [
     {value: 'dni', label: 'POR DNI PACIENTE'},
 ];
 
+export const SETTING_SEARCH_MODES = [
+    {value: 'id', label: 'POR ID'},
+    {value: 'key', label: 'POR CLAVE'},
+    {value: 'value', label: 'POR VALOR'},
+    {value: 'description', label: 'POR DESCRIPCIÓN'},
+];
+
 export const WORKER_POSITIONS = [
     {value: 'SECRETARIA', label: 'SECRETARIA'},
     {value: 'ENFERMERA', label: 'ENFERMERA'},

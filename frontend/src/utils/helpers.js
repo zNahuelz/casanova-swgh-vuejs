@@ -15,17 +15,17 @@ export function formatAsDatetime(date) {
     return date ? dayjs(date).format('DD/MM/YYYY hh:mm A') : '';
 }
 
-export function formatAsDate(date){
+export function formatAsDate(date) {
     return date ? dayjs(date).format('DD/MM/YYYY') : '';
 }
 
-export function formatAsTime(time){
+export function formatAsTime(time) {
     dayjs.extend(customParseFormat);
-    return time ? dayjs(time,'HH:mm:ss').format('hh:mm A') : '';
+    return time ? dayjs(time, 'HH:mm:ss').format('hh:mm A') : '';
 }
 
-export function getWeekdayName(number){
-    switch(number){
+export function getWeekdayName(number) {
+    switch (number) {
         case 1:
             return 'LUNES';
         case 2:
@@ -43,12 +43,43 @@ export function getWeekdayName(number){
     }
 }
 
-export function validateDni(dni){
+export function getMonthName(number) {
+    switch (number) {
+        case 1:
+            return 'ENERO';
+        case 2:
+            return 'FEBRERO';
+        case 3:
+            return 'MARZO';
+        case 4:
+            return 'ABRIL';
+        case 5:
+            return 'MAYO';
+        case 6:
+            return 'JUNIO';
+        case 7:
+            return 'JULIO';
+        case 8:
+            return 'AGOSTO';
+        case 9:
+            return 'SEPTIEMBRE';
+        case 10:
+            return 'OCTUBRE';
+        case 11:
+            return 'NOVIEMBRE';
+        case 12:
+            return 'DICIEMBRE';
+        default:
+            return '';
+    }
+}
+
+export function validateDni(dni) {
     const regex = /^[0-9]{8,15}$/;
     return regex.test(dni);
 }
 
-export function calculateAge(dateStr, format = 'YYYY-MM-DD'){
+export function calculateAge(dateStr, format = 'YYYY-MM-DD') {
     dayjs.extend(customParseFormat);
     const birth = dayjs(dateStr, format).startOf('day')
     if (!birth.isValid()) {
@@ -57,8 +88,8 @@ export function calculateAge(dateStr, format = 'YYYY-MM-DD'){
     return dayjs().diff(birth, 'year')
 }
 
-export function formatTwoDecimals(val){
+export function formatTwoDecimals(val) {
     let number = typeof val === 'number' ? val : parseFloat(val);
-    if(isNaN(number)) number = 0;
+    if (isNaN(number)) number = 0;
     return number.toFixed(2);
 }

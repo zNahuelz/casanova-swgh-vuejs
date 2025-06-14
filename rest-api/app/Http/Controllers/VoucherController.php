@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\Log;
 
 class VoucherController extends Controller
 {
+    //TODO: Check that a set-correlative cant be duplicated.
+    //But a correlative with a differnt set can be duplicated.
     public function createVoucher(Request $request)
     {
         $request->validate([

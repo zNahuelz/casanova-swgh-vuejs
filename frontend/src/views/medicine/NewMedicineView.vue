@@ -92,16 +92,31 @@ async function onSubmit(values) {
 
 function onPricesChanges() {
   //Don't event think about touching this lol
-  const buy = buyPriceValue.value;
-  const sell = sellPriceValue.value;
+  //Psss... You touched it!
+  //Counter = 2
+  const buy = parseFloat(buyPriceValue.value);
+  const sell = parseFloat(sellPriceValue.value);
+  const igvRate = parseFloat(IGV_VALUE.value);
 
   if (igvStatus.value) {
-    const subtotal = sell / (1 + IGV_VALUE.value);
-    igvValue.value = parseFloat((sell - subtotal).toFixed(2));
-    profitValue.value = parseFloat((subtotal - buy).toFixed(2));
+    // 1. Calculate base price (subtotal) from sell including IGV
+    const base = sell / (1 + igvRate);
+
+    // 2. Calculate IGV from included value
+    const igv = parseFloat((sell - base).toFixed(2));
+
+    // 3. Profit = base - buy
+    let profit = parseFloat((base - buy).toFixed(2));
+    if (profit < 0) profit = 0;
+
+    igvValue.value = igv;
+    profitValue.value = profit;
   } else {
     igvValue.value = 0;
-    profitValue.value = parseFloat((sell - buy).toFixed(2));
+    let profit = parseFloat((sell - buy).toFixed(2));
+    if (profit < 0) profit = 0;
+
+    profitValue.value = profit;
   }
 }
 
@@ -158,10 +173,10 @@ async function loadIgvValue() {
   <main class="flex flex-col items-center pt-5">
     <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm min-w-150">
       <h5 class="mb-2 text-2xl font-bold tracking-tight text-black text-center">NUEVO MEDICAMENTO</h5>
-      <div class="container mt-5 mb-5 flex flex-col items-center" v-if="isLoading">
+      <div v-if="isLoading" class="container mt-5 mb-5 flex flex-col items-center">
         <div role="status">
           <svg aria-hidden="true" class="inline w-30 h-30 text-gray-200 animate-spin  fill-green-600"
-               viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+               fill="none" viewBox="0 0 100 101" xmlns="http://www.w3.org/2000/svg">
             <path
                 d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
                 fill="currentColor"/>
@@ -177,91 +192,113 @@ async function loadIgvValue() {
                        @barcodeGenerated="handleBarcodeGeneration"></ScanBarcodeForm>
 
       <div
+          v-if="barcodeLocked"
           class="flex items-center p-4 mb-4 text-sm text-yellow-800 border border-yellow-300 rounded-lg bg-yellow-50 mt-3"
-          role="alert" v-if="barcodeLocked">
-        <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-             fill="currentColor" viewBox="0 0 20 20">
+          role="alert">
+        <svg aria-hidden="true" class="shrink-0 inline w-4 h-4 me-3" fill="currentColor"
+             viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
           <path
               d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
         </svg>
         <span class="sr-only">Info</span>
         <div>
-          Código de barras actual: <span class="font-medium">{{ barcode }}</span>
+          Código de barras actual: <span class="font-medium">{{ barcode }}</span> <br>
+          Valor del IGV: <span class="font-medium">{{ IGV_VALUE * 100 }}%</span>
         </div>
       </div>
 
-      <Form class="space-y-3 mt-5" v-if="barcodeLocked && !isLoading" :validation-schema="medicineSchema"
+      <Form v-if="barcodeLocked && !isLoading" :validation-schema="medicineSchema" class="space-y-3 mt-5"
             @submit="onSubmit">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Nombre</label>
-            <Field type="text" id="name" name="name" :validate-on-input="true"
-                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"/>
-            <ErrorMessage name="name" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
+            <Field id="name" :validate-on-input="true"
+                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"
+                   name="name"
+                   type="text"/>
+            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium" name="name"></ErrorMessage>
           </div>
 
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Composición</label>
-            <Field type="text" id="composition" name="composition"
-                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"/>
-            <ErrorMessage name="composition"
-                          class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
+            <Field id="composition"
+                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"
+                   name="composition"
+                   type="text"/>
+            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
+                          name="composition"></ErrorMessage>
           </div>
 
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Descripción</label>
-            <Field type="text" id="description" name="description"
-                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"/>
-            <ErrorMessage name="description"
-                          class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
+            <Field id="description"
+                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"
+                   name="description"
+                   type="text"/>
+            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
+                          name="description"></ErrorMessage>
           </div>
 
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Stock</label>
-            <Field type="number" id="stock" name="stock"
-                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"/>
-            <ErrorMessage name="stock"
-                          class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
+            <Field id="stock"
+                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"
+                   name="stock"
+                   type="number"/>
+            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
+                          name="stock"></ErrorMessage>
           </div>
 
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Precio de Compra</label>
-            <Field type="number" id="buy_price" name="buy_price" @change="onPricesChanges" v-model="buyPriceValue"
-                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"/>
-            <ErrorMessage name="buy_price"
-                          class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
+            <Field id="buy_price" v-model="buyPriceValue"
+                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"
+                   name="buy_price" type="number"
+                   @change="onPricesChanges"/>
+            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
+                          name="buy_price"></ErrorMessage>
           </div>
 
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Precio de Venta</label>
-            <Field type="number" id="sell_price" name="sell_price" @change="onPricesChanges" v-model="sellPriceValue"
-                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"/>
-            <ErrorMessage name="sell_price"
-                          class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
+            <Field id="sell_price" v-model="sellPriceValue"
+                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"
+                   name="sell_price" type="number"
+                   @change="onPricesChanges"/>
+            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
+                          name="sell_price"></ErrorMessage>
           </div>
 
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Valor IGV</label>
-            <Field type="number" id="igv" name="igv" v-model="igvValue"
+            <Field id="igv" v-model="igvValue"
                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"
-                   disabled/>
-            <ErrorMessage name="igv" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
+                   disabled
+                   name="igv"
+                   type="number"/>
+            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium" name="igv"></ErrorMessage>
           </div>
 
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Ganancia</label>
-            <Field type="number" id="profit" name="profit" disabled v-model="profitValue"
-                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"/>
-            <ErrorMessage name="profit" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
+            <Field id="profit" v-model="profitValue"
+                   :class="{'text-red-800 font-bold': profitValue <= 0, 'text-green-800 font-bold': profitValue >= 0.1}"
+                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"
+                   disabled
+                   name="profit"
+                   type="number"/>
+            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium" name="profit"></ErrorMessage>
           </div>
 
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Vendible</label>
             <div class="flex items-center ps-4 border border-gray-300 rounded-lg h-10 bg-gray-50">
 
-              <input id="salable" type="checkbox" name="salable" v-model="salable" :disabled="submitting"
-                     class="w-4 h-4 bg-gray-50 border-gray-300 rounded-sm focus:ring-green-500 text-green-600"/>
-              <label for="salable" class="ms-2 text-sm font-medium text-gray-900">Venta Habilitada</label>
+              <input id="salable" v-model="salable" :disabled="submitting"
+                     class="w-4 h-4 bg-gray-50 border-gray-300 rounded-sm focus:ring-green-500 text-green-600"
+                     name="salable"
+                     type="checkbox"/>
+              <label class="ms-2 text-sm font-medium text-gray-900" for="salable">Venta Habilitada</label>
             </div>
           </div>
 
@@ -269,77 +306,88 @@ async function loadIgvValue() {
             <label class="block mb-1 text-sm font-medium text-gray-900">IGV</label>
             <div class="flex items-center ps-4 border border-gray-300 rounded-lg h-10 bg-gray-50">
 
-              <input id="igvStatus" type="checkbox" name="igvStatus" v-model="igvStatus" @change="onPricesChanges"
-                     :disabled="submitting"
-                     class="w-4 h-4 bg-gray-50 border-gray-300 rounded-sm focus:ring-red-500 text-red-600"/>
-              <label for="igvStatus" class="ms-2 text-sm font-medium text-gray-900">Afecto al IGV</label>
+              <input id="igvStatus" v-model="igvStatus" :disabled="submitting"
+                     class="w-4 h-4 bg-gray-50 border-gray-300 rounded-sm focus:ring-red-500 text-red-600"
+                     name="igvStatus"
+                     type="checkbox"
+                     @change="onPricesChanges"/>
+              <label class="ms-2 text-sm font-medium text-gray-900" for="igvStatus">Afecto al IGV</label>
             </div>
           </div>
 
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Presentación</label>
             <div class="flex">
-              <input type="text"
-                     :value="presentationName"
+              <input :value="presentationName"
                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-green-800 focus:border-green-800 w-full h-10 ps-3"
                      disabled
+                     type="text"
               />
               <button
-                  type="button" @click="handleSearchPresentationModal" :disabled="submitting"
+                  :disabled="submitting"
                   class="bg-green-600 text-white px-4 rounded-r-lg border border-l-0 border-gray-300 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500"
+                  type="button"
+                  @click="handleSearchPresentationModal"
               >
-                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none"
-                     viewBox="0 0 20 20" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                     stroke-width="2" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                  <path d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" stroke-linecap="round"
+                        stroke-linejoin="round"/>
                 </svg>
               </button>
 
             </div>
-            <ErrorMessage name="presentation"
-                          class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
+            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
+                          name="presentation"></ErrorMessage>
           </div>
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Proveedor</label>
             <div class="flex">
-              <input type="text"
-                     :value="supplierName"
+              <input :value="supplierName"
                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-green-800 focus:border-green-800 w-full h-10 ps-3"
                      disabled
+                     type="text"
               />
               <button
-                  type="button" @click="handleSearchSupplierModal" :disabled="submitting"
+                  :disabled="submitting"
                   class="bg-green-600 text-white px-4 rounded-r-lg border border-l-0 border-gray-300 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500"
+                  type="button"
+                  @click="handleSearchSupplierModal"
               >
-                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none"
-                     viewBox="0 0 20 20" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                     stroke-width="2" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                  <path d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" stroke-linecap="round"
+                        stroke-linejoin="round"/>
                 </svg>
               </button>
             </div>
-            <ErrorMessage name="supplier"
-                          class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
+            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
+                          name="supplier"></ErrorMessage>
           </div>
         </div>
 
-        <Field name="presentation" id="presentation" type="hidden" v-model="selectedPresentationId"/>
-        <Field name="supplier" id="supplier" type="hidden" v-model="selectedSupplierId"/>
+        <Field id="presentation" v-model="selectedPresentationId" name="presentation" type="hidden"/>
+        <Field id="supplier" v-model="selectedSupplierId" name="supplier" type="hidden"/>
 
-        <div class="flex justify-center mt-5" v-if="barcodeLocked && !isLoading">
+        <div v-if="barcodeLocked && !isLoading" class="flex justify-center mt-5">
           <div class="inline-flex rounded-md shadow-xs" role="group">
-            <button @click="reloadPage()" type="button" :disabled="submitting"
-                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
+            <button :disabled="submitting"
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                    type="button"
+                    @click="reloadPage()">
               <i class="bi bi-x-circle w-3 h-3 me-2 flex items-center justify-center"></i>
               Cancelar
             </button>
-            <button type="button" @click="reloadPage()" :disabled="submitting"
-                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
+            <button :disabled="submitting"
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                    type="button"
+                    @click="reloadPage()">
               <i class="bi bi-arrow-clockwise w-3 h-3 me-2 flex items-center justify-center"></i>
               Limpiar
             </button>
-            <button type="submit" :disabled="submitting"
-                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
+            <button :disabled="submitting"
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                    type="submit">
               <i class="bi bi-floppy-fill w-3 h-3 me-2 flex items-center justify-center"></i>
               {{ submitting ? 'Guardando...' : 'Guardar' }}
             </button>

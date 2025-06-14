@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Route;
 Route::group([
     'prefix' => '/auth',
     'middleware' => BaseMiddleware::class,
-], function($router){
+], function ($router) {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/recover-account', [AuthController::class, 'sendRecoveryMail']);
     Route::post('/verify-token', [AuthController::class, 'verifyRecoveryToken']);
@@ -37,7 +37,7 @@ Route::group([
 Route::group([
     'prefix' => '/user',
     'middleware' => 'role:ADMINISTRADOR'
-], function($router){
+], function ($router) {
     Route::get('/', [UserController::class, 'getUsers']);
     Route::post('/', [UserController::class, 'createAdmin']);
     Route::post('/reset', [UserController::class, 'resetPassword']);
@@ -47,29 +47,31 @@ Route::group([
 
 Route::group([
     'prefix' => '/supplier',
-], function($router){
+], function ($router) {
     Route::post('/', [SupplierController::class, 'createSupplier'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::put('/{id}', [SupplierController::class, 'updateSupplier'])->middleware('role:ADMINISTRADOR,SECRETARIA');
-    Route::get('/{id}', [SupplierController::class, 'getSupplier'])->where('id','[0-9]+')->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+    Route::get('/{id}', [SupplierController::class, 'getSupplier'])->where('id', '[0-9]+')->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/', [SupplierController::class, 'getSuppliers'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/all', [SupplierController::class, 'getAllSuppliers'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
-    Route::delete('/{id}',[SupplierController::class, 'deleteSupplier'])->middleware('role:ADMINISTRADOR');
+    Route::delete('/{id}', [SupplierController::class, 'deleteSupplier'])->middleware('role:ADMINISTRADOR');
 });
 
 Route::group([
     'prefix' => '/presentation',
-], function($router){
+], function ($router) {
     Route::post('/', [PresentationController::class, 'createPresentation'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::put('/{id}', [PresentationController::class, 'updatePresentation'])->middleware('role:ADMINISTRADOR,SECRETARIA');
-    Route::get('/{id}', [PresentationController::class, 'getPresentation'])->where('id','[0-9]+')->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
-    Route::get('/',[PresentationController::class, 'getPresentations'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+    Route::get('/{id}', [PresentationController::class, 'getPresentation'])->where('id', '[0-9]+')->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+    Route::get('/', [PresentationController::class, 'getPresentations'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/all', [PresentationController::class, 'getAllPresentations'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
 });
 
 Route::group([
     'prefix' => '/setting'
-], function($router){
+], function ($router) {
     Route::post('/', [SettingController::class, 'createSetting'])->middleware('role:ADMINISTRADOR');
+    Route::put('/update-igv', [SettingController::class, 'updateIgvConfig'])->middleware('role:ADMINISTRADOR');
+    Route::put('/update-app-price', [SettingController::class, 'updateAppointmentPrice'])->middleware('role:ADMINISTRADOR');
     Route::put('/{id}', [SettingController::class, 'updateSetting'])->middleware('role:ADMINISTRADOR');
     Route::get('/{key}', [SettingController::class, 'getSettingByKey'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/', [SettingController::class, 'getSettings'])->middleware('role:ADMINISTRADOR');
@@ -77,7 +79,7 @@ Route::group([
 
 Route::group([
     'prefix' => '/medicine'
-], function($router){
+], function ($router) {
     Route::post('/', [MedicineController::class, 'createMedicine'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::put('/{id}', [MedicineController::class, 'updateMedicine'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::get('/generate-barcode', [MedicineController::class, 'generateRandomBarcode'])->middleware('role:ADMINISTRADOR,SECRETARIA');
@@ -88,17 +90,16 @@ Route::group([
 
 Route::group([
     'prefix' => '/worker'
-], function($router){
+], function ($router) {
     Route::post('/', [WorkerController::class, 'createWorker'])->middleware('role:ADMINISTRADOR');
     Route::put('/{id}', [WorkerController::class, 'updateWorker'])->middleware('role:ADMINISTRADOR');
     Route::get('/', [WorkerController::class, 'getWorkers'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::get('/{id}', [WorkerController::class, 'getWorker'])->middleware('role:ADMINISTRADOR,SECRETARIA');
-
 });
 
 Route::group([
     'prefix' => '/treatment'
-], function($router){
+], function ($router) {
     Route::post('/', [TreatmentController::class, 'createTreatment'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::put('/{id}', [TreatmentController::class, 'updateTreatment'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::get('/', [TreatmentController::class, 'getTreatments'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
@@ -107,7 +108,7 @@ Route::group([
 
 Route::group([
     'prefix' => '/doctor'
-], function($router){
+], function ($router) {
     Route::post('/', [DoctorController::class, 'createDoctor'])->middleware('role:ADMINISTRADOR');
     Route::post('/unavailability', [DoctorController::class, 'createUnavailability'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::put('/{id}', [DoctorController::class, 'updateDoctorInfo'])->middleware('role:ADMINISTRADOR,SECRETARIA');
@@ -121,7 +122,7 @@ Route::group([
 
 Route::group([
     'prefix' => '/appointment'
-], function($router){
+], function ($router) {
     Route::get('/', [AppointmentController::class, 'getAppointments'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/prepare', [AppointmentController::class, 'prepareAppointment'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
     Route::get('/{id}', [AppointmentController::class, 'getAppointmentById'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
@@ -133,8 +134,8 @@ Route::group([
 
 Route::group([
     'prefix' => '/patient'
-], function($router){
-    Route::post('/', [PatientController::class,'createPatient'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
+], function ($router) {
+    Route::post('/', [PatientController::class, 'createPatient'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
     Route::put('/{id}', [PatientController::class, 'updatePatient'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
     Route::get('/', [PatientController::class, 'getPatients'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/{id}', [PatientController::class, 'getPatient'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
@@ -143,7 +144,7 @@ Route::group([
 
 Route::group([
     'prefix' => '/payment'
-], function($router){
+], function ($router) {
     Route::get('/', [PaymentController::class, 'getPendingPayments'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/types', [PaymentController::class, 'getPaymentTypes'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/refunds', [PaymentController::class, 'getPendingRefunds'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
@@ -155,16 +156,16 @@ Route::group([
 
 Route::group([
     'prefix' => '/voucher'
-], function($router){
+], function ($router) {
     Route::post('/', [VoucherController::class, 'createVoucher'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
     Route::get('/', [VoucherController::class, 'getVouchers'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
     Route::get('/pdf/{id}', [VoucherController::class, 'getVoucherPdfById']);
-    Route::get('/{id}', [VoucherController::class, 'getVoucherById'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA'); 
+    Route::get('/{id}', [VoucherController::class, 'getVoucherById'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
 });
 
 Route::group([
     'prefix' => '/report'
-], function($router){
-    Route::get('/sales', [ReportController::class, 'generateSalesReport'])->middleware(BlobResponseMiddleware::class);
-    Route::get('/appointments', [ReportController::class, 'generateAppointmentsReport'])->middleware(BlobResponseMiddleware::class);
+], function ($router) {
+    Route::get('/sales', [ReportController::class, 'generateSalesReport'])->middleware('role:ADMINISTRADOR,SECRETARIA');
+    Route::get('/appointments', [ReportController::class, 'generateAppointmentsReport'])->middleware('role:ADMINISTRADOR,SECRETARIA');
 });

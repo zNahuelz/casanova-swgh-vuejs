@@ -295,15 +295,15 @@ function calculateSubtotalValue() {
   cart.value.forEach((e) => {
     subtotal.value += (e.cost - e.igv) * e.amount;
   });
-  //subtotal.value = (subtotal.value).toFixed(2);
+  //TODO: Try parsing igv and amount.
 }
 
 function calculateIgvValue() {
   igv.value = 0;
   cart.value.forEach((e) => {
-    igv.value += e.igv * e.amount;
+    igv.value += parseFloat(e.igv) * parseFloat(e.amount);
   });
-  //igv.value = (igv.value).toFixed(2);
+  //TODO: Try parsing igv and amount.
 }
 
 function calculateTotalValue() {
@@ -311,7 +311,7 @@ function calculateTotalValue() {
   cart.value.forEach((e) => {
     total.value += e.amount * e.cost;
   });
-  //total.value = (total.value).toFixed(2);
+  //TODO: Try parsing igv and amount.
 }
 
 function calculateAppointmentIgv(cost) {

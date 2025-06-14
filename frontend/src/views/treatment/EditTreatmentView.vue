@@ -96,15 +96,19 @@ async function onSubmit(values) {
 }
 
 function onPriceChange() {
-  const getPrice = parseFloat(treatmentForm.value.values.price);
+  const getPrice = parseFloat(price.value);
+  const igvRate = parseFloat(IGV_VALUE.value);
+
   if (igvStatus.value) {
-    igv.value = (getPrice * IGV_VALUE.value).toFixed(2);
-    profit.value = parseFloat((getPrice - igv.value).toFixed(2));
+    const base = getPrice / (1 + igvRate); // Subtotal before tax
+    const igvAmount = parseFloat((getPrice - base).toFixed(2));
+
+    igv.value = igvAmount;
+    profit.value = parseFloat(base.toFixed(2)); // This is the price without IGV
   } else {
     igv.value = 0;
     profit.value = getPrice;
   }
-  console.log(getPrice);
 }
 
 function goBack() {
