@@ -19,5 +19,11 @@ export const SettingService = {
     },
     updateAppointmentPrice(payload) {
         return Http.PUT(`${this.endpoint}/update-app-price`, payload);
+    },
+    manageJobOnWeekends(payload){
+        return Http.PUT(`${this.endpoint}/mng-job-weekends`, payload);
+    },
+    updateVoucherInfo(payload){
+        return Http.PUT(`${this.endpoint}/voucher-info`, payload);
     }
 };

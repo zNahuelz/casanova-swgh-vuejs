@@ -2,25 +2,18 @@
 import {ErrorMessage, Field, Form} from "vee-validate";
 import {ref} from "vue";
 import * as yup from "yup";
-import {SettingService} from "@/services/setting-service.js";
 import Swal from "sweetalert2";
 import {ERROR_MESSAGES as EM, SUCCESS_MESSAGES as SM} from "@/utils/constants.js";
 import {reloadOnDismiss} from "@/utils/helpers.js";
+import {SettingService} from "@/services/setting-service.js";
 
-const {onClose, igv} = defineProps(['onClose', 'igv']);
+const {onClose, job} = defineProps(['onClose', 'job']);
 const submitting = ref(false);
-const igvForm = ref();
+const jobForm = ref();
+
+const jobStatus = ref(job.value === 'true' || job.value === true);
 
 const schema = yup.object({
-  igvValue: yup
-      .string()
-      .matches(/^\d{1,3}(\.\d{1,2})?$/, 'Debe ser un número positivo con hasta 2 decimales')
-      .test('is-valid-range', 'El IGV debe estar entre 1 y 100', (value) => {
-        const num = parseFloat(value);
-        return num >= 1 && num <= 100;
-      })
-      .required('El valor de IGV es obligatorio'),
-
   description: yup
       .string()
       .max(255, 'La descripción debe tener entre 5 y 255 carácteres.')
@@ -32,11 +25,11 @@ async function onSubmit(values) {
   submitting.value = true;
   try {
     const payload = {
-      key: 'VALOR_IGV',
-      igvValue: parseFloat(values.igvValue) / 100 || 0.18,
+      key: 'ESTADO_TRABAJO_FINDES',
+      jobOnWeekends: jobStatus.value.toString(),
       description: values.description.length >= 1 ? values.description : null,
-    };
-    const response = await SettingService.updateIgvConfig(payload);
+    }
+    const response = await SettingService.manageJobOnWeekends(payload);
     Swal.fire(SM.SUCCESS_TAG, response.message, 'success').then(reloadOnDismiss);
   } catch (err) {
     Swal.fire(EM.ERROR_TAG, err.message ? err.message : EM.SERVER_ERROR, 'error').then(reloadOnDismiss);
@@ -45,13 +38,13 @@ async function onSubmit(values) {
 </script>
 
 <template>
-  <div id="edit-igv" class="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-sm"
+  <div id="mng-job-weekends" class="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-sm"
        tabindex="-1">
     <div class="relative bg-white rounded-lg shadow-lg w-100 max-w-md">
       <div
           class="flex items-center justify-between p-4 md:p-5 border-b rounded-t  border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900">
-          Modificar variable: {{ igv.key }}
+          Modificar variable: {{ job.key }}
         </h3>
         <button :disabled="submitting"
                 class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
@@ -76,35 +69,41 @@ async function onSubmit(values) {
           <div>
             <span class="font-medium">Recuerde:</span>
             <ul class="mt-1.5 list-disc list-inside">
-              <li>Al modificar el IGV se actualizarán automáticamente los costos de venta, IGV y ganancia de todos los
-                productos marcados como vendibles y con IGV habilitado.
+              <li>Al modificar esta llave, se podrá asignar (o no) cargas de trabajo a los doctores los fines de
+                semana.
               </li>
-              <li>Los valores en comprobantes de pago antiguos no se verán afectados.</li>
-              <li>El cambio también afectará el IGV de las citas y tratamientos.</li>
+              <li>Las citas reservadas anteriormente no se verán afectadas.</li>
+              <li>Si los doctores tenían disponibilidades asignadas los fines de semana, estas volverán a estar
+                activas.
+              </li>
+              <li>Si los doctores NO tenían disponibilidades asignadas los fines de semana, deberá configurarlas
+                manualmente.
+              </li>
               <li>No es necesario que modifique la descripción.</li>
             </ul>
           </div>
         </div>
-        <Form ref="igvForm" :initial-values="{
-            igvValue: parseFloat(igv.value)*100 || 18,
-            description: igv.description || ''
+        <Form ref="jobForm" :initial-values="{
+            description: job.description || ''
         }" :validation-schema="schema" class="grid gap-6" @submit="onSubmit">
           <div>
-            <label class="block mb-2 text-sm font-medium text-gray-900">Valor IGV (%)</label>
-            <Field id="igvValue" :disabled="submitting" :validate-on-input="true" class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5"
-                   name="igvValue"
-                   type="text"/>
-            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
-                          name="igvValue"></ErrorMessage>
+            <div class="flex items-center me-4">
+              <input id="jobStatus" v-model="jobStatus"
+                     class="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-green-500 focus:ring-2"
+                     name="jobStatus"
+                     :disabled="submitting"
+                     type="checkbox"/>
+              <label class="ms-2 text-sm font-medium text-gray-900"
+                     for="green-checkbox">{{ jobStatus ? 'HABILITADO' : 'DESHABILITADO' }}</label>
+            </div>
           </div>
           <div>
             <label class="block mb-2 text-sm font-medium text-gray-900">Descripción</label>
-            <Field id="description" :disabled="submitting" :validate-on-input="true" class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5"
-                   name="description"
+            <Field id="description" :validate-on-input="true" class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5" name="description"
+                   :disabled="submitting"
                    type="text"/>
-            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
+            <ErrorMessage class="mt-1 text-sm text-red-600  font-medium"
                           name="description"></ErrorMessage>
           </div>
 

@@ -10,6 +10,9 @@ import Swal from "sweetalert2";
 import {useRouter} from "vue-router";
 import UpdateIgvModal from "@/components/setting/UpdateIgvModal.vue";
 import UpdateAppointmentPriceModal from "@/components/setting/UpdateAppointmentPriceModal.vue";
+import ManageJobOnWeekendsModal from "@/components/setting/ManageJobOnWeekendsModal.vue";
+import UpdateVoucherInfoModal from "@/components/setting/UpdateVoucherInfoModal.vue";
+import VoucherSeriesConfigModal from "@/components/setting/VoucherSeriesConfigModal.vue";
 
 const searchMode = ref('id');
 const settings = ref([]);
@@ -23,6 +26,14 @@ const igvObject = ref({});
 
 const showEditAppPrice = ref(false);
 const appObject = ref({});
+
+const showManageJob = ref(false);
+const job = ref({});
+
+const showUpdateVoucherInfo = ref(false);
+const settingObject = ref({});
+
+const showVoucherSeriesConf = ref(false);
 
 const dynamicSchema = computed(() => {
   let keywordValidation = yup.string().required();
@@ -96,8 +107,20 @@ function handleEditIgvModal() {
   showEditIgv.value = !showEditIgv.value;
 }
 
-function handleEditAppCostModal(){
+function handleEditAppCostModal() {
   showEditAppPrice.value = !showEditAppPrice.value;
+}
+
+function handleJobManagementModal() {
+  showManageJob.value = !showManageJob.value;
+}
+
+function handleUpdateVoucherInfoModal() {
+  showUpdateVoucherInfo.value = !showUpdateVoucherInfo.value;
+}
+
+function handleVoucherSeriesConfigModal() {
+  showVoucherSeriesConf.value = !showVoucherSeriesConf.value;
 }
 
 function editVar(setting) {
@@ -105,15 +128,24 @@ function editVar(setting) {
     igvObject.value = setting;
     handleEditIgvModal();
   }
-  if(setting.key === 'COSTO_CITA_REGULAR'){
+  if (setting.key === 'COSTO_CITA_REGULAR') {
     appObject.value = setting;
     handleEditAppCostModal();
+  }
+  if (setting.key === 'ESTADO_TRABAJO_FINDES') {
+    job.value = setting;
+    handleJobManagementModal();
+  }
+  if (setting.key === 'VALOR_RUC' || setting.key === 'VALOR_SEDE') {
+    settingObject.value = setting;
+    handleUpdateVoucherInfoModal();
   }
 }
 
 onMounted(() => {
   document.title = 'ALTERNATIVA CASANOVA - CONFIGURACIÓN DEL SISTEMA';
   loadSettings()//.then(() => showWarning());
+  //TODO Add this after testing everything. ^
 });
 </script>
 
@@ -127,12 +159,12 @@ onMounted(() => {
           <Form v-slot="{ validate }" :validation-schema="dynamicSchema" @submit="onSubmit">
             <div class="flex items-center justify-between w-full">
               <button
-                  v-if="authService.getTokenDetails().role === 'ADMINISTRADOR'"
                   :disabled="isLoading"
-                  class="p-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500"
+                  class="p-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-500"
                   type="button"
+                  @click="reloadPage"
               >
-                <i class="bi bi-plus"></i> Nueva
+                <i class="bi bi-arrow-clockwise"></i> Recargar
               </button>
 
               <div class="flex items-center">
@@ -255,16 +287,14 @@ onMounted(() => {
             </table>
           </div>
         </div>
-        <div v-if="!isLoading && !loadError" class="flex flex-col items-start">
-          <button
-              :disabled="isLoading"
-              class="p-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-500"
-              type="button"
-              @click="reloadPage"
-          >
-            <i class="bi bi-arrow-clockwise"></i> Recargar
-          </button>
-        </div>
+        <button
+            :disabled="isLoading"
+            class="p-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500"
+            type="button"
+            @click="handleVoucherSeriesConfigModal"
+        >
+          <i class="bi bi-receipt"></i> Conf. Vouchers
+        </button>
 
         <div v-if="loadError" class="container mt-5 mb-5 flex flex-col items-center space-y-5">
           <span><i class="bi bi-exclamation-triangle-fill text-9xl text-red-700"></i></span>
@@ -274,7 +304,26 @@ onMounted(() => {
         </div>
       </div>
     </div>
-    <UpdateIgvModal v-if="showEditIgv" :igv="igvObject" :onClose="() => {showEditIgv = false;}"></UpdateIgvModal>
-    <UpdateAppointmentPriceModal v-if="showEditAppPrice" :app="appObject" :onClose="() => {showEditAppPrice = false;}"></UpdateAppointmentPriceModal>
+    <UpdateIgvModal v-if="showEditIgv"
+                    :igv="igvObject"
+                    :onClose="() => {showEditIgv = false;}">
+    </UpdateIgvModal>
+    <UpdateAppointmentPriceModal v-if="showEditAppPrice"
+                                 :app="appObject"
+                                 :onClose="() => {showEditAppPrice = false;}">
+    </UpdateAppointmentPriceModal>
+    <ManageJobOnWeekendsModal v-if="showManageJob"
+                              :job="job"
+                              :onClose="() => {showManageJob = false;}">
+    </ManageJobOnWeekendsModal>
+    <UpdateVoucherInfoModal v-if="showUpdateVoucherInfo"
+                            :onClose="() => {showUpdateVoucherInfo = false}"
+                            :setting="settingObject"
+    >
+    </UpdateVoucherInfoModal>
+    <VoucherSeriesConfigModal v-if="showVoucherSeriesConf"
+                              :onClose="() => {showVoucherSeriesConf = false}"
+    >
+    </VoucherSeriesConfigModal>
   </main>
 </template>

@@ -44,6 +44,7 @@ export const ERROR_MESSAGES = {
     INVALID_CART_ITEMS_REMOVED: 'Algunos elementos del carrito de compras no se encuentran disponibles y fueron eliminados del mismo automáticamente. Verifique el listado y notifique al cliente. Puede proceder al pago con normalidad.',
     VOUCHER_DETAIL_NOT_FOUND: 'Detalle de voucher no encontrado. Vuelva a intentarlo o comuniquese con administración.',
     INVALID_NOTES_FORMAT: 'Debe llenar el campo notas con el formato correcto, intente nuevamente.',
+    INVALID_SETTINGS_PAYLOAD: 'Error durante la preparación de la solicitud. Comuniquese con administración.',
 }
 
 export const SUPPLIER_SEARCH_MODES = [

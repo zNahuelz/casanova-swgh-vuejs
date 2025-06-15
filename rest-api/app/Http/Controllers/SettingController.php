@@ -3,8 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\DoctorAvailability;
+use App\Models\Medicine;
 use App\Models\Setting;
+use App\Models\Treatment;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class SettingController extends Controller
@@ -57,7 +62,6 @@ class SettingController extends Controller
 
     public function updateIgvConfig(Request $request)
     {
-        //TODO: ******* UPDATE ALL PRODUCTS PRICES....!!! ******
         $request->validate([
             'key' => ['required', 'string', 'exists:settings,key'],
             'igvValue' => [
@@ -82,9 +86,64 @@ class SettingController extends Controller
             'description' => $request->description ?? '---',
         ]);
         $readableIgv = doubleval($request->igvValue) * 100;
-        return response()->json([
-            'message' => "Valor del IGV fijado en: $readableIgv% Todos los productos y servicios han sido actualizados correctamente."
-        ]);
+        //Updating system-wide prices.
+        try {
+            DB::beginTransaction();
+            $medicines = Medicine::where('salable', true)->get();
+            $treatments = Treatment::all();
+            $IGV = doubleval($request->igvValue);
+
+            foreach ($medicines as $med) {
+                $newIgv = 0;
+                $newProfit = 0;
+                if ($med->igv > 0) {
+                    $base = $med->sell_price / (1 + $IGV);
+                    $newIgv = round(($med->sell_price - $base), 2);
+                    $newProfit = round(($base - $med->buy_price), 2);
+                    if ($newProfit < 0) {
+                        $newProfit = 0;
+                    }
+
+                    $med->update([
+                        'igv' => $newIgv,
+                        'profit' => $newProfit,
+                    ]);
+                } else {
+                    $med->update([
+                        'igv' => 0,
+                        'profit' => ($med->sell_price - $med->buy_price) < 0 ? 0 : ($med->sell_price - $med->buy_price),
+                    ]);
+                }
+            }
+
+            foreach ($treatments as $trt) {
+                $newIgv = 0;
+                $newProfit = 0;
+                if ($trt->igv > 0) {
+                    $newIgv = round(($trt->price * $IGV), 2);
+                    $newProfit = round(($trt->price - $newIgv), 2);
+                } else {
+                    $newIgv = 0;
+                    $newProfit = round($trt->price, 2);
+                }
+                if ($newProfit < 0) {
+                    $newProfit = 0;
+                }
+                $trt->update([
+                    'igv' => $newIgv,
+                    'profit' => $newProfit,
+                ]);
+            }
+            DB::commit();
+            return response()->json([
+                'message' => "Valor del IGV fijado en: $readableIgv% Todos los productos y servicios han sido actualizados correctamente."
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => "Valor del IGV fijado en: $readableIgv% No se pudo actualizar el precio de productos y/o servicios. Intente nuevamente o comuniquese con administración."
+            ], 500);
+        }
     }
 
     public function updateAppointmentPrice(Request $request)
@@ -116,7 +175,95 @@ class SettingController extends Controller
         $readablePrice = doubleval($request->appPrice);
         return response()->json([
             'message' => "Costo de consulta médica regular fijado en: S./$readablePrice"
+        ], 200);
+    }
+
+    public function manageJobOnWeekends(Request $request)
+    {
+        $request->validate([
+            'key' => ['required', 'string', 'exists:settings,key'],
+            'jobOnWeekends' => ['required', 'in:true,false'],
+            'description' => ['nullable', 'string', 'max:255'],
         ]);
+
+        $setting = Setting::where('key', 'like', $request->key)->first();
+
+        if (!$setting) {
+            return response()->json([
+                'message' => "No se encontro la configuración de clave: $request->key Operación cancelada."
+            ], 404);
+        }
+
+        $availabilities = DoctorAvailability::whereIn('weekday', [6, 7])->get();
+
+        try {
+            DB::beginTransaction();
+            if ($request->jobOnWeekends === 'false') {
+                foreach ($availabilities as $av) {
+                    $av->update([
+                        'is_active' => false,
+                    ]);
+                }
+            } else {
+                foreach ($availabilities as $av) {
+                    $av->update([
+                        'is_active' => true,
+                    ]);
+                }
+            }
+            $setting->update([
+                'value' => trim($request->jobOnWeekends),
+                'description' => $request->description ?? '---',
+            ]);
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => "No se pudo actualizar el valor de la clave: $request->key. Intente nuevamente o comuniquese con administración."
+            ], 500);
+        }
+        return response()->json([
+            'message' => $setting->value === 'true' ?
+                "Valor de llave: $request->key configurado como VERDADERO. El personal ahora puede trabajar los fines de semana. Recuerde que debe configurar el horario de cada doctor para los fines de semana." :
+                "Valor de llave: $request->key configurado como FALSO. El personal NO puede trabajar los fines de semana. Recuerde que debe reprogramar o cancelar todas las citas reservadas para los fines de semana.",
+        ]);
+    }
+
+    public function updateVoucherInfo(Request $request)
+    {
+        if ($request->type === 'ADDRESS_CHANGE') {
+            $request->validate([
+                'key' => ['required', 'string', 'exists:settings,key'],
+                'address' => ['required', 'string', 'min:10', 'max:120'],
+                'description' => ['nullable', 'string', 'max:255'],
+            ]);
+
+            $setting = Setting::where('key', $request->key)->first();
+            $setting->update([
+                'value' => trim($request->address),
+                'description' => $request->description ?? '---'
+            ]);
+            return response()->json([
+                'message' => "Valor de la llave: $request->key actualizado correctamente. La dirección de la empresa ha sido actualizada en todo el sistema."
+            ], 200);
+        } else if ($request->type === 'RUC_CHANGE') {
+            $request->validate([
+                'key' => ['required', 'string', 'exists:settings,key'],
+                'ruc' => ['required', 'string', 'min:11', 'max:11'],
+                'description' => ['nullable', 'string', 'max:255'],
+            ]);
+            $setting = Setting::where('key', $request->key)->first();
+            $setting->update([
+                'value' => trim($request->ruc),
+                'description' => $request->description ?? '---'
+            ]);
+            return response()->json([
+                'message' => "Valor de la llave: $request->key actualizado correctamente. El RUC de la empresa ha sido actualizada en todo el sistema."
+            ], 200);
+        }
+        return response()->json([
+            'message' => "No se pudo realizar la operación. Los parámetros ingresados son inválidos."
+        ], 400);
     }
 
     public function getSettingByKey($key)

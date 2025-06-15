@@ -91,16 +91,18 @@ async function onSubmit(values) {
         }" :validation-schema="schema" class="grid gap-6" @submit="onSubmit">
           <div>
             <label class="block mb-2 text-sm font-medium text-gray-900">Costo Cita (S./)</label>
-            <Field id="price" :validate-on-input="true" class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5" name="price"
+            <Field id="price" :disabled="submitting" :validate-on-input="true" class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5"
+                   name="price"
                    type="text"/>
             <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
                           name="price"></ErrorMessage>
           </div>
           <div>
             <label class="block mb-2 text-sm font-medium text-gray-900">Descripción</label>
-            <Field id="description" :validate-on-input="true" class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5" name="description"
+            <Field id="description" :disabled="submitting" :validate-on-input="true" class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5"
+                   name="description"
                    type="text"/>
             <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
                           name="description"></ErrorMessage>

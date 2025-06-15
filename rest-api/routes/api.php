@@ -72,6 +72,8 @@ Route::group([
     Route::post('/', [SettingController::class, 'createSetting'])->middleware('role:ADMINISTRADOR');
     Route::put('/update-igv', [SettingController::class, 'updateIgvConfig'])->middleware('role:ADMINISTRADOR');
     Route::put('/update-app-price', [SettingController::class, 'updateAppointmentPrice'])->middleware('role:ADMINISTRADOR');
+    Route::put('/mng-job-weekends', [SettingController::class, 'manageJobOnWeekends'])->middleware('role:ADMINISTRADOR');
+    Route::put('/voucher-info', [SettingController::class, 'updateVoucherInfo'])->middleware('role:ADMINISTRADOR');
     Route::put('/{id}', [SettingController::class, 'updateSetting'])->middleware('role:ADMINISTRADOR');
     Route::get('/{key}', [SettingController::class, 'getSettingByKey'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/', [SettingController::class, 'getSettings'])->middleware('role:ADMINISTRADOR');
