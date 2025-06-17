@@ -13,6 +13,7 @@ import UpdateAppointmentPriceModal from "@/components/setting/UpdateAppointmentP
 import ManageJobOnWeekendsModal from "@/components/setting/ManageJobOnWeekendsModal.vue";
 import UpdateVoucherInfoModal from "@/components/setting/UpdateVoucherInfoModal.vue";
 import VoucherSeriesConfigModal from "@/components/setting/VoucherSeriesConfigModal.vue";
+import HolidaysConfigModal from "@/components/setting/holiday/HolidaysConfigModal.vue";
 
 const searchMode = ref('id');
 const settings = ref([]);
@@ -34,6 +35,7 @@ const showUpdateVoucherInfo = ref(false);
 const settingObject = ref({});
 
 const showVoucherSeriesConf = ref(false);
+const showHolidaysConf = ref(false);
 
 const dynamicSchema = computed(() => {
   let keywordValidation = yup.string().required();
@@ -123,6 +125,10 @@ function handleVoucherSeriesConfigModal() {
   showVoucherSeriesConf.value = !showVoucherSeriesConf.value;
 }
 
+function handleShowHolidaysConfModal() {
+  showHolidaysConf.value = !showHolidaysConf.value;
+}
+
 function editVar(setting) {
   if (setting.key === 'VALOR_IGV') {
     igvObject.value = setting;
@@ -144,8 +150,7 @@ function editVar(setting) {
 
 onMounted(() => {
   document.title = 'ALTERNATIVA CASANOVA - CONFIGURACIÓN DEL SISTEMA';
-  loadSettings()//.then(() => showWarning());
-  //TODO Add this after testing everything. ^
+  loadSettings().then(() => showWarning());
 });
 </script>
 
@@ -289,11 +294,20 @@ onMounted(() => {
         </div>
         <button
             :disabled="isLoading"
-            class="p-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500"
+            class="p-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500 me-3"
             type="button"
             @click="handleVoucherSeriesConfigModal"
         >
           <i class="bi bi-receipt"></i> Conf. Vouchers
+        </button>
+
+        <button
+            :disabled="isLoading"
+            class="p-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-500"
+            type="button"
+            @click="handleShowHolidaysConfModal"
+        >
+          <i class="bi bi-cup-hot"></i> Conf. Feriados
         </button>
 
         <div v-if="loadError" class="container mt-5 mb-5 flex flex-col items-center space-y-5">
@@ -325,5 +339,9 @@ onMounted(() => {
                               :onClose="() => {showVoucherSeriesConf = false}"
     >
     </VoucherSeriesConfigModal>
+    <HolidaysConfigModal v-if="showHolidaysConf"
+                         :onClose="handleShowHolidaysConfModal"
+    ></HolidaysConfigModal>
+
   </main>
 </template>

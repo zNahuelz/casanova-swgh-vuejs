@@ -9,6 +9,8 @@ const authStore = useAuthStore();
 onMounted(() => {
   initFlowbite();
 });
+
+//TODO: *** Hide menus and actions based on user role.
 </script>
 <template>
   <aside id="logo-sidebar"
@@ -335,7 +337,7 @@ onMounted(() => {
             </li>
           </ul>
         </li>
-        <li>
+        <li v-if="authStore.getTokenDetails().role === 'ADMINISTRADOR'">
           <router-link :to="{name: 'user-list'}"
                        class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-green-500 group">
             <svg aria-hidden="true"
@@ -350,7 +352,7 @@ onMounted(() => {
             <span class="flex-1 ms-3 whitespace-nowrap">Usuarios</span>
           </router-link>
         </li>
-        <li>
+        <li v-if="authStore.getTokenDetails().role === 'ADMINISTRADOR'">
           <router-link :to="{name: 'settings'}"
                        class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-green-500 group">
             <svg aria-hidden="true"

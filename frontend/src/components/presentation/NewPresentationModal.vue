@@ -63,14 +63,14 @@ async function onSubmit(values) {
         <Form class="grid gap-6" :validation-schema="schema" @submit="onSubmit" ref="presentationForm">
           <div>
             <label class="block mb-2 text-sm font-medium text-gray-900">Nombre</label>
-            <Field type="text" id="name" name="name" :validate-on-input="true"
+            <Field type="text" id="name" name="name" :validate-on-input="true" :disabled="submitting"
                    class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
                     focus:ring-green-600 focus:border-green-600 block w-full p-2.5"/>
             <ErrorMessage name="name" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
           </div>
           <div>
             <label class="block mb-2 text-sm font-medium text-gray-900">Valor Numérico</label>
-            <Field type="number" id="numeric_value" name="numeric_value" :validate-on-input="true"
+            <Field type="number" id="numeric_value" name="numeric_value" :validate-on-input="true" :disabled="submitting"
                    class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
                     focus:ring-green-600 focus:border-green-600 block w-full p-2.5"/>
             <ErrorMessage name="numeric_value"
@@ -79,7 +79,7 @@ async function onSubmit(values) {
 
           <div>
             <label class="block mb-2 text-sm font-medium text-gray-900">Auxiliar</label>
-            <Field type="text" id="aux" name="aux" :validate-on-input="true"
+            <Field type="text" id="aux" name="aux" :validate-on-input="true" :disabled="submitting"
                    class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
                     focus:ring-green-600 focus:border-green-600 block w-full p-2.5"/>
             <ErrorMessage name="aux" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>

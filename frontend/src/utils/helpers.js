@@ -93,3 +93,28 @@ export function formatTwoDecimals(val) {
     if (isNaN(number)) number = 0;
     return number.toFixed(2);
 }
+
+export function generateSerie(number, type) {
+    if (!Number.isInteger(number) || number < 1 || number > 999) {
+        throw new Error('El número debe ser entero entre 1 y 999');
+    }
+
+    const prefix = type === 'BOL' ? 'B' : type === 'FACT' ? 'F' : null;
+    if (!prefix) {
+        throw new Error("El tipo debe ser BOLETA o FACTURA.");
+    }
+
+    const formattedNumber = String(number).padStart(3, '0');
+    return `${prefix}${formattedNumber}`;
+}
+
+export function generateVoucherCode(serieNumber, type, correlative) {
+    const serie = generateSerie(serieNumber, type);
+
+    if (!Number.isInteger(correlative) || correlative < 1 || correlative > 99999999) {
+        throw new Error('El correlativo debe ser un entero entre 1 y 99,999,999');
+    }
+
+    const paddedCorrelative = String(correlative).padStart(8, '0');
+    return `${serie}-${paddedCorrelative}`;
+}

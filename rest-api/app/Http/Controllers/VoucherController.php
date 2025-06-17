@@ -99,6 +99,7 @@ class VoucherController extends Controller
         try {
             DB::beginTransaction();
             $voucherSerie = VoucherSeries::where('voucher_type', $voucherType->id)
+                ->where('is_active',true) //TODO: Algo falla? Aca!
                 ->lockForUpdate()
                 ->first();
 
@@ -111,7 +112,9 @@ class VoucherController extends Controller
             //Verificar disponibilidad de correlativo y generar hasta encontrar valor valido.
             $next = $voucherSerie->next_correlative;
             $correlative = str_pad($next, 8, '0', STR_PAD_LEFT);
-            while (Voucher::where('correlative', $correlative)->exists()) {
+            while (Voucher::where('correlative', $correlative)
+            ->where('set',$voucherSerie->serie)
+            ->exists()) {
                 $next++;
                 $correlative = str_pad($next, 8, '0', STR_PAD_LEFT);
             }

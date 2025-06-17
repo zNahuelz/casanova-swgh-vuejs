@@ -1,56 +1,79 @@
 <script setup>
+import {ErrorMessage, Field, Form} from "vee-validate";
 import {ref} from "vue";
 import * as yup from "yup";
-import {ErrorMessage, Field, Form} from "vee-validate";
+import dayjs from "dayjs";
 import Swal from "sweetalert2";
-import {PresentationService} from "@/services/presentation-service.js";
 import {ERROR_MESSAGES as EM, SUCCESS_MESSAGES as SM} from "@/utils/constants.js";
 import {reloadOnDismiss} from "@/utils/helpers.js";
+import {HolidayService} from "@/services/holiday-service.js";
 
-const {onClose, presentation} = defineProps(['onClose', 'presentation']);
+const {onClose, holiday} = defineProps(['onClose', 'holiday']);
 const submitting = ref(false);
-const presentationForm = ref();
+
+const isRecurring = ref(holiday.is_recurring || false);
 
 const schema = yup.object({
-  name: yup.string().min(2, 'El nombre debe tener entre 2 y 20 carácteres.').max(50, 'El nombre debe tener entre 2 y 20 carácteres.').required('Debe ingresar un nombre.'),
-  numeric_value: yup
-      .number()
-      .typeError('Debe ingresar números.')
-      .positive('El valor debe ser un número positivo.')
-      .test('is-two-decimals', 'El valor debe tener dos decimales como máximo.', value => {
-        return value === undefined || /^\d+(\.\d{1,2})?$/.test(value.toString());
-      })
-      .required('Debe ingresar el valor numérico de la presentación'),
-  aux: yup.string().max(20, 'El valor auxiliar debe tener entre 2 y 20 carácteres.'),
+  name: yup
+      .string()
+      .min(5, 'El nombre debe tener entre 5 y 100 carácteres.')
+      .max(100, 'El nombre debe tener entre 5 y 100 carácteres.')
+      .matches(
+          /^(?!\s*$).{5,100}$/,
+          'El nombre debe tener entre 5 y 100 carácteres (sin espacios al inicio/fin).'
+      )
+      .required('Debe ingresar un nombre.'),
+
+  date: yup
+      .string()
+      .required('Debe seleccionar una fecha.')
+      .test('valid-date-based-on-recurring', 'Una fecha en el pasado solo es válida si es recurrente.', function (value) {
+        if (!value) return false;
+
+        const inputDate = dayjs(value, 'YYYY-MM-DD', true);
+        if (!inputDate.isValid()) return this.createError({message: 'Formato de fecha inválido. Use YYYY-MM-DD.'});
+
+        const today = dayjs().startOf('day');
+
+        if (inputDate.isSame(today) || inputDate.isAfter(today)) {
+          return true;
+        }
+
+        return inputDate.isBefore(today) && isRecurring.value === true;
+      }),
 });
 
 async function onSubmit(values) {
   submitting.value = true;
-  const payload = {
-    ...values,
-    numeric_value: Number(values.numeric_value),
-  }
   try {
-    const response = await PresentationService.update(presentation.id, payload);
-    Swal.fire(SM.SUCCESS_TAG, response.message, 'success').then((r) => reloadOnDismiss(r));
-  } catch (err) {
-    if (err.errors.presentation) {
-      Swal.fire(EM.ERROR_TAG, EM.DUPLICATED_PRESENTATION, 'warning').then((r) => reloadOnDismiss(r));
-    } else {
-      Swal.fire(EM.ERROR_TAG, EM.SERVER_ERROR, 'error').then((r) => reloadOnDismiss(r));
+    const payload = {
+      id: parseInt(holiday.id),
+      name: values.name.trim().toUpperCase(),
+      date: values.date,
+      is_recurring: isRecurring.value,
     }
+    const response = await HolidayService.update(payload);
+    Swal.fire(SM.SUCCESS_TAG, response.message, 'success').then(reloadOnDismiss);
+  } catch (err) {
+    if (err.errors?.date) {
+      Swal.fire(EM.ERROR_TAG, 'La fecha seleccionada ya se encuentra registrada como un feriado recurrente. Intente nuevamente o configure el feriado existente.', 'warning');
+    } else {
+      Swal.fire(EM.ERROR_TAG, EM.SERVER_ERROR, 'error').then(reloadOnDismiss);
+    }
+  } finally {
+    submitting.value = false;
   }
 }
 </script>
 
 <template>
-  <div id="edit-presentation" class="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-sm"
+  <div id="edit-holiday" class="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-sm"
        tabindex="-1">
     <div class="relative bg-white rounded-lg shadow-lg w-100 max-w-md">
       <div
           class="flex items-center justify-between p-4 md:p-5 border-b rounded-t  border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900">
-          Editar Presentación - ID: {{ presentation?.id }}
+          Editar Feriado: {{ holiday.name }}
         </h3>
         <button :disabled="submitting"
                 class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
@@ -66,33 +89,37 @@ async function onSubmit(values) {
       </div>
       <div class="p-6 space-y-6 items-center flex flex-col">
         <Form ref="presentationForm" :initial-values="{
-            name: presentation?.name || '',
-            numeric_value: presentation?.numeric_value || '',
-            aux: presentation?.aux || ''
+          name: holiday.name || '',
+          date: holiday.date || dayjs().format('YYYY-MM-DD'),
         }" :validation-schema="schema" class="grid gap-6" @submit="onSubmit">
           <div>
             <label class="block mb-2 text-sm font-medium text-gray-900">Nombre</label>
             <Field id="name" :disabled="submitting" :validate-on-input="true" class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5" name="name"
+                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5"
+                   name="name"
                    type="text"/>
             <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium" name="name"></ErrorMessage>
           </div>
           <div>
-            <label class="block mb-2 text-sm font-medium text-gray-900">Valor Numérico</label>
-            <Field id="numeric_value" :disabled="submitting" :validate-on-input="true" class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+            <label class="block mb-2 text-sm font-medium text-gray-900">Fecha</label>
+            <Field id="date" :disabled="submitting" :validate-on-input="true" class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
                     focus:ring-green-600 focus:border-green-600 block w-full p-2.5"
-                   name="numeric_value"
-
-                   type="number"/>
+                   name="date"
+                   type="date"/>
             <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
-                          name="numeric_value"></ErrorMessage>
+                          name="date"></ErrorMessage>
           </div>
+
           <div>
-            <label class="block mb-2 text-sm font-medium text-gray-900">Auxiliar</label>
-            <Field id="aux" :disabled="submitting" :validate-on-input="true" class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5" name="aux"
-                   type="text"/>
-            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium" name="aux"></ErrorMessage>
+            <div class="flex items-center me-4">
+              <input id="isRecurring" v-model="isRecurring"
+                     :disabled="submitting"
+                     class="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-green-500 focus:ring-2"
+                     name="isRecurring"
+                     type="checkbox"/>
+              <label class="ms-2 text-sm font-medium text-gray-900"
+                     for="green-checkbox">{{ isRecurring ? 'RECURRENTE' : 'NO RECURRENTE' }}</label>
+            </div>
           </div>
 
           <div class="inline-flex rounded-md shadow-xs" role="group">
@@ -113,7 +140,7 @@ async function onSubmit(values) {
                     class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
                     type="submit">
               <i class="bi bi-floppy-fill w-3 h-3 me-2 flex items-center justify-center"></i>
-              {{ submitting ? 'Guardando...' : 'Actualizar' }}
+              {{ submitting ? 'Guardando...' : 'Guardar' }}
             </button>
           </div>
         </Form>

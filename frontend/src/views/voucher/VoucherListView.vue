@@ -3,7 +3,7 @@ import {computed, onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
 import {useAuthStore} from "@/stores/auth.js";
 import {VOUCHER_SEARCH_MODES as VSM} from "@/utils/constants.js";
-import {formatAsDate, reloadPage} from "@/utils/helpers.js";
+import {formatAsDate, formatAsDatetime, reloadPage} from "@/utils/helpers.js";
 import * as yup from "yup";
 import {ErrorMessage, Field, Form} from "vee-validate";
 import {VoucherService} from "@/services/voucher-service.js";
@@ -18,7 +18,7 @@ const totalItems = ref(0);
 const pageSize = ref(10);
 const router = useRouter();
 const authService = useAuthStore();
-
+//TODO ** Mantener filtrado al paginar! (Como en citas?)
 const dynamicSchema = computed(() => {
   let keywordValidation = yup.string().required();
 
@@ -227,7 +227,7 @@ onMounted(() => {
                   {{ v.total }}
                 </td>
                 <td class="px-6 py-2 text-center">
-                  {{ formatAsDate(v.created_at) }}
+                  {{ formatAsDatetime(v.created_at) }}
                 </td>
                 <td class="px-6 py-3 flex justify-center items-center">
                   <div class="inline-flex rounded-md shadow-xs" role="group">

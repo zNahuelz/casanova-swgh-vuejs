@@ -164,7 +164,7 @@ async function onSubmit(values) {
     const response = await MedicineService.update(medicine.value.id, payload);
     Swal.fire(SM.SUCCESS_TAG, response.message, 'success').then((r) => reloadOnDismiss(r));
   } catch (err) {
-    if (err.errors.barcode) {
+    if (err.errors?.barcode) {
       Swal.fire(EM.ERROR_TAG, EM.BARCODE_TAKEN, 'warning').then((r) => reloadOnDismiss(r));
     } else {
       Swal.fire(EM.ERROR_TAG, EM.SERVER_ERROR, 'error').then((r) => reloadOnDismiss(r));

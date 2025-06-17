@@ -199,3 +199,8 @@ export const APPOINTMENTS_REPORT_TYPES = [
     {value: 'by_month', label: 'POR MES'},
     {value: 'by_year', label: 'POR AÑO'}
 ]
+
+export const VOUCHER_SERIE_TYPES = [
+    {value: 'BOL', label: 'BOLETA'},
+    {value: 'FACT', label: 'FACTURA'}
+]

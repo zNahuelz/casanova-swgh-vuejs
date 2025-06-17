@@ -24,6 +24,18 @@ export const SettingService = {
         return Http.PUT(`${this.endpoint}/mng-job-weekends`, payload);
     },
     updateVoucherInfo(payload){
-        return Http.PUT(`${this.endpoint}/voucher-info`, payload);
+        return Http.PUT(`${this.endpoint}/voucher/info`, payload);
+    },
+    loadVoucherSeries(){
+        return Http.GET(`${this.endpoint}/voucher/series`);
+    },
+    enableVoucherSeries(payload){
+        return Http.PUT(`${this.endpoint}/voucher/enable-serie`,payload);
+    },
+    createVoucherSeries(payload){
+        return Http.POST(`${this.endpoint}/voucher/series`,payload);
+    },
+    updateVoucherSeries(payload){
+        return Http.PUT(`${this.endpoint}/voucher/series`,payload);
     }
 };

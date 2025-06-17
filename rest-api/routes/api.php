@@ -3,6 +3,7 @@
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PaymentController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TreatmentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoucherController;
+use App\Http\Controllers\VoucherSeriesController;
 use App\Http\Controllers\WorkerController;
 use App\Http\Middleware\BaseMiddleware;
 use App\Http\Middleware\BlobResponseMiddleware;
@@ -70,11 +72,15 @@ Route::group([
     'prefix' => '/setting'
 ], function ($router) {
     Route::post('/', [SettingController::class, 'createSetting'])->middleware('role:ADMINISTRADOR');
+    Route::post('/voucher/series', [VoucherSeriesController::class, 'createVoucherSerie'])->middleware('role:ADMINISTRADOR');
     Route::put('/update-igv', [SettingController::class, 'updateIgvConfig'])->middleware('role:ADMINISTRADOR');
     Route::put('/update-app-price', [SettingController::class, 'updateAppointmentPrice'])->middleware('role:ADMINISTRADOR');
     Route::put('/mng-job-weekends', [SettingController::class, 'manageJobOnWeekends'])->middleware('role:ADMINISTRADOR');
-    Route::put('/voucher-info', [SettingController::class, 'updateVoucherInfo'])->middleware('role:ADMINISTRADOR');
+    Route::put('/voucher/info', [SettingController::class, 'updateVoucherInfo'])->middleware('role:ADMINISTRADOR');
+    Route::put('/voucher/series', [VoucherSeriesController::class, 'updateVoucherSerie'])->middleware('role:ADMINISTRADOR');
+    Route::put('/voucher/enable-serie', [VoucherSeriesController::class, 'enableVoucherSerie'])->middleware('role:ADMINISTRADOR');
     Route::put('/{id}', [SettingController::class, 'updateSetting'])->middleware('role:ADMINISTRADOR');
+    Route::get('/voucher/series', [VoucherSeriesController::class, 'getVoucherSeries'])->middleware('role:ADMINISTRADOR');
     Route::get('/{key}', [SettingController::class, 'getSettingByKey'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/', [SettingController::class, 'getSettings'])->middleware('role:ADMINISTRADOR');
 });
@@ -170,4 +176,13 @@ Route::group([
 ], function ($router) {
     Route::get('/sales', [ReportController::class, 'generateSalesReport'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::get('/appointments', [ReportController::class, 'generateAppointmentsReport'])->middleware('role:ADMINISTRADOR,SECRETARIA');
+});
+
+Route::group([
+    'prefix' => '/holiday'
+], function ($router) {
+    Route::get('/', [HolidayController::class, 'getHolidays'])->middleware('role:ADMINISTRADOR');
+    Route::post('/', [HolidayController::class, 'createHoliday'])->middleware('role:ADMINISTRADOR');
+    Route::put('/', [HolidayController::class, 'updateHoliday'])->middleware('role:ADMINISTRADOR');
+    Route::delete('/{id}', [HolidayController::class, 'deleteHoliday'])->middleware('role:ADMINISTRADOR');
 });
