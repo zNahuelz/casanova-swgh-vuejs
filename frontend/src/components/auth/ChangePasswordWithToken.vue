@@ -54,7 +54,7 @@ async function onSubmit(values) {
     <div class="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow-lg sm:p-6 md:p-8">
       <Form :validation-schema="schema" class="space-y-6" @submit="onSubmit">
         <div class="flex items-center justify-center">
-          <img height="160" src="/images/logo_white.png" width="160">
+          <img height="160" src="/images/logo_white.png" width="160" draggable="false" @contextmenu.prevent>
         </div>
         <div class="mb-4">
           <p class="text-center font-light text-[14px]">El siguiente formulario le permite recuperar el acceso a su

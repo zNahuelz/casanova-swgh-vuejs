@@ -92,6 +92,7 @@ Route::group([
     Route::put('/{id}', [MedicineController::class, 'updateMedicine'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::get('/generate-barcode', [MedicineController::class, 'generateRandomBarcode'])->middleware('role:ADMINISTRADOR,SECRETARIA');
     Route::get('/id/{id}', [MedicineController::class, 'getMedicineById'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+    Route::get('/barcode/print/{id}', [MedicineController::class, 'getBarcodesToPrint']);
     Route::get('/barcode/{barcode}', [MedicineController::class, 'getMedicineByBarcode'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/', [MedicineController::class, 'getMedicines'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
 });

@@ -204,7 +204,7 @@ onMounted(() => {
             </button>
           </div>
 
-          <div>
+          <div v-if="authService.getTokenDetails().role !== 'DOCTOR'">
             <button :disabled="patient?.vouchers?.length <= 0"
                     class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-rose-700 focus:z-10 focus:ring-2 focus:ring-rose-700 focus:text-rose-700 disabled:bg-gray-200 disabled:cursor-not-allowed w-full"
                     type="button"
@@ -227,6 +227,7 @@ onMounted(() => {
             </button>
             <button
                 :disabled="patient.dni === '00000000'"
+                v-if="authService.getTokenDetails().role !== 'DOCTOR'"
                 class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-e border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
                 type="button"
                 @click="goToEdit(patient?.id)">

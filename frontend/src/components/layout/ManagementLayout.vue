@@ -35,7 +35,7 @@ onMounted(() => {
             <span class="ms-3">Inicio</span>
           </router-link>
         </li>
-        <li>
+        <li v-if="authStore.getTokenDetails().role === 'ADMINISTRADOR' || authStore.getTokenDetails().role === 'SECRETARIA' || authStore.getTokenDetails().role === 'ENFERMERA'">
           <router-link :to="{name: 'sell-products'}"
                        class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-green-500 group">
             <svg aria-hidden="true" class="w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"
@@ -69,7 +69,7 @@ onMounted(() => {
             </svg>
           </button>
           <ul id="appointments-dropdown" class="hidden py-2 space-y-2">
-            <li>
+            <li v-if="authStore.getTokenDetails().role === 'ADMINISTRADOR' || authStore.getTokenDetails().role === 'SECRETARIA' || authStore.getTokenDetails().role === 'ENFERMERA'">
               <router-link :to="{name: 'new-appointment'}"
                            class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
                            href="#">Nueva
@@ -83,7 +83,7 @@ onMounted(() => {
             </li>
           </ul>
         </li>
-        <li>
+        <li v-if="authStore.getTokenDetails().role !== 'DOCTOR'">
           <button aria-controls="doctors-dropdown"
                   class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-green-500"
                   data-collapse-toggle="doctors-dropdown" type="button">
@@ -102,13 +102,13 @@ onMounted(() => {
             </svg>
           </button>
           <ul id="doctors-dropdown" class="hidden py-2 space-y-2">
-            <li>
+            <li v-if="authStore.getTokenDetails().role === 'ADMINISTRADOR'">
               <router-link :to="{name: 'new-doctor'}"
                            class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
               >Nuevo
               </router-link>
             </li>
-            <li>
+            <li v-if="authStore.getTokenDetails().role === 'ADMINISTRADOR' || authStore.getTokenDetails().role === 'SECRETARIA' || authStore.getTokenDetails().role === 'ENFERMERA'">
               <router-link :to="{name: 'doctor-list'}"
                            class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
               >Listado
@@ -117,7 +117,7 @@ onMounted(() => {
           </ul>
         </li>
 
-        <li>
+        <li v-if="authStore.getTokenDetails().role !== 'DOCTOR'">
           <button aria-controls="vouchers-dropdown"
                   class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-green-500"
                   data-collapse-toggle="vouchers-dropdown" type="button">
@@ -179,7 +179,7 @@ onMounted(() => {
             </svg>
           </button>
           <ul id="medicines-dropdown" class="hidden py-2 space-y-2">
-            <li>
+            <li v-if="authStore.getTokenDetails().role === 'ADMINISTRADOR' || authStore.getTokenDetails().role === 'SECRETARIA'">
               <router-link :to="{name: 'new-medicine'}"
                            class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500">
                 Nuevo
@@ -191,7 +191,7 @@ onMounted(() => {
                 Listado
               </router-link>
             </li>
-            <li>
+            <li v-if="authStore.getTokenDetails().role === 'ADMINISTRADOR' || authStore.getTokenDetails().role === 'SECRETARIA'">
               <router-link :to="{name: 'presentation-list'}"
                            class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500">
                 Presentaciones
@@ -203,8 +203,6 @@ onMounted(() => {
           <button aria-controls="patients-dropdown"
                   class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-green-500"
                   data-collapse-toggle="patients-dropdown" type="button">
-
-
             <svg aria-hidden="true"
                  class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"
                  fill="currentColor" height="24" viewBox="0 0 24 24" width="24"
@@ -221,7 +219,7 @@ onMounted(() => {
             </svg>
           </button>
           <ul id="patients-dropdown" class="hidden py-2 space-y-2">
-            <li>
+            <li v-if="authStore.getTokenDetails().role === 'ADMINISTRADOR' || authStore.getTokenDetails().role === 'SECRETARIA' || authStore.getTokenDetails().role === 'ENFERMERA'">
               <router-link :to="{name: 'new-patient'}"
                            class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500">
                 Nuevo
@@ -236,7 +234,7 @@ onMounted(() => {
           </ul>
         </li>
 
-        <li>
+        <li v-if="authStore.getTokenDetails().role === 'ADMINISTRADOR' || authStore.getTokenDetails().role === 'SECRETARIA'">
           <button aria-controls="suppliers-dropdown"
                   class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-green-500"
                   data-collapse-toggle="suppliers-dropdown" type="button">
@@ -272,7 +270,7 @@ onMounted(() => {
             </li>
           </ul>
         </li>
-        <li>
+        <li v-if="authStore.getTokenDetails().role === 'ADMINISTRADOR' || authStore.getTokenDetails().role === 'SECRETARIA'">
           <button aria-controls="workers-dropdown"
                   class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-green-500"
                   data-collapse-toggle="workers-dropdown" type="button">
@@ -291,7 +289,7 @@ onMounted(() => {
             </svg>
           </button>
           <ul id="workers-dropdown" class="hidden py-2 space-y-2">
-            <li>
+            <li v-if="authStore.getTokenDetails().role === 'ADMINISTRADOR'">
               <router-link :to="{name: 'new-worker'}"
                            class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
                            href="#">Nuevo
@@ -323,7 +321,7 @@ onMounted(() => {
             </svg>
           </button>
           <ul id="treatments-dropdown" class="hidden py-2 space-y-2">
-            <li>
+            <li v-if="authStore.getTokenDetails().role === 'ADMINISTRADOR' || authStore.getTokenDetails().role === 'SECRETARIA'">
               <router-link :to="{name: 'new-treatment'}"
                            class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-green-500"
                            href="#">Nuevo

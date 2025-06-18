@@ -1,24 +1,24 @@
 <script setup>
 import {onMounted, ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
-import {VoucherService} from "@/services/voucher-service.js";
+import {MedicineService} from "@/services/medicine-service.js";
 
 const route = useRoute();
 const router = useRouter();
 const pdfUrl = ref(null);
 const isValidId = ref(false);
 const isLoading = ref(false);
-const voucher = ref({});
+const medicine = ref({});
 
-async function verifyVoucher(id) {
+async function verifyMedicine(id) {
   try {
     isLoading.value = true;
-    const response = await VoucherService.getById(id);
-    voucher.value = response;
+    const response = await MedicineService.getById(id);
+    medicine.value = response;
     if (response) {
       isValidId.value = true;
       isLoading.value = false;
-      pdfUrl.value = `http://localhost:8000/api/voucher/pdf/${id}`;
+      pdfUrl.value = `http://localhost:8000/api/medicine/barcode/print/${id}`;
     }
   } catch (err) {
     isValidId.value = false;
@@ -32,16 +32,17 @@ function goBack() {
 }
 
 function goToDetails() {
-  router.push({name: 'voucher-detail', params: {id: voucher.value.id}});
+  router.push({name: 'medicine-detail', params: {id: medicine.value.id}});
 }
 
+
 onMounted(() => {
-  document.title = 'ALTERNATIVA CASANOVA - VISOR DE PDF'
+  document.title = 'ALTERNATIVA CASANOVA - IMPRIMIR CÓDIGO DE BARRAS'
   const id = route.params.id;
   if (isNaN(id)) {
     router.back();
   }
-  verifyVoucher(id);
+  verifyMedicine(id);
 });
 </script>
 
@@ -51,8 +52,9 @@ onMounted(() => {
       <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm w-full">
         <div class="grid grid-cols-2 mb-5">
           <div class="col ms-5">
-            <h5 v-if="!isLoading" class="mb-2 text-2xl font-bold tracking-tight text-black">VOUCHER #{{ voucher.id }}:
-              {{ voucher.set }}-{{ voucher.correlative }}</h5>
+            <h5 v-if="!isLoading" class="mb-2 text-2xl font-bold tracking-tight text-black">ID: {{ medicine.id }} -
+              {{ medicine.name }}
+            </h5>
           </div>
           <div class="flex flex-col items-end me-5">
             <div class="inline-flex">
@@ -85,7 +87,7 @@ onMounted(() => {
             </svg>
             <span class="sr-only">Loading...</span>
           </div>
-          <h1 class="mt-5 text-2xl font-light">Cargando voucher...</h1>
+          <h1 class="mt-5 text-2xl font-light">Cargando códigos de barras...</h1>
         </div>
         <div v-if="!isLoading && isValidId" class="flex flex-col items-center ms-5 me-5">
           <iframe :src="pdfUrl" style="width: 100%; height: 800px"></iframe>

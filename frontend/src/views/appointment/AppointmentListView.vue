@@ -164,7 +164,15 @@ function handleFillNotesModal(appointment) {
 
 onMounted(() => {
   document.title = 'ALTERNATIVA CASANOVA - LISTADO DE CITAS';
-  loadAppointments({date_from: today});
+  if (authService.getTokenDetails().role === 'DOCTOR') {
+    try {
+      loadAppointments({date_from: today, doctor_dni: authService.getUserData().dni});
+    } catch (err) {
+      loadAppointments({date_from: today});
+    }
+  } else {
+    loadAppointments({date_from: today});
+  }
 });
 </script>
 
@@ -324,6 +332,7 @@ onMounted(() => {
                     <button :disabled="!canReschedule(a)"
                             class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
                             title="REPROGRAMAR"
+                            v-if="authService.getTokenDetails().role !== 'DOCTOR'"
                             type="button" @click="goToReschedule(a.id)"
                     >
                       <i class="bi bi-calendar2-plus w-4 h-4"></i>

@@ -35,10 +35,22 @@ export const useAuthStore = defineStore('auth', {
             Cookies.set('USER_DATA', userData, {expires: rememberMe ? 7 : undefined, path: '/'});
         },
         getUserData() {
-            return JSON.parse(Cookies.get('USER_DATA'));
+            if(!this.userData){
+                return {};
+            }
+            else{
+                return JSON.parse(Cookies.get('USER_DATA'));
+            }
         },
         decodeToken(token) {
-            return jwtDecode(token);
+            if (!token || typeof token !== 'string') {
+                return {};
+            }
+            try {
+                return jwtDecode(token);
+            } catch {
+                return {};
+            }
         },
         isAuthenticated() {
             if (!this.token) return false;
@@ -51,19 +63,28 @@ export const useAuthStore = defineStore('auth', {
             }
         },
         logout() {
+            router.push({name: 'login'});
             this.token = null;
             this.userData = null;
             Cookies.remove('AUTH_TOKEN', {path: '/'});
             Cookies.remove('USER_DATA', {path: '/'});
-            router.push('/');
+
         },
         getTokenDetails() {
+            if (!this.token) {
+                return {
+                    user_id: null,
+                    username: 'USUARIO',
+                    email: 'EMAIL@DOMINIO.COM',
+                    role: 'N/A'
+                };
+            }
             const user = this.decodeToken(this.token);
             return {
                 user_id: user.user_id ?? null,
                 username: user.username ?? 'USUARIO',
-                email: user.email ?? 'EMAIL@DOMINIO.COM',
-                role: user.role ?? 'N/A',
+                email:    user.email    ?? 'EMAIL@DOMINIO.COM',
+                role:     user.role     ?? 'N/A',
             };
         },
         getUserId() {

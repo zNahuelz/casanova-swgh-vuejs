@@ -170,7 +170,9 @@ onMounted(() => {
             <button
                 class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
                 type="button"
-                @click="goToEdit(treatment.id)">
+                @click="goToEdit(treatment.id)"
+                v-if="authService.getTokenDetails().role === 'ADMINISTRADOR' || authService.getTokenDetails().role === 'SECRETARIA'"
+            >
               <i class="bi bi-pencil-square w-3 h-3 me-2 flex items-center justify-center"></i>
               Editar
             </button>

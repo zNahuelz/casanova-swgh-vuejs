@@ -5,10 +5,12 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import Swal from "sweetalert2";
 import {ERROR_MESSAGES as EM, SUCCESS_MESSAGES as SM} from "@/utils/constants.js";
 import {DoctorService} from "@/services/doctor-service.js";
+import {useAuthStore} from "@/stores/auth.js";
 
 dayjs.extend(customParseFormat);
 
 const {onClose, unavailabilities} = defineProps(['onClose', 'unavailabilities']);
+const authService = useAuthStore();
 
 function isCurrentlyActive(start, end) {
   const today = dayjs();
@@ -91,7 +93,7 @@ function askForRemoval(unav) {
             <th class="px-6 py-3" scope="col">
               ESTADO
             </th>
-            <th class="px-6 py-3" scope="col">
+            <th class="px-6 py-3" scope="col" v-if="authService.getTokenDetails().role === 'ADMINISTRADOR' || authService.getTokenDetails().role === 'SECRETARIA'">
               HERRAMIENTAS
             </th>
           </tr>
@@ -116,7 +118,7 @@ function askForRemoval(unav) {
                 isCurrentlyActive(formatAsDate(u.start_datetime), formatAsDate(u.end_datetime))
               }}
             </td>
-            <td class="px-6 py-2">
+            <td class="px-6 py-2" v-if="authService.getTokenDetails().role === 'ADMINISTRADOR' || authService.getTokenDetails().role === 'SECRETARIA'">
               <button
                   :disabled="isCurrentlyActive(formatAsDate(u.start_datetime), formatAsDate(u.end_datetime)) === 'PASADO'"
                   class="px-3 py-2 text-xs font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 disabled:bg-gray-500 disabled:cursor-not-allowed"

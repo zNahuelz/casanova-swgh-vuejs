@@ -210,6 +210,7 @@ onMounted(() => {
                   <div class="inline-flex rounded-md shadow-xs" role="group">
                     <button
                         :disabled="p.dni === '00000000'"
+                        v-if="authService.getTokenDetails().role !== 'DOCTOR'"
                         class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
                         title="EDITAR" type="button"
                         @click="goToEdit(p.id)">

@@ -139,7 +139,7 @@ onMounted(() => {
       <div class="h-screen flex justify-center items-center bg-slate-200">
         <div class="w-full max-w-lg bg-white border border-gray-200 rounded-lg shadow-sm col">
           <div class="flex flex-col items-center pb-10 pt-10">
-            <img alt="User Icon" class="w-24 h-24 mb-3 rounded-full shadow-lg" src="/images/user_icon_transparent.png"/>
+            <img alt="User Icon" class="w-24 h-24 mb-3 rounded-full shadow-lg" src="/images/user_icon_transparent.png" draggable="false" @contextmenu.prevent/>
             <h5 v-if="isAdmin" class="mb-1 text-xl font-medium text-gray-900">Hola, {{ accountData.username }}</h5>
             <h5 v-else class="mb-1 text-xl font-medium text-gray-900">Hola,
               {{ profileData.name + ' ' + profileData.paternal_surname }}</h5>
