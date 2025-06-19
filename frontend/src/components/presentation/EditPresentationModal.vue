@@ -34,7 +34,7 @@ async function onSubmit(values) {
     const response = await PresentationService.update(presentation.id, payload);
     Swal.fire(SM.SUCCESS_TAG, response.message, 'success').then((r) => reloadOnDismiss(r));
   } catch (err) {
-    if (err.errors.presentation) {
+    if (err.errors?.presentation) {
       Swal.fire(EM.ERROR_TAG, EM.DUPLICATED_PRESENTATION, 'warning').then((r) => reloadOnDismiss(r));
     } else {
       Swal.fire(EM.ERROR_TAG, EM.SERVER_ERROR, 'error').then((r) => reloadOnDismiss(r));

@@ -25,7 +25,9 @@ const schema = yup.object().shape({
       .string()
       .required('Debe ingresar un nombre.')
       .min(2, 'El nombre debe tener entre 2 y 150 carácteres.')
-      .max(150, 'El nombre debe tener entre 2 y 150 carácteres.'),
+      .max(150, 'El nombre debe tener entre 2 y 150 carácteres.')
+      .matches(/^.*\S.*$/, 'El nombre no puede ser solo espacios en blanco.')
+      .matches(/^\S.*$/, 'El nombre no debe comenzar con espacios.'),
 
   ruc: yup
       .string()
@@ -38,6 +40,8 @@ const schema = yup.object().shape({
       .string()
       .required('Debe ingresar una dirección.')
       .min(5, 'La dirección debe tener entre 5 y 100 carácteres.')
+      .matches(/^.*\S.*$/, 'La dirección no puede ser solo espacios en blanco.')
+      .matches(/^\S.*$/, 'La dirección no debe comenzar con espacios.')
       .max(100, 'La dirección debe tener entre 5 y 100 carácteres.'),
 
   phone: yup
@@ -79,7 +83,8 @@ async function onSubmit(values) {
     Swal.fire(SM.SUCCESS_TAG,response.message, 'success').then((r) => reloadOnDismiss(r));
   }
   catch(err){
-    if(err.errors.ruc){
+    console.log(err);
+    if(err.errors?.ruc){
       editSupplierForm.value.setFieldValue('ruc', '');
       Swal.fire(EM.ERROR_TAG, EM.RUC_TAKEN,'warning');
     }

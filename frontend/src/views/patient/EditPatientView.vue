@@ -26,29 +26,27 @@ const schema = yup.object().shape({
       .required('Debe ingresar un nombre.')
       .min(2, 'El nombre debe tener entre 2 y 30 carácteres.')
       .max(30, 'El nombre debe tener entre 2 y 30 carácteres.')
+      .matches(/^.*\S.*$/, 'El nombre no puede ser solo espacios en blanco.')
+      .matches(/^\S.*$/, 'El nombre no debe comenzar con espacios.')
       .matches(/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{2,30}$/),
 
   paternal_surname: yup
       .string()
       .required('Debe ingresar un apellido paterno.')
       .matches(/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{2,30}$/, 'El apellido paterno debe tener entre 2 y 30 carácteres.')
+      .matches(/^.*\S.*$/, 'El apellido paterno no puede ser solo espacios en blanco.')
+      .matches(/^\S.*$/, 'El apellido paterno no debe comenzar con espacios.')
       .min(2, 'El apellido paterno debe tener entre 2 y 30 carácteres.')
       .max(30, 'El apellido paterno debe tener entre 2 y 30 carácteres.'),
 
   maternal_surname: yup
       .string()
-      .nullable()
-      .notRequired()
-      .trim()
-      .test(
-          'valid-maternal-surname',
-          'El apellido materno debe tener entre 2 y 30 carácteres.',
-          value => {
-            if (!value) return true;
-            const valid = /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{2,30}$/.test(value.trim());
-            return valid;
-          }
-      ),
+      .matches(/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{2,30}$/, 'El apellido materno debe tener entre 2 y 30 carácteres.')
+      .matches(/^.*\S.*$/, 'El apellido materno no puede ser solo espacios en blanco.')
+      .matches(/^\S.*$/, 'El apellido materno no debe comenzar con espacios.')
+      .min(2, 'El apellido materno debe tener entre 2 y 30 carácteres.')
+      .max(30, 'El apellido materno debe tener entre 2 y 30 carácteres.')
+      .notRequired(),
 
   dni: yup
       .string()
@@ -74,6 +72,8 @@ const schema = yup.object().shape({
   address: yup
       .string()
       .required('Debe ingresar una dirección.')
+      .matches(/^.*\S.*$/, 'La dirección no puede ser solo espacios en blanco.')
+      .matches(/^\S.*$/, 'La dirección materno no debe comenzar con espacios.')
       .min(5, 'La dirección debe tener entre 5 y 100 carácteres.')
       .max(100, 'La dirección debe tener entre 5 y 100 carácteres.'),
 
@@ -119,10 +119,10 @@ async function onSubmit(values) {
     const response = await PatientService.update(patient.value.id, payload);
     Swal.fire(SM.SUCCESS_TAG, response.message, 'success').then((r) => reloadOnDismiss(r));
   } catch (err) {
-    if (err?.errors.dni) {
+    if (err?.errors?.dni) {
       patientForm.value.setFieldValue('dni', '');
       Swal.fire(EM.ERROR_TAG, EM.DNI_TAKEN, 'warning');
-    } else if (err?.errors.email) {
+    } else if (err?.errors?.email) {
       patientForm.value.setFieldValue('email', '');
       Swal.fire(EM.ERROR_TAG, EM.EMAIL_TAKEN, 'warning');
     } else {

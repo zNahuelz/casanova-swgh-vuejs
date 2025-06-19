@@ -44,6 +44,7 @@ import RefundsListView from "@/views/voucher/RefundsListView.vue";
 import GeneralReportsView from "@/views/report/GeneralReportsView.vue";
 import UnauthorizedView from "@/views/shared/UnauthorizedView.vue";
 import MedicineBarcodePdfViewer from "@/views/medicine/MedicineBarcodePdfViewer.vue";
+import AppointmentsNotesView from "@/views/appointment/AppointmentsNotesView.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL), routes: [{
@@ -190,6 +191,11 @@ const router = createRouter({
             path: 'appointment-detail/:id',
             name: 'appointment-detail',
             component: AppointmentDetailView,
+            meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA', 'ENFERMERA', 'DOCTOR']}
+        }, {
+            path: 'patient-notes/:dni',
+            name: 'patient-notes',
+            component: AppointmentsNotesView,
             meta: {requiresAuth: true, roles: ['ADMINISTRADOR', 'SECRETARIA', 'ENFERMERA', 'DOCTOR']}
         }, {
             path: 'new-patient',

@@ -15,8 +15,15 @@ const submitting = ref(false);
 const rememberMe = ref(false);
 
 const schema = yup.object({
-  username: yup.string().min(5, 'Su nombre de usuario debe tener entre 5 y 20 carácteres.').max(20, 'Su nombre de usuario debe tener entre 5 y 20 carácteres.').required('Debe ingresar su nombre de usuario.'),
-  password: yup.string().min(5, 'Su contraseña debe tener entre 5 y 20 carácteres.').max(20, 'Su contraseña debe tener entre 5 y 20 carácteres.').required('Debe ingresar su contraseña.'),
+  username: yup.string()
+      .min(5, 'Su nombre de usuario debe tener entre 5 y 20 carácteres.')
+      .max(20, 'Su nombre de usuario debe tener entre 5 y 20 carácteres.')
+      .matches(/^.*\S.*$/, 'El nombre de usuario no puede ser solo espacios en blanco.')
+      .required('Debe ingresar su nombre de usuario.'),
+  password: yup.string()
+      .min(5, 'Su contraseña debe tener entre 5 y 20 carácteres.')
+      .max(20, 'Su contraseña debe tener entre 5 y 20 carácteres.')
+      .required('Debe ingresar su contraseña.'),
 });
 
 async function onSubmit(values) {

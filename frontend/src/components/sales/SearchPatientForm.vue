@@ -22,7 +22,7 @@ const schema = yup.object({
       .min(8, 'El DNI debe tener entre 8 y 15 cifras.')
       .max(15, 'El DNI debe tener entre 8 y 15 cifras.'),
 });
-//TODO: CONTINUE **
+//TODO: CONTINUE ** 19/06/2025 ??? Seems to be OK.
 async function onSubmit(values) {
   isLoading.value = true;
   try{

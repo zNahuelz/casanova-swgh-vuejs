@@ -16,6 +16,8 @@ const schema = yup.object({
       .string()
       .min(5, 'El nombre de usuario debe tener entre 2 y 20 carácteres.')
       .max(20, 'El nombre de usuario debe tener entre 2 y 20 carácteres.')
+      .matches(/^.*\S.*$/, 'El nombre de usuario no puede ser solo espacios en blanco.')
+      .matches(/^\S.*$/, 'El nombre de usuario no debe comenzar con espacios.')
       .matches(/^[a-zA-Z0-9@_.-]{5,20}$/, 'El nombre de usuario solo debe contener letras y números. No se permiten letras especiales ni con tildes. Se aceptan los simbolos: @ _ - .')
       .required('Debe ingresar un nombre de usuario.'),
   email: yup
@@ -37,11 +39,11 @@ async function onSubmit(values) {
     Swal.fire(SM.SUCCESS_TAG, response.message, 'success').then((r) => reloadOnDismiss(r));
   } catch (err) {
     submitting.value = false;
-    if (err?.errors.email) {
+    if (err?.errors?.email) {
       newAdminForm.value.setFieldValue('email', '');
       Swal.fire(EM.ERROR_TAG, EM.EMAIL_TAKEN, 'warning');
     }
-    else if (err?.errors.username) {
+    else if (err?.errors?.username) {
       newAdminForm.value.setFieldValue('username', '');
       Swal.fire(EM.ERROR_TAG, EM.USERNAME_TAKEN, 'warning');
     }

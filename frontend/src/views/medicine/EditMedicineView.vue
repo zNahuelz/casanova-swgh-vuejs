@@ -41,9 +41,24 @@ const editMedicineForm = ref({});
 const authService = useAuthStore();
 
 const medicineSchema = yup.object({
-  name: yup.string().min(5).max(100).required('Debe ingresar un nombre.'),
-  composition: yup.string().min(5).max(100).required('Debe ingresar la composición'),
-  description: yup.string().min(5).max(150).required('Debe ingresar una descripción'),
+  name: yup.string()
+      .min(5,'El nombre debe tener entre 5 y 100 carácteres.')
+      .max(100,'El nombre debe tener entre 5 y 100 carácteres.')
+      .matches(/^.*\S.*$/, 'El nombre no puede ser solo espacios en blanco.')
+      .matches(/^\S.*$/, 'El nombre no debe comenzar con espacios.')
+      .required('Debe ingresar un nombre.'),
+  composition: yup.string()
+      .min(5)
+      .max(100)
+      .matches(/^.*\S.*$/, 'La composición no puede ser solo espacios en blanco.')
+      .matches(/^\S.*$/, 'La composición no debe comenzar con espacios.')
+      .required('Debe ingresar la composición'),
+  description: yup.string()
+      .min(5, 'La descripción debe tener entre 5 y 150 carácteres.')
+      .max(150, 'La descripción debe tener entre 5 y 150 carácteres.')
+      .matches(/^.*\S.*$/, 'La descripción no puede ser solo espacios en blanco.')
+      .matches(/^\S.*$/, 'La descripción no debe comenzar con espacios.')
+      .required('Debe ingresar una descripción'),
   buy_price: yup.number().positive().test(
       "is-decimal", "Máximo dos decimales permitidos.",
       (value) => /^\d+(\.\d{1,2})?$/.test(String(value))

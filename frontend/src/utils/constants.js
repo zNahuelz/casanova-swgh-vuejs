@@ -45,6 +45,7 @@ export const ERROR_MESSAGES = {
     VOUCHER_DETAIL_NOT_FOUND: 'Detalle de voucher no encontrado. Vuelva a intentarlo o comuniquese con administración.',
     INVALID_NOTES_FORMAT: 'Debe llenar el campo notas con el formato correcto, intente nuevamente.',
     INVALID_SETTINGS_PAYLOAD: 'Error durante la preparación de la solicitud. Comuniquese con administración.',
+    NOTES_NOT_FOUND: 'Historial médico del paciente no encontrado, vuelva a intentarlo o comuniquese con administración.',
 }
 
 export const SUPPLIER_SEARCH_MODES = [

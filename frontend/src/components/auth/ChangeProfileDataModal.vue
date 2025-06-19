@@ -16,6 +16,8 @@ const schema = yup.object({
   address: yup
       .string()
       .required('Debe ingresar una dirección.')
+      .matches(/^.*\S.*$/, 'La dirección no puede ser solo espacios en blanco.')
+      .matches(/^\S.*$/, 'La dirección no debe comenzar con espacios.')
       .min(5, 'La dirección debe tener entre 5 y 100 carácteres.')
       .max(100, 'La dirección debe tener entre 5 y 100 carácteres.'),
   phone: yup

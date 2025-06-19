@@ -18,10 +18,8 @@ const schema = yup.object({
       .string()
       .min(5, 'El nombre debe tener entre 5 y 100 carácteres.')
       .max(100, 'El nombre debe tener entre 5 y 100 carácteres.')
-      .matches(
-          /^(?!\s*$).{5,100}$/,
-          'El nombre debe tener entre 5 y 100 carácteres (sin espacios al inicio/fin).'
-      )
+      .matches(/^.*\S.*$/, 'El nombre no puede ser solo espacios en blanco.')
+      .matches(/^\S.*$/, 'El nombre no debe comenzar con espacios.')
       .required('Debe ingresar un nombre.'),
 
   date: yup

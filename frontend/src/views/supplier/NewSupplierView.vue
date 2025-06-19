@@ -19,6 +19,8 @@ const schema = yup.object().shape({
   name: yup
       .string()
       .required('Debe ingresar un nombre.')
+      .matches(/^.*\S.*$/, 'El nombre no puede ser solo espacios en blanco.')
+      .matches(/^\S.*$/, 'El nombre no debe comenzar con espacios.')
       .min(2, 'El nombre debe tener entre 2 y 150 carácteres.')
       .max(150, 'El nombre debe tener entre 2 y 150 carácteres.'),
 
@@ -32,6 +34,8 @@ const schema = yup.object().shape({
   address: yup
       .string()
       .required('Debe ingresar una dirección.')
+      .matches(/^.*\S.*$/, 'La dirección no puede ser solo espacios en blanco.')
+      .matches(/^\S.*$/, 'La dirección no debe comenzar con espacios.')
       .min(5, 'La dirección debe tener entre 5 y 100 carácteres.')
       .max(100, 'La dirección debe tener entre 5 y 100 carácteres.'),
 
@@ -66,7 +70,7 @@ async function onSubmit(values) {
     const response = await SupplierService.create(payload);
     Swal.fire(SM.SUCCESS_TAG, `${SM.SUPPLIER_CREATED} ID Asignado: ${response.supplier.id}`, 'success').then((r) => reloadOnDismiss(r));
   } catch (err) {
-    if (err.errors.ruc) {
+    if (err.errors?.ruc) {
       supplierForm.value.setFieldValue('ruc', '');
       Swal.fire(EM.ERROR_TAG, EM.RUC_TAKEN, 'warning');
     } else {

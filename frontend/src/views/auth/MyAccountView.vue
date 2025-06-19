@@ -70,7 +70,7 @@ async function loadProfile() {
 async function onSubmit(values) {
   submitting.value = true;
   const payload = {
-    email: values.email.toUpperCase(),
+    email: values.email.trim().toUpperCase(),
     current_password: values.currentPassword,
     new_password: values.passwordOne
   }

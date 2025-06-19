@@ -55,6 +55,7 @@ Route::group([
     Route::get('/{id}', [SupplierController::class, 'getSupplier'])->where('id', '[0-9]+')->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/', [SupplierController::class, 'getSuppliers'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/all', [SupplierController::class, 'getAllSuppliers'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+    Route::delete('/r/{id}', [SupplierController::class, 'restoreSupplier'])->middleware('role:ADMINISTRADOR');
     Route::delete('/{id}', [SupplierController::class, 'deleteSupplier'])->middleware('role:ADMINISTRADOR');
 });
 
@@ -133,11 +134,13 @@ Route::group([
     'prefix' => '/appointment'
 ], function ($router) {
     Route::get('/', [AppointmentController::class, 'getAppointments'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+    Route::get('/notes', [AppointmentController::class, 'getAppointmentNotesByDni'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/prepare', [AppointmentController::class, 'prepareAppointment'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
     Route::get('/{id}', [AppointmentController::class, 'getAppointmentById'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::post('/', [AppointmentController::class, 'createAppointment'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
     Route::put('/', [AppointmentController::class, 'rescheduleAppointment'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
-    Route::put('/notes', [AppointmentController::class, 'fillAppointmentNotes'])->middleware('role:ADMINISTRADOR,DOCTOR');
+    Route::put('/notes',[AppointmentController::class, 'editAppointmentNotes'])->middleware('role:ADMINISTRADOR,DOCTOR');
+    Route::post('/notes', [AppointmentController::class, 'fillAppointmentNotes'])->middleware('role:ADMINISTRADOR,DOCTOR');
     Route::delete('/{id}', [AppointmentController::class, 'cancelAppointment'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA');
 });
 

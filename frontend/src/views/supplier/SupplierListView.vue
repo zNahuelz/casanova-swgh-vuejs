@@ -44,6 +44,7 @@ const dynamicSchema = computed(() => {
 const loadSuppliers = async (filters = {}) => {
   isLoading.value = true;
   loadError.value = false;
+  filters.trashed = true;
   try {
     const pagination = {page: currentPage.value, per_page: pageSize.value}
     const response = await SupplierService.get(filters, pagination);
@@ -111,9 +112,40 @@ function showDeleteDialog(supplier) {
   });
 }
 
+function showRestoreDialog(supplier){
+  let text = `Usted esta a punto de restaurar el siguiente proveedor: <br> ${supplier.name} <br> ID: ${supplier.id}`;
+  Swal.fire({
+    title: 'Confirmación de Solicitud',
+    html: text,
+    icon: 'question',
+    showCancelButton: true,
+    cancelButtonText: 'CANCELAR',
+    confirmButtonText: 'RESTAURAR',
+    confirmButtonColor: '#008236',
+    cancelButtonColor: '#e7000b',
+  }).then((op) => {
+    if (op.isConfirmed) {
+      restoreSupplier(supplier.id);
+    }
+  });
+}
+
 async function deleteSupplier(id) {
   try {
     const response = await SupplierService.delete(id);
+    Swal.fire(SM.SUCCESS_TAG, response.message, 'success').then((r) => {
+      reloadOnDismiss(r);
+    });
+  } catch (err) {
+    Swal.fire(EM.ERROR_TAG, err.message, 'info').then((r) => {
+      reloadOnDismiss(r);
+    });
+  }
+}
+
+async function restoreSupplier(id){
+  try {
+    const response = await SupplierService.restore(id);
     Swal.fire(SM.SUCCESS_TAG, response.message, 'success').then((r) => {
       reloadOnDismiss(r);
     });
@@ -244,9 +276,13 @@ onMounted(() => {
                             class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
                       <i class="bi bi-pencil-square w-4 h-4"></i>
                     </button>
-                    <button type="button" @click="showDeleteDialog(s)" v-if="authService.getTokenDetails().role === 'ADMINISTRADOR'" title="ELIMINAR"
+                    <button type="button" @click="showDeleteDialog(s)" v-if="authService.getTokenDetails().role === 'ADMINISTRADOR' && !s.deleted_at" title="ELIMINAR"
                             class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
                       <i class="bi bi-trash-fill w-4 h-4"></i>
+                    </button>
+                    <button type="button" @click="showRestoreDialog(s)" v-if="authService.getTokenDetails().role === 'ADMINISTRADOR' && s.deleted_at" title="RESTAURAR"
+                            class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
+                      <i class="bi bi-save w-4 h-4"></i>
                     </button>
                     <button type="button" @click="loadSupplierDetail(s.id)" title="DETALLES"
                             class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue  -700 disabled:bg-gray-200 disabled:cursor-not-allowed">
@@ -386,12 +422,17 @@ onMounted(() => {
             </div>
           </div>
           <div class="flex flex-col items-center">
+            <span v-if="supplierDetail?.deleted_at" class="m-3 text-red-800 font-bold">{{`Este proveedor se eliminó el día: ${formatAsDatetime(supplierDetail?.deleted_at)}`}}</span>
             <div class="inline-flex rounded-md shadow-xs" role="group">
               <button type="button" @click="goToEdit(supplierDetail?.id)"
                       class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
                 <i class="bi bi-pencil-square w-4 h-4"></i>
               </button>
-              <button type="button" @click="showDeleteDialog(supplierDetail)" v-if="authService.getTokenDetails().role === 'ADMINISTRADOR'"
+              <button type="button" @click="showRestoreDialog(supplierDetail)" v-if="authService.getTokenDetails().role === 'ADMINISTRADOR' && supplierDetail?.deleted_at"
+                      class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white  border rounded-e-lg border-gray-200 hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
+                <i class="bi bi-save w-4 h-4"></i>
+              </button>
+              <button type="button" @click="showDeleteDialog(supplierDetail)" v-if="authService.getTokenDetails().role === 'ADMINISTRADOR' && !supplierDetail?.deleted_at"
                       class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white  border rounded-e-lg border-gray-200 hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
                 <i class="bi bi-trash-fill w-4 h-4"></i>
               </button>

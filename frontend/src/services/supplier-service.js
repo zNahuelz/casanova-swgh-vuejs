@@ -11,6 +11,9 @@ export const SupplierService = {
     delete(id) {
         return Http.DELETE(`${this.endpoint}/${id}`);
     },
+    restore(id){
+        return Http.DELETE(`${this.endpoint}/r/${id}`);
+    },
     get(filters = {}, pagination = {}, sorting = {}) {
         let params = {};
 
@@ -19,6 +22,7 @@ export const SupplierService = {
         if (filters.name) params.name = filters.name;
         if (filters.ruc) params.ruc = filters.ruc;
         if (filters.email) params.email = filters.email;
+        if(filters.trashed) params.trashed = filters.trashed;
 
         // Paginado
         if (pagination.page) params.page = pagination.page;

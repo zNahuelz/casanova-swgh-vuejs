@@ -1,8 +1,8 @@
 <script setup>
-import {onMounted, ref} from "vue";
+import {ref} from "vue";
 import * as yup from "yup";
 import {ErrorMessage, Field, Form} from "vee-validate";
-import {DOCTOR_APPOINTMENT_STATUS as DAS, SUCCESS_MESSAGES as SM, ERROR_MESSAGES as EM} from "@/utils/constants.js";
+import {ERROR_MESSAGES as EM, SUCCESS_MESSAGES as SM} from "@/utils/constants.js";
 import {formatAsDate, formatAsTime, reloadOnDismiss} from "@/utils/helpers.js";
 import {useAuthStore} from "@/stores/auth.js";
 import {AppointmentService} from "@/services/appointment-service.js";
@@ -22,10 +22,9 @@ const schema = yup.object().shape({
       .string()
       .min(5, 'Las anotaciones deben tener entre 5 y 255 carácteres.')
       .max(255, 'Las anotaciones deben tener entre 5 y 255 carácteres.')
-      .matches(/^.*\S.*$/, 'Las notas no puede ser solo espacios en blanco.')
+      .matches(/^.*\S.*$/, 'Las notas no pueden ser solo espacios en blanco.')
       .matches(/^\S.*$/, 'Las notas no deben comenzar con espacios.')
       .required('Debe llenar las notas.'),
-  status: yup.string().min(1).max(15).required('Debe seleccionar un estado para la cita.'),
 });
 
 async function onSubmit(values) {
@@ -35,27 +34,19 @@ async function onSubmit(values) {
     appointment_id: appointment.id,
     updated_by: authService.getUserId(),
   }
-  try{
-    const response = await AppointmentService.fillNotes(payload);
-    Swal.fire(SM.SUCCESS_TAG,response.message,'success').then((r) => reloadOnDismiss(r));
-  }
-  catch(err){
-    console.log(err);
-    if(err.errors?.notes){
+  try {
+    const response = await AppointmentService.editNotes(payload);
+    Swal.fire(SM.SUCCESS_TAG, response.message, 'success').then((r) => reloadOnDismiss(r));
+  } catch (err) {
+    if (err.errors?.notes) {
       submitting.value = false;
-      notesForm.value.setFieldValue('notes','');
-      Swal.fire(EM.ERROR_TAG,EM.INVALID_NOTES_FORMAT,'warning');
+      notesForm.value.setFieldValue('notes', '');
+      Swal.fire(EM.ERROR_TAG, EM.INVALID_NOTES_FORMAT, 'warning');
+    } else {
+      Swal.fire(EM.ERROR_TAG, err.message ? err.message : EM.SERVER_ERROR, 'error').then((r) => reloadOnDismiss(r));
     }
-    else{
-      Swal.fire(EM.ERROR_TAG,err.message ? err.message : EM.SERVER_ERROR,'error').then((r) =>reloadOnDismiss(r));
-    }
-
   }
 }
-
-onMounted(() => {
-  notesForm.value.setFieldValue('status', DAS[0].value);
-})
 
 </script>
 
@@ -67,7 +58,7 @@ onMounted(() => {
       <div
           class="flex items-center justify-between p-4 md:p-5 border-b rounded-t  border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900">
-          Notas de Cita #{{ appointment.id }}
+          Editar Notas de Cita #{{ appointment.id }}
         </h3>
         <button :disabled="submitting"
                 class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
@@ -86,13 +77,27 @@ onMounted(() => {
         <div class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50" role="alert">
           <span class="font-medium">MODIFICANDO LA SIGUIENTE CITA:</span>
           <ul>
-            <li><span class="font-bold">DNI: </span>{{appointment.patient?.dni}}</li>
-            <li><span class="font-bold">PACIENTE: </span>{{`${appointment.patient?.name} ${appointment.patient?.paternal_surname} ${appointment.patient?.maternal_surname}`}}</li>
-            <li><span class="font-bold">FECHA: </span>{{appointment.recheduling_date ? formatAsDate(appointment.recheduling_date) : formatAsDate(appointment.date)}}</li>
-            <li><span class="font-bold">HORA: </span>{{ appointment.rescheduling_time ? formatAsTime(appointment.rescheduling_time) : formatAsTime(appointment.time)}}</li>
+            <li><span class="font-bold">DNI: </span>{{ appointment.patient?.dni }}</li>
+            <li><span
+                class="font-bold">PACIENTE: </span>{{
+                `${appointment.patient?.name} ${appointment.patient?.paternal_surname} ${appointment.patient?.maternal_surname}`
+              }}
+            </li>
+            <li><span
+                class="font-bold">FECHA: </span>{{
+                appointment.recheduling_date ? formatAsDate(appointment.recheduling_date) : formatAsDate(appointment.date)
+              }}
+            </li>
+            <li><span
+                class="font-bold">HORA: </span>{{
+                appointment.rescheduling_time ? formatAsTime(appointment.rescheduling_time) : formatAsTime(appointment.time)
+              }}
+            </li>
           </ul>
         </div>
-        <Form ref="notesForm" v-slot="{validate}" :validation-schema="schema" @submit="onSubmit">
+        <Form ref="notesForm" v-slot="{validate}" :initial-values="{
+          notes: appointment.notes,
+        }" :validation-schema="schema" @submit="onSubmit">
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900 ">Notas de Cita</label>
             <Field id="notes" :disabled="submitting"
@@ -103,20 +108,6 @@ onMounted(() => {
             <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
                           name="notes"></ErrorMessage>
           </div>
-          <div>
-            <label class="block mb-1 text-sm font-medium text-gray-900 ">Estado de Cita</label>
-            <Field id="status" :disabled="submitting"
-                   :validate-on-input="true"
-                   as="select"
-                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:ring-green-800 focus:border-green-800 w-full"
-                   name="status"
-                   @change="validate">
-              <option v-for="s in DAS" :key="s.value" :value="s.value">{{ s.label }}</option>
-            </Field>
-            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
-                          name="status"></ErrorMessage>
-          </div>
-
           <div class="flex flex-col items-center mt-3">
             <div class="inline-flex rounded-md shadow-xs" role="group">
               <button
@@ -135,7 +126,6 @@ onMounted(() => {
                 <i class="bi bi-floppy-fill m-1 w-4 h-4"></i>
                 Guardar
               </button>
-
             </div>
           </div>
         </Form>

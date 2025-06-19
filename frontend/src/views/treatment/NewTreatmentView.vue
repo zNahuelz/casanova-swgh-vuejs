@@ -64,7 +64,7 @@ async function onSubmit(values) {
       Swal.fire(SM.SUCCESS_TAG, response.message, 'success').then((r) => reloadOnDismiss(r));
     } catch (err) {
       console.log(err);
-      if (err?.errors.name) {
+      if (err?.errors?.name) {
         treatmentForm.value.setFieldValue('name', '');
         Swal.fire(EM.ERROR_TAG, EM.TREATMENT_NAME_TAKEN, 'warning');
       } else {

@@ -12,7 +12,12 @@ const submitting = ref(false);
 const presentationForm = ref();
 
 const schema = yup.object({
-  name: yup.string().min(2, 'El nombre debe tener entre 2 y 20 carácteres.').max(50, 'El nombre debe tener entre 2 y 20 carácteres.').required('Debe ingresar un nombre.'),
+  name: yup.string()
+      .min(2, 'El nombre debe tener entre 2 y 20 carácteres.')
+      .max(50, 'El nombre debe tener entre 2 y 20 carácteres.')
+      .matches(/^.*\S.*$/, 'El nombre no puede ser solo espacios en blanco.')
+      .matches(/^\S.*$/, 'El nombre no debe comenzar con espacios.')
+      .required('Debe ingresar un nombre.'),
   numeric_value: yup
       .number()
       .typeError('Debe ingresar números.')
@@ -21,7 +26,11 @@ const schema = yup.object({
         return value === undefined || /^\d+(\.\d{1,2})?$/.test(value.toString());
       })
       .required('Debe ingresar el valor numérico de la presentación'),
-  aux: yup.string().max(20, 'El valor auxiliar debe tener entre 2 y 20 carácteres.'),
+  aux: yup.string()
+      .notRequired()
+      .matches(/^.*\S.*$/, 'El auxiliar no puede ser solo espacios en blanco.')
+      .matches(/^\S.*$/, 'El auxiliar no debe comenzar con espacios.')
+      .max(20, 'El valor auxiliar debe tener entre 2 y 20 carácteres.'),
 });
 
 async function onSubmit(values) {
@@ -30,7 +39,7 @@ async function onSubmit(values) {
     const response = await PresentationService.create(values);
     Swal.fire(SM.SUCCESS_TAG, SM.PRESENTATION_CREATED, 'success').then((r) => reloadOnDismiss(r));
   } catch (err) {
-    if (err.errors.presentation) {
+    if (err.errors?.presentation) {
       Swal.fire(EM.ERROR_TAG, EM.DUPLICATED_PRESENTATION, 'warning').then((r) => reloadOnDismiss(r));
     } else {
       Swal.fire(EM.ERROR_TAG, EM.SERVER_ERROR, 'error').then((r) => reloadOnDismiss(r));

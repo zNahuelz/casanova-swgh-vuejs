@@ -59,6 +59,10 @@ function goToEdit(id) {
   router.push({name: 'edit-patient', params: {id}});
 }
 
+function goToNotes(dni) {
+  router.push({name: 'patient-notes', params: {dni}});
+}
+
 onMounted(() => {
   document.title = 'ALTERNATIVA CASANOVA - GESTIONAR PACIENTE';
   const id = route.params.id;
@@ -214,6 +218,18 @@ onMounted(() => {
               HISTORIAL DE COMPRAS
             </button>
           </div>
+
+
+        </div>
+        <div class="cols-pan-2">
+          <button
+              class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed w-full"
+              type="button"
+              @click="goToNotes(patient?.dni)"
+          >
+            <i class="bi bi-journal-medical w-3 h-3 me-2 flex items-center justify-center"></i>
+            HISTORIAL MÉDICO
+          </button>
         </div>
 
         <div class="flex justify-center mt-5">
@@ -226,8 +242,8 @@ onMounted(() => {
               Atras
             </button>
             <button
-                :disabled="patient.dni === '00000000'"
                 v-if="authService.getTokenDetails().role !== 'DOCTOR'"
+                :disabled="patient.dni === '00000000'"
                 class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-e border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
                 type="button"
                 @click="goToEdit(patient?.id)">

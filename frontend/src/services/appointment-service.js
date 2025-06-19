@@ -43,10 +43,16 @@ export const AppointmentService = {
     getById(id){
         return Http.GET(`${this.endpoint}/${id}`);
     },
+    getNotesByDni(dni){
+        return Http.GET(`${this.endpoint}/notes?patient_dni=${dni}`);
+    },
     cancel(id){
         return Http.DELETE(`${this.endpoint}/${id}`);
     },
     fillNotes(payload){
+        return Http.POST(`${this.endpoint}/notes`,payload);
+    },
+    editNotes(payload){
         return Http.PUT(`${this.endpoint}/notes`,payload);
     }
 };

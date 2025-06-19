@@ -572,7 +572,7 @@ class AppointmentController extends Controller
             DB::commit();
 
             if ($appointment->patient->email !== 'EMAIL@DOMINIO.COM') {
-                SendAppointmentCanceledReminder::dispatch($appointment,$voucherDetail ? true : false)
+                SendAppointmentCanceledReminder::dispatch($appointment, $voucherDetail ? true : false)
                     ->delay(now()->addSeconds(15));
             }
 
@@ -697,5 +697,54 @@ class AppointmentController extends Controller
                 'ex' => $e,
             ], 500);
         }
+    }
+
+    public function editAppointmentNotes(Request $request)
+    {
+        $request->validate([
+            'appointment_id' => ['required', 'exists:appointments,id'],
+            'updated_by' => ['required', 'exists:users,id'],
+            'notes' => ['required', 'string', 'min:5', 'max:255'],
+        ]);
+        $appointment = Appointment::find($request->appointment_id);
+        if (!$appointment) {
+            return response()->json([
+                'message' => "Cita de ID: $request->appointment_id no encontrada, vuelva a intentarlo."
+            ], 404);
+        }
+
+        try{
+            DB::beginTransaction();
+            $appointment->update([
+                'notes' => trim(strtoupper($request->notes)),
+                'updated_by' => $request->updated_by,
+            ]);
+            DB::commit();
+                        return response()->json([
+                'message' => "Notas de la cita de ID: $request->appointment_id actualizadas correctamente."
+            ], 200);
+        }
+        catch(Exception $e)
+        {
+            DB::rollBack();
+                        return response()->json([
+                'message' => "Actualización de notas de la cita de ID: $request->appointment_id fallida. Vuelva a intentarlo.",
+                'ex' => $e,
+            ], 500);
+        }
+    }
+
+    public function getAppointmentNotesByDni(Request $request)
+    {
+        $request->validate([
+            'patient_dni' => ['required', 'string', 'exists:patients,dni']
+        ]);
+
+        $notes = Appointment::with(['patient', 'doctor'])
+            ->whereHas('patient', function ($query) use ($request) {
+                $query->where('dni', 'like', $request->patient_dni);
+            })
+            ->get();
+        return response()->json($notes);
     }
 }

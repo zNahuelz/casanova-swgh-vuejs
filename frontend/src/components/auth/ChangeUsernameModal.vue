@@ -17,6 +17,8 @@ const schema = yup.object({
   username: yup.string()
       .min(5, 'El nombre de usuario debe tener entre 5 y 20 carácteres.')
       .max(20, 'El nombre de usuario debe tener entre 5 y 20 carácteres.')
+      .matches(/^.*\S.*$/, 'El nombre de usuario no puede ser solo espacios en blanco.')
+      .matches(/^\S.*$/, 'El nombre de usuario no debe comenzar con espacios.')
       .required('Debe ingresar un nombre de usuario.'),
   password: yup.string()
       .min(5, 'Su contraseña debe tener entre 5 y 20 carácteres.')
