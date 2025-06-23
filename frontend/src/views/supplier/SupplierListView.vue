@@ -1,9 +1,9 @@
 <script setup>
 import {SupplierService} from '@/services/supplier-service';
-import {SUPPLIER_SEARCH_MODES as SSM, ERROR_MESSAGES as EM, SUCCESS_MESSAGES as SM} from '@/utils/constants';
+import {ERROR_MESSAGES as EM, SUCCESS_MESSAGES as SM, SUPPLIER_SEARCH_MODES as SSM} from '@/utils/constants';
 import {formatAsDatetime, reloadOnDismiss, reloadPage} from '@/utils/helpers';
 import {computed, onMounted, ref} from 'vue';
-import {RouterView, useRouter} from 'vue-router';
+import {useRouter} from 'vue-router';
 import * as yup from 'yup';
 import {ErrorMessage, Field, Form} from 'vee-validate';
 import Swal from "sweetalert2";
@@ -112,7 +112,7 @@ function showDeleteDialog(supplier) {
   });
 }
 
-function showRestoreDialog(supplier){
+function showRestoreDialog(supplier) {
   let text = `Usted esta a punto de restaurar el siguiente proveedor: <br> ${supplier.name} <br> ID: ${supplier.id}`;
   Swal.fire({
     title: 'Confirmación de Solicitud',
@@ -143,7 +143,7 @@ async function deleteSupplier(id) {
   }
 }
 
-async function restoreSupplier(id){
+async function restoreSupplier(id) {
   try {
     const response = await SupplierService.restore(id);
     Swal.fire(SM.SUCCESS_TAG, response.message, 'success').then((r) => {
@@ -184,12 +184,13 @@ onMounted(() => {
   <main class="flex flex-col items-center pt-5 relative">
     <div class="container px-12 mx-auto">
       <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm w-full">
-        <h5 class="mb-2 text-2xl font-bold tracking-tight text-black text-start" v-if="!isLoading">LISTADO DE PROVEEDORES</h5>
+        <h5 v-if="!isLoading" class="mb-2 text-2xl font-bold tracking-tight text-black text-start">LISTADO DE
+          PROVEEDORES</h5>
 
-        <div class="container mt-5 mb-5 flex flex-col items-center" v-if="isLoading">
+        <div v-if="isLoading" class="container mt-5 mb-5 flex flex-col items-center">
           <div role="status">
             <svg aria-hidden="true" class="inline w-30 h-30 text-gray-200 animate-spin  fill-green-600"
-                 viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                 fill="none" viewBox="0 0 100 101" xmlns="http://www.w3.org/2000/svg">
               <path
                   d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
                   fill="currentColor"/>
@@ -202,60 +203,62 @@ onMounted(() => {
           <h1 class="mt-5 text-2xl font-light">Cargando proveedores...</h1>
         </div>
 
-        <div class="container mt-5 mb-3 flex flex-col items-end" v-if="!isLoading && !loadError">
-          <Form @submit="onSubmit" :validation-schema="dynamicSchema" v-slot="{ validate }">
+        <div v-if="!isLoading && !loadError" class="container mt-5 mb-3 flex flex-col items-end">
+          <Form v-slot="{ validate, meta }" :validation-schema="dynamicSchema" @submit="onSubmit">
             <div class="flex">
-              <Field id="searchMode" name="searchMode" v-model="searchMode" as="select" @change="validate"
-                     class="shrink-0 z-10 inline-flex w-45 items-center py-2.5 px-4 text-sm font-medium text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100">
+              <Field id="searchMode" v-model="searchMode" as="select" class="shrink-0 z-10 inline-flex w-45 items-center py-2.5 px-4 text-sm font-medium text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100" name="searchMode"
+                     @change="validate">
                 <option v-for="sm in SSM" :key="sm.value" :value="sm.value">{{ sm.label }}</option>
               </Field>
               <ErrorMessage name="searchMode"></ErrorMessage>
               <div class="relative w-70">
-                <Field :type="searchMode === 'id' || searchMode === 'ruc' ? 'number' : 'text'" id="keyword"
-                       name="keyword" @input="validate"
-                       class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500"
-                       placeholder="Buscar..."/>
-                <button type="submit"
-                        class="absolute top-0 right-0 p-2.5 h-full text-sm font-medium text-white bg-green-600 rounded-e-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500">
-                  <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                       viewBox="0 0 20 20">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                <Field id="keyword" :class="{'focus:ring-red-500 focus:border-red-500 rounded-e-lg': !meta.valid}"
+                       :type="searchMode === 'id' || searchMode === 'ruc' ? 'number' : 'text'"
+                       class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500 rounded-e-lg" name="keyword"
+                       placeholder="Buscar..."
+                       @input="validate"/>
+                <button :class="{'bg-red-600 hover:bg-red-800 focus:ring-red-500': !meta.valid}"
+                        class="absolute top-0 right-0 p-2.5 h-full text-sm font-medium text-white bg-green-600 rounded-e-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500"
+                        type="submit">
+                  <svg aria-hidden="true" class="w-4 h-4" fill="none" viewBox="0 0 20 20"
+                       xmlns="http://www.w3.org/2000/svg">
+                    <path d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                          stroke-width="2"/>
                   </svg>
                 </button>
               </div>
             </div>
           </Form>
         </div>
-        <div class="container mt-5 mb-5" v-if="!isLoading && !loadError">
+        <div v-if="!isLoading && !loadError" class="container mt-5 mb-5">
           <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
             <table class="w-full text-sm text-left rtl:text-right text-gray-500">
               <thead class="text-xs text-gray-700 uppercase bg-gray-50">
               <tr>
-                <th scope="col" class="px-6 py-3">
+                <th class="px-6 py-3" scope="col">
                   ID
                 </th>
-                <th scope="col" class="px-6 py-3">
+                <th class="px-6 py-3" scope="col">
                   NOMBRE
                 </th>
-                <th scope="col" class="px-6 py-3">
+                <th class="px-6 py-3" scope="col">
                   RUC
                 </th>
-                <th scope="col" class="px-6 py-3">
+                <th class="px-6 py-3" scope="col">
                   DIRECCIÓN
                 </th>
-                <th scope="col" class="px-6 py-3">
+                <th class="px-6 py-3" scope="col">
                   TELÉFONO
                 </th>
-                <th scope="col" class="px-6 py-3 text-center">
+                <th class="px-6 py-3 text-center" scope="col">
                   HERRAMIENTAS
                 </th>
               </tr>
               </thead>
               <tbody>
               <tr
-                  class="bg-white border-b border-gray-200 hover:bg-gray-50" v-for="s in suppliers" :key="s.id">
-                <th scope="row" class="px-6 py-2 whitespace-nowrap">
+                  v-for="s in suppliers" :key="s.id" class="bg-white border-b border-gray-200 hover:bg-gray-50">
+                <th class="px-6 py-2 whitespace-nowrap" scope="row">
                   {{ s.id }}
                 </th>
                 <td class="px-6 py-2 font-medium text-gray-900">
@@ -272,20 +275,24 @@ onMounted(() => {
                 </td>
                 <td class="px-6 py-3 flex justify-center items-center">
                   <div class="inline-flex rounded-md shadow-xs" role="group">
-                    <button type="button" @click="goToEdit(s.id)" title="EDITAR"
-                            class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
+                    <button class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed" title="EDITAR" type="button"
+                            @click="goToEdit(s.id)">
                       <i class="bi bi-pencil-square w-4 h-4"></i>
                     </button>
-                    <button type="button" @click="showDeleteDialog(s)" v-if="authService.getTokenDetails().role === 'ADMINISTRADOR' && !s.deleted_at" title="ELIMINAR"
-                            class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
+                    <button v-if="authService.getTokenDetails().role === 'ADMINISTRADOR' && !s.deleted_at" class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                            title="ELIMINAR"
+                            type="button"
+                            @click="showDeleteDialog(s)">
                       <i class="bi bi-trash-fill w-4 h-4"></i>
                     </button>
-                    <button type="button" @click="showRestoreDialog(s)" v-if="authService.getTokenDetails().role === 'ADMINISTRADOR' && s.deleted_at" title="RESTAURAR"
-                            class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
+                    <button v-if="authService.getTokenDetails().role === 'ADMINISTRADOR' && s.deleted_at" class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                            title="RESTAURAR"
+                            type="button"
+                            @click="showRestoreDialog(s)">
                       <i class="bi bi-save w-4 h-4"></i>
                     </button>
-                    <button type="button" @click="loadSupplierDetail(s.id)" title="DETALLES"
-                            class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue  -700 disabled:bg-gray-200 disabled:cursor-not-allowed">
+                    <button class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue  -700 disabled:bg-gray-200 disabled:cursor-not-allowed" title="DETALLES" type="button"
+                            @click="loadSupplierDetail(s.id)">
                       <i class="bi bi-three-dots w-4 h-4"></i>
                     </button>
                   </div>
@@ -294,10 +301,10 @@ onMounted(() => {
 
               </tbody>
             </table>
-            <nav class="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4 p-4"
-                 aria-label="Table navigation">
+            <nav aria-label="Table navigation"
+                 class="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4 p-4">
             <span
-                class="text-sm font-normal text-gray-500  mb-4 md:mb-0 block w-full md:inline md:w-auto">{{suppliers.length}} de un total de <span
+                class="text-sm font-normal text-gray-500  mb-4 md:mb-0 block w-full md:inline md:w-auto">{{ suppliers.length }} de un total de <span
                 class="font-semibold text-gray-900 ">{{ totalItems }}</span> proveedores</span>
               <ul class="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
                 <li>
@@ -308,7 +315,7 @@ onMounted(() => {
                 <li>
                   <a
                       class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                      @click="reloadPage" title="REFRESCAR">{{ currentPage }}</a>
+                      title="REFRESCAR" @click="reloadPage">{{ currentPage }}</a>
                 </li>
                 <li>
                   <a
@@ -321,7 +328,7 @@ onMounted(() => {
 
         </div>
 
-        <div class="container mt-5 mb-5 flex flex-col items-center space-y-5" v-if="loadError">
+        <div v-if="loadError" class="container mt-5 mb-5 flex flex-col items-center space-y-5">
           <span><i class="bi bi-exclamation-triangle-fill text-9xl text-red-700"></i></span>
           <h1 class="text-2xl font-light">Oops! No se encontraron proveedores con los parametros ingresados. Intente
             nuevamente o registre
@@ -334,20 +341,20 @@ onMounted(() => {
     </div>
 
 
-    <div id="crud-modal" tabindex="-1" v-show="showDetails"
-         class="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-sm">
+    <div v-show="showDetails" id="crud-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-sm"
+         tabindex="-1">
       <div class="relative bg-white rounded-lg shadow-lg w-full max-w-2xl">
         <div
             class="flex items-center justify-between p-4 md:p-5 border-b rounded-t  border-gray-200">
           <h3 class="text-lg font-semibold text-gray-900">
             Detalle de Proveedor - ID: {{ supplierDetail?.id ?? '' }}
           </h3>
-          <button type="button"
-                  class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
+          <button class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
+                  type="button"
                   @click="showDetails = false">
-            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+            <svg aria-hidden="true" class="w-3 h-3" fill="none" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
+              <path d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"/>
             </svg>
             <span class="sr-only">Close modal</span>
           </button>
@@ -356,84 +363,87 @@ onMounted(() => {
           <div class="grid grid-cols-2 gap-6">
             <div>
               <label class="block mb-2 text-sm font-medium text-gray-900">Nombre</label>
-              <input type="text" :value="supplierDetail?.name ?? ''"
-                     class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5" disabled>
+              <input :value="supplierDetail?.name ?? ''" class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5"
+                     disabled type="text">
             </div>
             <div>
               <label class="block mb-2 text-sm font-medium text-gray-900">RUC</label>
-              <input type="text" :value="supplierDetail?.ruc ?? ''"
-                     class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5" disabled>
+              <input :value="supplierDetail?.ruc ?? ''" class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5"
+                     disabled type="text">
             </div>
 
             <div>
               <label class="block mb-2 text-sm font-medium text-gray-900">Dirección</label>
-              <input type="text" :value="supplierDetail?.address ?? ''"
-                     class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5" disabled>
+              <input :value="supplierDetail?.address ?? ''" class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5"
+                     disabled type="text">
             </div>
             <div>
               <label class="block mb-2 text-sm font-medium text-gray-900">Teléfono</label>
-              <input type="text" :value="supplierDetail?.phone ?? ''"
-                     class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5" disabled>
+              <input :value="supplierDetail?.phone ?? ''" class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5"
+                     disabled type="text">
             </div>
 
             <div>
               <label class="block mb-2 text-sm font-medium text-gray-900">E-Mail</label>
-              <input type="text" :value="supplierDetail?.email ?? ''"
-                     class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5" disabled>
+              <input :value="supplierDetail?.email ?? ''" class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5"
+                     disabled type="text">
             </div>
             <div>
               <label class="block mb-2 text-sm font-medium text-gray-900">Descripción</label>
-              <input type="text" :value="supplierDetail?.description?.trim() || 'PROVEEDOR GENERAL'"
-                     class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5" disabled>
+              <input :value="supplierDetail?.description?.trim() || 'PROVEEDOR GENERAL'" class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5"
+                     disabled type="text">
             </div>
 
             <div>
               <label class="block mb-2 text-sm font-medium text-gray-900">Fecha de Registro</label>
-              <input type="text" :value="formatAsDatetime(supplierDetail?.created_at)"
-                     class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5" disabled>
+              <input :value="formatAsDatetime(supplierDetail?.created_at)" class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5"
+                     disabled type="text">
             </div>
             <div>
               <label class="block mb-2 text-sm font-medium text-gray-900">Última Modificación</label>
-              <input type="text" :value="formatAsDatetime(supplierDetail?.updated_at)"
-                     class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5" disabled>
+              <input :value="formatAsDatetime(supplierDetail?.updated_at)" class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5"
+                     disabled type="text">
             </div>
 
             <div>
               <label class="block mb-2 text-sm font-medium text-gray-900">Creado por</label>
-              <input type="text"
-                     :value="!supplierDetail?.created_by ? 'INSERTADO EN BASE DE DATOS' : supplierDetail.created_by_name"
+              <input :value="!supplierDetail?.created_by ? 'INSERTADO EN BASE DE DATOS' : supplierDetail.created_by_name"
                      class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5" disabled>
+                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5"
+                     disabled type="text">
             </div>
             <div>
               <label class="block mb-2 text-sm font-medium text-gray-900">Actualizado por</label>
-              <input type="text"
-                     :value="!supplierDetail?.updated_by ? '---' : supplierDetail.updated_by_name"
+              <input :value="!supplierDetail?.updated_by ? '---' : supplierDetail.updated_by_name"
                      class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5" disabled>
+                    focus:ring-green-600 focus:border-green-600 block w-full p-2.5"
+                     disabled type="text">
             </div>
           </div>
           <div class="flex flex-col items-center">
-            <span v-if="supplierDetail?.deleted_at" class="m-3 text-red-800 font-bold">{{`Este proveedor se eliminó el día: ${formatAsDatetime(supplierDetail?.deleted_at)}`}}</span>
+            <span v-if="supplierDetail?.deleted_at"
+                  class="m-3 text-red-800 font-bold">{{ `Este proveedor se eliminó el día: ${formatAsDatetime(supplierDetail?.deleted_at)}` }}</span>
             <div class="inline-flex rounded-md shadow-xs" role="group">
-              <button type="button" @click="goToEdit(supplierDetail?.id)"
-                      class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
+              <button class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed" type="button"
+                      @click="goToEdit(supplierDetail?.id)">
                 <i class="bi bi-pencil-square w-4 h-4"></i>
               </button>
-              <button type="button" @click="showRestoreDialog(supplierDetail)" v-if="authService.getTokenDetails().role === 'ADMINISTRADOR' && supplierDetail?.deleted_at"
-                      class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white  border rounded-e-lg border-gray-200 hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
+              <button v-if="authService.getTokenDetails().role === 'ADMINISTRADOR' && supplierDetail?.deleted_at" class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white  border rounded-e-lg border-gray-200 hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                      type="button"
+                      @click="showRestoreDialog(supplierDetail)">
                 <i class="bi bi-save w-4 h-4"></i>
               </button>
-              <button type="button" @click="showDeleteDialog(supplierDetail)" v-if="authService.getTokenDetails().role === 'ADMINISTRADOR' && !supplierDetail?.deleted_at"
-                      class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white  border rounded-e-lg border-gray-200 hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
+              <button v-if="authService.getTokenDetails().role === 'ADMINISTRADOR' && !supplierDetail?.deleted_at" class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white  border rounded-e-lg border-gray-200 hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                      type="button"
+                      @click="showDeleteDialog(supplierDetail)">
                 <i class="bi bi-trash-fill w-4 h-4"></i>
               </button>
             </div>

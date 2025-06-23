@@ -96,6 +96,7 @@ Route::group([
     Route::get('/barcode/print/{id}', [MedicineController::class, 'getBarcodesToPrint']);
     Route::get('/barcode/{barcode}', [MedicineController::class, 'getMedicineByBarcode'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
     Route::get('/', [MedicineController::class, 'getMedicines'])->middleware('role:ADMINISTRADOR,SECRETARIA,ENFERMERA,DOCTOR');
+    Route::delete('/{id}', [MedicineController::class, 'manageSaleStatus'])->middleware('role:ADMINISTRADOR,SECRETARIA');
 });
 
 Route::group([

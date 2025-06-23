@@ -134,6 +134,23 @@ class MedicineController extends Controller
         }
     }
 
+    public function manageSaleStatus($id)
+    {
+        $medicine = Medicine::find($id);
+        if(!$medicine)
+        {
+            return response()->json([
+                'message' => "Medicamento de ID: $id no encontrado. Vuelva a intentarlo o comuniquese con administración."
+            ],404);
+        }
+        $medicine->update([
+            'salable' => !$medicine->salable
+        ]);
+        return response()->json([
+            'message' => "Medicamento de ID: $medicine->id modificado correctamente."
+        ],200);
+    }
+
     public function getMedicines(Request $request)
     {
         $query = Medicine::with(['presentation', 'suppliers']);

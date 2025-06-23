@@ -49,12 +49,12 @@ class Appointment extends Model
 
     public function voucherDetails(): HasMany
     {
-        return $this->hasMany(VoucherDetail::class); //TODO: If something fails here's the problem.
+        return $this->hasMany(VoucherDetail::class);
     }
 
     public function pendingPayments(): HasMany
     {
-        return $this->hasMany(PendingPayment::class); //U too.
+        return $this->hasMany(PendingPayment::class); 
     }
 
     public function createdBy(): BelongsTo

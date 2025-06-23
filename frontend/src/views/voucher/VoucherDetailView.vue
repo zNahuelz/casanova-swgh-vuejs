@@ -46,7 +46,6 @@ onMounted(() => {
   }
   loadVoucher(id);
 });
-//TODO: WIP!
 </script>
 
 <template>

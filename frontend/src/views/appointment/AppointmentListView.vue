@@ -7,8 +7,8 @@ import {useAuthStore} from "@/stores/auth.js";
 import {AppointmentService} from "@/services/appointment-service.js";
 import * as yup from "yup";
 import {ErrorMessage, Field, Form} from "vee-validate";
-import dayjs from "dayjs";
 import FillAppointmentNotesModal from "@/components/appointment/FillAppointmentNotesModal.vue";
+import dayjs from "dayjs";
 
 const today = new Date().toISOString().slice(0, 10);
 const searchMode = ref('id');
@@ -28,7 +28,6 @@ const searchForm = ref();
 const activeFilters = ref({});
 const showFillNotesModal = ref(false);
 const selectedAppointment = ref({});
-
 
 const dynamicSchema = computed(() => {
   let keywordValidation = yup.string().notRequired().nullable();
@@ -139,23 +138,9 @@ function goToReschedule(id) {
 }
 
 function canReschedule(appointment) {
-  if (appointment.status === 'NO_ASISTIO') {
-    return true;
-  }
-  if (!['PENDIENTE', 'REPROGRAMADO'].includes(appointment.status)) { //TODO: Check this...
-    return false;
-  }
-  const now = dayjs();
-  let scheduledDateTime;
-  if (appointment.rescheduling_date && appointment.rescheduling_time) {
-    scheduledDateTime = dayjs(`${appointment.rescheduling_date} ${appointment.rescheduling_time}`);
-  } else {
-    scheduledDateTime = dayjs(`${appointment.date} ${appointment.time}`);
-  }
-
-  return scheduledDateTime.isAfter(now);
+  const {status} = appointment;
+  return ['NO_ASISTIO', 'PENDIENTE', 'REPROGRAMADO'].includes(status);
 }
-
 
 function handleFillNotesModal(appointment) {
   selectedAppointment.value = appointment;
@@ -218,8 +203,6 @@ onMounted(() => {
                      @change="validate">
                 <option v-for="ss in ASSM" :key="ss.value" :value="ss.value">{{ ss.label }}</option>
               </Field>
-
-              <!-- SEARCH MODE Field -->
               <Field id="searchMode" v-model="searchMode" as="select"
                      class="shrink-0 z-10 inline-flex w-45 items-center py-2.5 px-4 text-sm font-medium text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100"
                      name="searchMode"
@@ -227,14 +210,12 @@ onMounted(() => {
                 <option v-for="sm in ASM" :key="sm.value" :value="sm.value">{{ sm.label }}</option>
               </Field>
               <ErrorMessage name="searchMode"/>
-
-              <!-- KEYWORD Search Field + Button -->
               <div class="relative w-70">
                 <Field id="keyword"
-                       :class="{'focus:ring-red-500 focus:border-red-500': !meta.valid}"
+                       :class="{'focus:ring-red-500 focus:border-red-500 rounded-e-lg': !meta.valid}"
                        :disabled="searchMode === 'date' || searchMode === 'status' || searchMode === 'date_from'"
                        :type="searchMode === 'id' ? 'number' : 'text'"
-                       class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500"
+                       class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500 rounded-e-lg"
                        name="keyword"
                        placeholder="Buscar..."
                        @input="validate"/>
@@ -329,20 +310,22 @@ onMounted(() => {
                 </td>
                 <td class="px-6 py-3 flex justify-center items-center">
                   <div class="inline-flex rounded-md shadow-xs" role="group">
-                    <button :disabled="!canReschedule(a)"
+                    <button v-if="authService.getTokenDetails().role !== 'DOCTOR'"
+                            :disabled="!canReschedule(a)"
                             class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
                             title="REPROGRAMAR"
-                            v-if="authService.getTokenDetails().role !== 'DOCTOR'"
                             type="button" @click="goToReschedule(a.id)"
                     >
                       <i class="bi bi-calendar2-plus w-4 h-4"></i>
                     </button>
                     <button
                         v-if="authService.getTokenDetails().role === 'DOCTOR' || authService.getTokenDetails().role === 'ADMINISTRADOR'"
-                        :disabled="(!(authService.getTokenDetails().role === 'ADMINISTRADOR' || authService.getUserData()?.id === a.doctor?.id)
-                        || a.status === 'CANCELADO'
-                        || a.status === 'ATENDIDO'
-                        || a.status === 'NO_ASISTIO')"
+                        :disabled="  !(
+                        authService.getTokenDetails().role === 'ADMINISTRADOR' ||
+                        authService.getUserData()?.id === a.doctor?.id) ||
+                         ['CANCELADO','ATENDIDO','NO_ASISTIO'].includes(a.status) ||
+                        !(dayjs(a.rescheduling_date || a.date).isSame(dayjs(), 'day') ||
+                        dayjs(a.rescheduling_date || a.date).isBefore(dayjs(), 'day'))"
                         class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 hover:bg-gray-100 hover:text-teal-600 focus:z-10 focus:ring-2 focus:ring-teal-600 focus:text-teal-600 disabled:bg-gray-200 disabled:cursor-not-allowed"
                         title="ATENDER CITA"
                         type="button" @click="handleFillNotesModal(a)"

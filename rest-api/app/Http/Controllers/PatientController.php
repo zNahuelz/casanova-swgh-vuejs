@@ -121,7 +121,8 @@ class PatientController extends Controller
 
         if (!$patient) {
             return response()->json([
-                'message' => "Paciente de DNI: {$dni} no encontrado."
+                'message' => "Paciente de DNI: {$dni} no encontrado.",
+                'code' => 404,
             ], 404);
         }
         return response()->json($patient, 200);

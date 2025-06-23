@@ -134,7 +134,7 @@ onMounted(() => {
         </div>
 
         <div v-if="!isLoading && !loadError" class="container mt-5 mb-3 flex flex-col items-end">
-          <Form v-slot="{ validate }" :validation-schema="dynamicSchema" @submit="onSubmit">
+          <Form v-slot="{ validate, meta }" :validation-schema="dynamicSchema" @submit="onSubmit">
             <div class="flex">
               <Field id="searchMode" v-model="searchMode" as="select"
                      class="shrink-0 z-10 inline-flex w-45 items-center py-2.5 px-4 text-sm font-medium text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100"
@@ -145,11 +145,13 @@ onMounted(() => {
               <ErrorMessage name="searchMode"></ErrorMessage>
               <div class="relative w-70">
                 <Field id="keyword" :type="searchMode === 'id' ? 'number' : 'text'"
-                       class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500"
+                       :class="{'focus:ring-red-500 focus:border-red-500 rounded-e-lg': !meta.valid}"
+                       class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500 rounded-e-lg"
                        name="keyword"
                        placeholder="Buscar..."
                        @input="validate"/>
                 <button
+                    :class="{'bg-red-600 hover:bg-red-800 focus:ring-red-500': !meta.valid}"
                     class="absolute top-0 right-0 p-2.5 h-full text-sm font-medium text-white bg-green-600 rounded-e-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500"
                     type="submit">
                   <svg aria-hidden="true" class="w-4 h-4" fill="none" viewBox="0 0 20 20"

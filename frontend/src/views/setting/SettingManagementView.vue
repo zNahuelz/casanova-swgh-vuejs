@@ -161,7 +161,7 @@ onMounted(() => {
         <h5 class="mb-2 text-2xl font-bold tracking-tight text-black text-start">CONFIGURACIÓN DEL SISTEMA</h5>
 
         <div class="container mt-5 mb-3">
-          <Form v-slot="{ validate }" :validation-schema="dynamicSchema" @submit="onSubmit">
+          <Form v-slot="{ validate, meta }" :validation-schema="dynamicSchema" @submit="onSubmit">
             <div class="flex items-center justify-between w-full">
               <button
                   :disabled="isLoading"
@@ -181,12 +181,14 @@ onMounted(() => {
                 </Field>
 
                 <div class="relative w-70">
-                  <Field id="keyword" :type="searchMode === 'id' ? 'number' : 'text'"
-                         class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500"
+                  <Field id="keyword" :class="{'focus:ring-red-500 focus:border-red-500 rounded-e-lg': !meta.valid}"
+                         :type="searchMode === 'id' ? 'number' : 'text'"
+                         class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500 rounded-e-lg"
                          name="keyword"
                          placeholder="Buscar..."
                          @input="validate"/>
                   <button
+                      :class="{'bg-red-600 hover:bg-red-800 focus:ring-red-500': !meta.valid}"
                       :disabled="isLoading"
                       class="absolute top-0 right-0 p-2.5 h-full text-sm font-medium text-white bg-green-600 rounded-e-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500"
                       type="submit"

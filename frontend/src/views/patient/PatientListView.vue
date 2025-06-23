@@ -128,7 +128,7 @@ onMounted(() => {
         </div>
 
         <div v-if="!isLoading && !loadError" class="container mt-5 mb-3 flex flex-col items-end">
-          <Form v-slot="{ validate }" :validation-schema="dynamicSchema" @submit="onSubmit">
+          <Form v-slot="{ validate, meta }" :validation-schema="dynamicSchema" @submit="onSubmit">
             <div class="flex">
               <Field id="searchMode" v-model="searchMode" as="select"
                      class="shrink-0 z-10 inline-flex w-45 items-center py-2.5 px-4 text-sm font-medium text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100"
@@ -138,12 +138,14 @@ onMounted(() => {
               </Field>
               <ErrorMessage name="searchMode"></ErrorMessage>
               <div class="relative w-70">
-                <Field id="keyword" :type="searchMode === 'id' ? 'number' : 'text'"
-                       class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500"
+                <Field id="keyword" :class="{'focus:ring-red-500 focus:border-red-500 rounded-e-lg': !meta.valid}"
+                       :type="searchMode === 'id' ? 'number' : 'text'"
+                       class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500 rounded-e-lg"
                        name="keyword"
                        placeholder="Buscar..."
                        @input="validate"/>
                 <button
+                    :class="{'bg-red-600 hover:bg-red-800 focus:ring-red-500': !meta.valid}"
                     class="absolute top-0 right-0 p-2.5 h-full text-sm font-medium text-white bg-green-600 rounded-e-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500"
                     type="submit">
                   <svg aria-hidden="true" class="w-4 h-4" fill="none" viewBox="0 0 20 20"
@@ -209,8 +211,8 @@ onMounted(() => {
                 <td class="px-6 py-3 flex justify-center items-center">
                   <div class="inline-flex rounded-md shadow-xs" role="group">
                     <button
-                        :disabled="p.dni === '00000000'"
                         v-if="authService.getTokenDetails().role !== 'DOCTOR'"
+                        :disabled="p.dni === '00000000'"
                         class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
                         title="EDITAR" type="button"
                         @click="goToEdit(p.id)">
@@ -231,8 +233,10 @@ onMounted(() => {
             <nav aria-label="Table navigation"
                  class="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4 p-4">
             <span
-                class="text-sm font-normal text-gray-500  mb-4 md:mb-0 block w-full md:inline md:w-auto">{{ patients.length }} de un total de <span
-                class="font-semibold text-gray-900 ">{{ totalItems }}</span> pacientes</span>
+                class="text-sm font-normal text-gray-500  mb-4 md:mb-0 block w-full md:inline md:w-auto">{{
+                patients.length
+              }} de un total de <span
+                  class="font-semibold text-gray-900 ">{{ totalItems }}</span> pacientes</span>
               <ul class="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
                 <li>
                   <a

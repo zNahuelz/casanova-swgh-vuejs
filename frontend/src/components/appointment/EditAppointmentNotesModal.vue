@@ -22,8 +22,16 @@ const schema = yup.object().shape({
       .string()
       .min(5, 'Las anotaciones deben tener entre 5 y 255 carácteres.')
       .max(255, 'Las anotaciones deben tener entre 5 y 255 carácteres.')
-      .matches(/^.*\S.*$/, 'Las notas no pueden ser solo espacios en blanco.')
-      .matches(/^\S.*$/, 'Las notas no deben comenzar con espacios.')
+      .test(
+          'has-visible-char',
+          'Las notas no pueden ser solo espacios en blanco.',
+          value => !!value && /\S/.test(value)
+      )
+      .test(
+          'no-leading-space',
+          'Las notas no deben comenzar con espacios.',
+          value => !!value && !value.startsWith(' ')
+      )
       .required('Debe llenar las notas.'),
 });
 

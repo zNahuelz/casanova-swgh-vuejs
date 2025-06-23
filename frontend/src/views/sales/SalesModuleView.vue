@@ -32,7 +32,6 @@ const showMakePaymentModal = ref(false);
 
 const submitting = ref(false);
 const validSale = ref(false);
-//** TODO: CHECK EVERYTHING. MAKE SURE AFTER EVERY OPERATION doMath() and isValidSale() RUNS.
 
 async function handleBuyerInfo(buyer) {
   buyerInfo.value = buyer;
@@ -295,7 +294,6 @@ function calculateSubtotalValue() {
   cart.value.forEach((e) => {
     subtotal.value += (e.cost - e.igv) * e.amount;
   });
-  //TODO: Try parsing igv and amount.
 }
 
 function calculateIgvValue() {
@@ -303,7 +301,6 @@ function calculateIgvValue() {
   cart.value.forEach((e) => {
     igv.value += parseFloat(e.igv) * parseFloat(e.amount);
   });
-  //TODO: Try parsing igv and amount.
 }
 
 function calculateTotalValue() {
@@ -311,7 +308,6 @@ function calculateTotalValue() {
   cart.value.forEach((e) => {
     total.value += e.amount * e.cost;
   });
-  //TODO: Try parsing igv and amount.
 }
 
 function calculateAppointmentIgv(cost) {
@@ -327,7 +323,7 @@ function handleAddServiceModal() {
 }
 
 function handleMakePaymentModal() {
-  submitting.value = !submitting.value; //TODO: CHECK THIS!
+  submitting.value = !submitting.value;
   showMakePaymentModal.value = !showMakePaymentModal.value;
   isValidSale();
 }
@@ -344,8 +340,6 @@ onMounted(() => {
   document.title = 'ALTERNATIVA CASANOVA - NUEVA VENTA'
   loadIgvValue();
 });
-//TODO: Calc IGV based on docs.
-//TODO: Design ONLY** BOL
 </script>
 
 <template>
@@ -522,8 +516,9 @@ onMounted(() => {
               {{ submitting ? 'Procesando...' : 'Siguiente' }}
             </button>
           </div>
-
         </div>
+        <span v-if="!isLoading && clientLocked"
+              class="mt-1 font-semibold text-red-900 text-[12px]">IGV Actual: {{ isNaN(parseFloat(IGV_VALUE)) ? 18 : parseFloat(IGV_VALUE) * 100 }}%</span>
       </div>
     </div>
 

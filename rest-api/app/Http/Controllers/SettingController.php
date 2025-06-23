@@ -68,7 +68,7 @@ class SettingController extends Controller
                 'required',
                 'regex:/^\d{1,3}(\.\d{1,2})?$/',
                 'numeric',
-                'min:0.1',
+                'min:0',
                 'max:100',
             ],
             'description' => ['nullable', 'string', 'max:255'],

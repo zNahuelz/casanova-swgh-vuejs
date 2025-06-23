@@ -1,14 +1,13 @@
 <script setup>
-
-import {MEDICINE_SEARCH_MODES as MSM} from "@/utils/constants.js";
-import {formatAsDatetime, reloadPage} from "@/utils/helpers.js";
+import {ERROR_MESSAGES as EM, MEDICINE_SEARCH_MODES as MSM, SUCCESS_MESSAGES as SM} from "@/utils/constants.js";
+import {reloadOnDismiss, reloadPage} from "@/utils/helpers.js";
 import {computed, onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
 import {useAuthStore} from "@/stores/auth.js";
 import * as yup from 'yup';
 import {ErrorMessage, Field, Form} from 'vee-validate';
-import {SupplierService} from "@/services/supplier-service.js";
 import {MedicineService} from "@/services/medicine-service.js";
+import Swal from "sweetalert2";
 
 const searchMode = ref('id');
 const medicines = ref([]);
@@ -48,7 +47,7 @@ async function loadMedicines(filters = {}) {
   loadError.value = false;
   try {
     const pagination = {page: currentPage.value, per_page: pageSize.value}
-    const sorting = {sort_by: 'stock',sort_dir:'desc'}
+    const sorting = {sort_by: 'stock', sort_dir: 'desc'}
     const response = await MedicineService.get(filters, pagination);
     medicines.value = response.data;
     totalPages.value = response.last_page;
@@ -107,6 +106,31 @@ const nextPage = () => {
   }
 };
 
+function manageSaleStatus(medicine, type) {
+  let text = `Usted esta a punto de ${type === 'DISABLE' ? 'deshabilitar' : 'habilitar'} la venta del siguiente medicamento: <br> ${medicine.name} <br> ID: ${medicine.id}`;
+  Swal.fire({
+    title: 'Confirmación de Solicitud',
+    html: text,
+    icon: 'question',
+    showCancelButton: true,
+    cancelButtonText: 'CANCELAR',
+    confirmButtonText: 'CONFIRMAR',
+    confirmButtonColor: '#008236',
+    cancelButtonColor: '#e7000b',
+  }).then(async (op) => {
+    if (op.isConfirmed) {
+      try {
+        isLoading.value = true;
+        const response = await MedicineService.manageSaleStatus(medicine.id);
+        Swal.fire(SM.SUCCESS_TAG, response.message ? response.message : 'Estado de venta de medicina modificado correctamente.', 'success').then(reloadOnDismiss);
+      } catch (err) {
+        isLoading.value = false;
+        Swal.fire(EM.ERROR_TAG, err.message ? err.message : EM.SERVER_ERROR, 'error');
+      }
+    }
+  });
+}
+
 onMounted(() => {
   document.title = 'ALTERNATIVA CASANOVA - LISTADO DE MEDICAMENTOS'
   loadMedicines();
@@ -116,7 +140,7 @@ function goToDetails(id) {
   router.push({name: 'medicine-detail', params: {id}});
 }
 
-function gotToEdit(id){
+function gotToEdit(id) {
   router.push({name: 'edit-medicine', params: {id}});
 }
 </script>
@@ -125,12 +149,13 @@ function gotToEdit(id){
   <main class="flex flex-col items-center pt-5 relative">
     <div class="container px-12 mx-auto">
       <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm w-full">
-        <h5 class="mb-2 text-2xl font-bold tracking-tight text-black text-start" v-if="!isLoading">LISTADO DE MEDICAMENTOS</h5>
+        <h5 v-if="!isLoading" class="mb-2 text-2xl font-bold tracking-tight text-black text-start">LISTADO DE
+          MEDICAMENTOS</h5>
 
-        <div class="container mt-5 mb-5 flex flex-col items-center" v-if="isLoading">
+        <div v-if="isLoading" class="container mt-5 mb-5 flex flex-col items-center">
           <div role="status">
             <svg aria-hidden="true" class="inline w-30 h-30 text-gray-200 animate-spin  fill-green-600"
-                 viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                 fill="none" viewBox="0 0 100 101" xmlns="http://www.w3.org/2000/svg">
               <path
                   d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
                   fill="currentColor"/>
@@ -143,69 +168,75 @@ function gotToEdit(id){
           <h1 class="mt-5 text-2xl font-light">Cargando medicamentos...</h1>
         </div>
 
-        <div class="container mt-5 mb-3 flex flex-col items-end" v-if="!isLoading && !loadError">
-          <Form @submit="onSubmit" :validation-schema="dynamicSchema" v-slot="{ validate }">
+        <div v-if="!isLoading && !loadError" class="container mt-5 mb-3 flex flex-col items-end">
+          <Form v-slot="{ validate, meta }" :validation-schema="dynamicSchema" @submit="onSubmit">
             <div class="flex">
-              <Field id="searchMode" name="searchMode" v-model="searchMode" as="select" @change="validate"
-                     class="shrink-0 z-10 inline-flex w-45 items-center py-2.5 px-4 text-sm font-medium text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100">
+              <Field id="searchMode" v-model="searchMode" as="select"
+                     class="shrink-0 z-10 inline-flex w-45 items-center py-2.5 px-4 text-sm font-medium text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100"
+                     name="searchMode"
+                     @change="validate">
                 <option v-for="sm in MSM" :key="sm.value" :value="sm.value">{{ sm.label }}</option>
               </Field>
               <ErrorMessage name="searchMode"></ErrorMessage>
               <div class="relative w-70">
-                <Field :type="searchMode === 'id' ? 'number' : 'text'" id="keyword"
-                       name="keyword" @input="validate"
-                       class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500"
-                       placeholder="Buscar..."/>
-                <button type="submit"
-                        class="absolute top-0 right-0 p-2.5 h-full text-sm font-medium text-white bg-green-600 rounded-e-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500">
-                  <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                       viewBox="0 0 20 20">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                <Field id="keyword" :class="{'focus:ring-red-500 focus:border-red-500 rounded-e-lg': !meta.valid}"
+                       :type="searchMode === 'id' ? 'number' : 'text'"
+                       class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500 rounded-e-lg"
+                       name="keyword"
+                       placeholder="Buscar..."
+                       @input="validate"/>
+                <button :class="{'bg-red-600 hover:bg-red-800 focus:ring-red-500': !meta.valid}"
+                        class="absolute top-0 right-0 p-2.5 h-full text-sm font-medium text-white bg-green-600 rounded-e-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500"
+                        type="submit">
+                  <svg aria-hidden="true" class="w-4 h-4" fill="none" viewBox="0 0 20 20"
+                       xmlns="http://www.w3.org/2000/svg">
+                    <path d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" stroke="currentColor" stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"/>
                   </svg>
                 </button>
               </div>
             </div>
           </Form>
         </div>
-        <div class="container mt-5 mb-5" v-if="!isLoading && !loadError">
+        <div v-if="!isLoading && !loadError" class="container mt-5 mb-5">
           <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
             <table class="w-full text-sm text-left rtl:text-right text-gray-500">
               <thead class="text-xs text-gray-700 uppercase bg-gray-50">
               <tr>
-                <th scope="col" class="px-6 py-3">
+                <th class="px-6 py-3" scope="col">
                   ID
                 </th>
-                <th scope="col" class="px-6 py-3">
+                <th class="px-6 py-3" scope="col">
                   NOMBRE
                 </th>
-                <th scope="col" class="px-6 py-3">
+                <th class="px-6 py-3" scope="col">
                   COMPOSICIÓN
                 </th>
-                <th scope="col" class="px-6 py-3">
+                <th class="px-6 py-3" scope="col">
                   CÓDIGO DE BARRAS
                 </th>
-                <th scope="col" class="px-6 py-3 text-end">
+                <th class="px-6 py-3 text-end" scope="col">
                   PC. VENTA
                 </th>
-                <th scope="col" class="px-6 py-3 text-end">
+                <th class="px-6 py-3 text-end" scope="col">
                   STOCK
                 </th>
-                <th scope="col" class="px-6 py-3">
+                <th class="px-6 py-3" scope="col">
                   VENDIBLE
                 </th>
-                <th scope="col" class="px-6 py-3">
+                <th class="px-6 py-3" scope="col">
                   PRESENTACIÓN
                 </th>
-                <th scope="col" class="px-6 py-3 text-center">
+                <th class="px-6 py-3 text-center" scope="col">
                   HERRAMIENTAS
                 </th>
               </tr>
               </thead>
               <tbody>
               <tr
-                  class="bg-white border-b border-gray-200 hover:bg-gray-50" v-for="m in medicines" :key="m.id">
-                <th scope="row" class="px-6 py-2 whitespace-nowrap">
+                  v-for="m in medicines" :key="m.id" class="bg-white border-b border-gray-200 hover:bg-gray-50">
+                <th class="px-6 py-2 whitespace-nowrap" scope="row">
                   {{ m.id }}
                 </th>
                 <td class="px-6 py-2 font-medium text-gray-900">
@@ -223,8 +254,8 @@ function gotToEdit(id){
                 <td class="px-6 py-2 text-end">
                   {{ m.stock }}
                 </td>
-                <td class="px-6 py-2"
-                    :class="{'text-green-700 font-bold': m?.salable, 'text-red-500 font-bold': !m?.salable }">
+                <td :class="{'text-green-700 font-bold': m?.salable, 'text-red-500 font-bold': !m?.salable }"
+                    class="px-6 py-2">
                   {{ m?.salable ? 'SI' : 'NO' }}
                 </td>
                 <td class="px-6 py-2">
@@ -232,17 +263,26 @@ function gotToEdit(id){
                 </td>
                 <td class="px-6 py-3 flex justify-center items-center">
                   <div class="inline-flex rounded-md shadow-xs" role="group">
-                    <button type="button" @click="gotToEdit(m.id)" v-if="authService.getTokenDetails().role === 'ADMINISTRADOR' || authService.getTokenDetails().role === 'SECRETARIA'" title="EDITAR"
-                            class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
+                    <button
+                        v-if="authService.getTokenDetails().role === 'ADMINISTRADOR' || authService.getTokenDetails().role === 'SECRETARIA'"
+                        class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                        title="EDITAR"
+                        type="button"
+                        @click="gotToEdit(m.id)">
                       <i class="bi bi-pencil-square w-4 h-4"></i>
                     </button>
-                    <button type="button"
-                            v-if="authService.getTokenDetails().role === 'ADMINISTRADOR'" title="ELIMINAR"
-                            class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
-                      <i class="bi bi-trash-fill w-4 h-4"></i>
+                    <button
+                        v-if="authService.getTokenDetails().role === 'ADMINISTRADOR' || authService.getTokenDetails().role === 'SECRETARIA'"
+                        :title="m.salable ? 'DESHABILITAR VENTA' : 'HABILITAR VENTA'"
+                        class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-2 focus:ring-red-700 focus:text-red-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                        type="button"
+                        @click="manageSaleStatus(m,m.salable ? 'DISABLE' : 'ENABLE')">
+                      <i :class="{'bi bi-dash-circle w-4 h-4': m.salable,'bi bi-check-circle w-4 h-4': !m.salable }"></i>
                     </button>
-                    <button type="button" @click="goToDetails(m.id)" title="DETALLES"
-                            class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue  -700 disabled:bg-gray-200 disabled:cursor-not-allowed">
+                    <button
+                        class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue  -700 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                        title="DETALLES" type="button"
+                        @click="goToDetails(m.id)">
                       <i class="bi bi-three-dots w-4 h-4"></i>
                     </button>
                   </div>
@@ -251,11 +291,13 @@ function gotToEdit(id){
 
               </tbody>
             </table>
-            <nav class="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4 p-4"
-                 aria-label="Table navigation">
+            <nav aria-label="Table navigation"
+                 class="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4 p-4">
             <span
-                class="text-sm font-normal text-gray-500  mb-4 md:mb-0 block w-full md:inline md:w-auto">{{medicines.length}} de un total de <span
-                class="font-semibold text-gray-900 ">{{ totalItems }}</span> medicamentos</span>
+                class="text-sm font-normal text-gray-500  mb-4 md:mb-0 block w-full md:inline md:w-auto">{{
+                medicines.length
+              }} de un total de <span
+                  class="font-semibold text-gray-900 ">{{ totalItems }}</span> medicamentos</span>
               <ul class="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
                 <li>
                   <a
@@ -265,7 +307,7 @@ function gotToEdit(id){
                 <li>
                   <a
                       class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                      @click="reloadPage" title="REFRESCAR">{{ currentPage }}</a>
+                      title="REFRESCAR" @click="reloadPage">{{ currentPage }}</a>
                 </li>
                 <li>
                   <a
@@ -278,7 +320,7 @@ function gotToEdit(id){
 
         </div>
 
-        <div class="container mt-5 mb-5 flex flex-col items-center space-y-5" v-if="loadError">
+        <div v-if="loadError" class="container mt-5 mb-5 flex flex-col items-center space-y-5">
           <span><i class="bi bi-exclamation-triangle-fill text-9xl text-red-700"></i></span>
           <h1 class="text-2xl font-light">Oops! No se encontraron medicamentos con los parametros ingresados. Intente
             nuevamente o registre

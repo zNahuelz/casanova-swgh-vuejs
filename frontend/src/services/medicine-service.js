@@ -36,5 +36,8 @@ export const MedicineService = {
     },
     generateRandomBarcode() {
         return Http.GET(`${this.endpoint}/generate-barcode`);
+    },
+    manageSaleStatus(id) {
+        return Http.DELETE(`${this.endpoint}/${id}`);
     }
 };

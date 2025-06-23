@@ -15,9 +15,9 @@ const schema = yup.object({
   igvValue: yup
       .string()
       .matches(/^\d{1,3}(\.\d{1,2})?$/, 'Debe ser un número positivo con hasta 2 decimales')
-      .test('is-valid-range', 'El IGV debe estar entre 1 y 100', (value) => {
+      .test('is-valid-range', 'El IGV debe estar entre 0 y 100', (value) => {
         const num = parseFloat(value);
-        return num >= 1 && num <= 100;
+        return num >= 0 && num <= 100;
       })
       .required('El valor de IGV es obligatorio'),
 
@@ -31,9 +31,10 @@ const schema = yup.object({
 async function onSubmit(values) {
   submitting.value = true;
   try {
+    const rawValue = parseFloat(values.igvValue);
     const payload = {
       key: 'VALOR_IGV',
-      igvValue: parseFloat(values.igvValue) / 100 || 0.18,
+      igvValue: !isNaN(rawValue) ? rawValue / 100 : 0.18,
       description: values.description.length >= 1 ? values.description : null,
     };
     const response = await SettingService.updateIgvConfig(payload);
@@ -86,13 +87,14 @@ async function onSubmit(values) {
           </div>
         </div>
         <Form ref="igvForm" :initial-values="{
-            igvValue: parseFloat(igv.value)*100 || 18,
+            igvValue: isNaN(parseFloat(igv.value)) ? 18 : parseFloat(igv.value) * 100,
             description: igv.description || ''
         }" :validation-schema="schema" class="grid gap-6" @submit="onSubmit">
           <div>
             <label class="block mb-2 text-sm font-medium text-gray-900">Valor IGV (%)</label>
             <Field id="igvValue" :disabled="submitting" :validate-on-input="true" class="shadow-xs bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
                     focus:ring-green-600 focus:border-green-600 block w-full p-2.5"
+                   min="0"
                    name="igvValue"
                    type="text"/>
             <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"

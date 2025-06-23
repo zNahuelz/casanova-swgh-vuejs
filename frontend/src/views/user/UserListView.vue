@@ -139,7 +139,7 @@ async function resetPassword(id) {
   }
 }
 
-function handleAdminCreationModal(){
+function handleAdminCreationModal() {
   showAdminCreationModal.value = !showAdminCreationModal.value;
 }
 
@@ -179,7 +179,6 @@ onMounted(() => {
   document.title = 'ALTERNATIVA CASANOVA - LISTADO DE USUARIOS';
   loadUsers();
 });
-//TODO:: ~~~ Add button to create an admin!
 </script>
 
 <template>
@@ -188,12 +187,12 @@ onMounted(() => {
       <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm w-full">
         <h5 class="mb-2 text-2xl font-bold tracking-tight text-black text-start">LISTADO DE USUARIOS</h5>
         <div v-if="!isLoading && !loadError" class="container mt-5 mb-3 flex flex-col items-end">
-          <Form v-slot="{ validate }" :validation-schema="dynamicSchema" @submit="onSubmit">
+          <Form v-slot="{ validate, meta }" :validation-schema="dynamicSchema" @submit="onSubmit">
             <div class="flex">
-              <button type="button"
-                      v-if="authService.getTokenDetails().role === 'ADMINISTRADOR'"
-                      @click="handleAdminCreationModal"
-                      class="p-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500 me-3">
+              <button v-if="authService.getTokenDetails().role === 'ADMINISTRADOR'"
+                      class="p-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500 me-3"
+                      type="button"
+                      @click="handleAdminCreationModal">
                 <i class="bi bi-plus"></i> Nuevo
               </button>
 
@@ -205,12 +204,14 @@ onMounted(() => {
               </Field>
               <ErrorMessage name="searchMode"></ErrorMessage>
               <div class="relative w-70">
-                <Field id="keyword" :type="searchMode === 'id' ? 'number' : 'text'"
-                       class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500"
+                <Field id="keyword" :class="{'focus:ring-red-500 focus:border-red-500 rounded-e-lg': !meta.valid}"
+                       :type="searchMode === 'id' ? 'number' : 'text'"
+                       class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500 rounded-e-lg"
                        name="keyword"
                        placeholder="Buscar..."
                        @input="validate"/>
                 <button
+                    :class="{'bg-red-600 hover:bg-red-800 focus:ring-red-500': !meta.valid}"
                     class="absolute top-0 right-0 p-2.5 h-full text-sm font-medium text-white bg-green-600 rounded-e-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500"
                     type="submit">
                   <svg aria-hidden="true" class="w-4 h-4" fill="none" viewBox="0 0 20 20"
@@ -297,9 +298,9 @@ onMounted(() => {
                 <td :hidden="u.id === authService.getUserId()" class="px-6 py-3 flex justify-center items-center">
                   <div class="inline-flex rounded-md shadow-xs" role="group">
                     <button :disabled="u.role === 'ADMINISTRADOR'"
-                        class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-s border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
-                        title="EDITAR" type="button"
-                        @click="goToEdit(u)">
+                            class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-s border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                            title="EDITAR" type="button"
+                            @click="goToEdit(u)">
                       <i class="bi bi-pencil-square w-4 h-4"></i>
                     </button>
                     <button
@@ -314,9 +315,9 @@ onMounted(() => {
                       <i class="bi bi-arrow-clockwise w-4 h-4"></i>
                     </button>
                     <button :disabled="u.role === 'ADMINISTRADOR'"
-                        class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-e border-gray-200 hover:bg-gray-100 hover:text-yellow-700 focus:z-10 focus:ring-2 focus:ring-yellow-700 focus:text-yellow-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
-                        title="E-MAIL DE RECUPERACIÓN"
-                        type="button" @click="showUserActionDialog({
+                            class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-e border-gray-200 hover:bg-gray-100 hover:text-yellow-700 focus:z-10 focus:ring-2 focus:ring-yellow-700 focus:text-yellow-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                            title="E-MAIL DE RECUPERACIÓN"
+                            type="button" @click="showUserActionDialog({
                         user: u,
                         actionText: 'enviar un correo electrónico para la recuperación de ',
                         confirmLabel: 'CONTINUAR',
@@ -347,9 +348,9 @@ onMounted(() => {
                       <i class="bi bi-trash-fill w-4 h-4"></i>
                     </button>
                     <button :disabled="u.role === 'ADMINISTRADOR'"
-                        class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue  -700 disabled:bg-gray-200 disabled:cursor-not-allowed"
-                        title="DETALLES" type="button"
-                        @click="goToDetails(u)">
+                            class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue  -700 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                            title="DETALLES" type="button"
+                            @click="goToDetails(u)">
                       <i class="bi bi-three-dots w-4 h-4"></i>
                     </button>
                   </div>
@@ -360,8 +361,10 @@ onMounted(() => {
             <nav aria-label="Table navigation"
                  class="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4 p-4">
             <span
-                class="text-sm font-normal text-gray-500  mb-4 md:mb-0 block w-full md:inline md:w-auto">{{users.length}} de un total de <span
-                class="font-semibold text-gray-900 ">{{ totalItems }}</span> usuarios</span>
+                class="text-sm font-normal text-gray-500  mb-4 md:mb-0 block w-full md:inline md:w-auto">{{
+                users.length
+              }} de un total de <span
+                  class="font-semibold text-gray-900 ">{{ totalItems }}</span> usuarios</span>
               <ul class="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
                 <li>
                   <a
@@ -371,7 +374,7 @@ onMounted(() => {
                 <li>
                   <a
                       class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                      @click="reloadPage" title="REFRESCAR">{{ currentPage }}</a>
+                      title="REFRESCAR" @click="reloadPage">{{ currentPage }}</a>
                 </li>
                 <li>
                   <a

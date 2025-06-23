@@ -4,7 +4,7 @@ import {AppointmentService} from "@/services/appointment-service.js";
 import Swal from "sweetalert2";
 import {ERROR_MESSAGES as EM} from "@/utils/constants.js";
 import {useRoute, useRouter} from "vue-router";
-import {formatAsDate, formatAsTime} from "@/utils/helpers.js";
+import {formatAsDate, formatAsDatetime, formatAsTime} from "@/utils/helpers.js";
 import {useAuthStore} from "@/stores/auth.js";
 import EditAppointmentNotesModal from "@/components/appointment/EditAppointmentNotesModal.vue";
 
@@ -86,11 +86,15 @@ onMounted(() => {
       <div v-if="!isLoading && !loadError" class="container flex flex-col items-center">
         <div v-for="n in notes" :key="n.id"
              :class="{'hidden':n.notes?.length <= 3}"
-             class="w-lg max-h-[280px] p-6 bg-white border border-gray-200 rounded-lg shadow-sm mb-3">
+             class="w-lg max-h-[300px] p-6 bg-white border border-gray-200 rounded-lg shadow-sm mb-3">
 
           <h5 class="mb-2 text-lg font-semibold tracking-tight text-gray-900 text-center">CITA:
             {{ n.rescheduling_date ? formatAsDate(n.rescheduling_date) : formatAsDate(n.date) }} - HORA:
             {{ n.rescheduling_time ? formatAsTime(n.rescheduling_time) : formatAsTime(n.time) }}</h5>
+
+          <h5 class="mb-2 text-md font-semibold tracking-tight text-gray-900">ULT. CAMBIO:
+            {{ formatAsDatetime(n.updated_at) }}</h5>
+
 
           <h5 class="mb-2 text-md font-semibold tracking-tight text-gray-900">DOCTOR:
             {{ `${n.doctor?.name} ${n.doctor?.paternal_surname}` }}</h5>

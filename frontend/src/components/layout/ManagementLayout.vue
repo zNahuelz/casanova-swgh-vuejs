@@ -10,7 +10,6 @@ onMounted(() => {
   initFlowbite();
 });
 
-//TODO: *** Hide menus and actions based on user role.
 </script>
 <template>
   <aside id="logo-sidebar"

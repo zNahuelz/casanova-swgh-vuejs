@@ -16,7 +16,6 @@ const {
   igv,
   total
 } = defineProps(['onClose', 'paymentTypes', 'cart', 'clientInfo', 'subtotal', 'igv', 'total']);
-//TODO: TEST...:!
 const submitting = ref(false);
 const selectedPaymentId = ref(0);
 const paymentObject = ref({});
@@ -101,7 +100,7 @@ async function onSubmit() {
     }
     const response = await VoucherService.create(payload);
     Swal.fire(SM.SUCCESS_TAG, response.message, 'success').then((r) => {
-      if(r.dismiss || r.isDismissed || r.isConfirmed){
+      if (r.dismiss || r.isDismissed || r.isConfirmed) {
         router.push({name: 'voucher-viewer', params: {id: response.voucher?.id}});
       }
     });

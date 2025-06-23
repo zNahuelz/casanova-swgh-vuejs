@@ -72,73 +72,75 @@ const loadPresentations = async (filters = {}) => {
 </script>
 
 <template>
-  <div id="new-presentation" tabindex="-1"
-       class="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-sm">
+  <div id="new-presentation" class="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-sm"
+       tabindex="-1">
     <div class="relative bg-white rounded-lg shadow-lg w-auto">
       <div
           class="flex items-center justify-between p-4 md:p-5 border-b rounded-t  border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900">
           Buscar presentación
         </h3>
-        <button type="button" @click="onClose(null)" :disabled="submitting || isLoading"
-                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center">
-          <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+        <button :disabled="submitting || isLoading" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" type="button"
+                @click="onClose(null)">
+          <svg aria-hidden="true" class="w-3 h-3" fill="none" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
+            <path d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="2"/>
           </svg>
           <span class="sr-only">Close modal</span>
         </button>
       </div>
       <div class="p-6 space-y-6 items-center flex flex-col">
         <div class="container mt-3 mb-3">
-          <Form @submit="onSubmit" :validation-schema="dynamicSchema" v-slot="{ validate }" v-if="!isLoading"
-                class="text-center">
+          <Form v-if="!isLoading" v-slot="{ validate, meta }" :validation-schema="dynamicSchema" class="text-center"
+                @submit="onSubmit">
             <div class="flex items-center justify-between w-full">
 
               <div class="flex items-center">
-                <Field id="searchMode" name="searchMode" v-model="searchMode" as="select" @change="validate"
-                       class="shrink-0 z-10 inline-flex w-45 items-center py-2.5 px-4 text-sm font-medium text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100">
+                <Field id="searchMode" v-model="searchMode" as="select" class="shrink-0 z-10 inline-flex w-45 items-center py-2.5 px-4 text-sm font-medium text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100" name="searchMode"
+                       @change="validate">
                   <option v-for="sm in PSM" :key="sm.value" :value="sm.value">{{ sm.label }}</option>
                 </Field>
 
                 <div class="relative w-full">
-                  <Field :type="searchMode === 'id' ? 'number' : 'text'" id="keyword"
-                         name="keyword" @input="validate"
-                         class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500"
-                         placeholder="Buscar..."/>
-                  <button type="submit"
-                          class="absolute top-0 right-0 p-2.5 h-full text-sm font-medium text-white bg-green-600 rounded-e-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500">
-                    <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                         viewBox="0 0 20 20">
-                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                  <Field id="keyword" :class="{'focus:ring-red-500 focus:border-red-500 rounded-e-lg': !meta.valid}"
+                         :type="searchMode === 'id' ? 'number' : 'text'" class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500 rounded-e-lg"
+                         name="keyword"
+                         placeholder="Buscar..."
+                         @input="validate"/>
+                  <button :class="{'bg-red-600 hover:bg-red-800 focus:ring-red-500': !meta.valid}"
+                          class="absolute top-0 right-0 p-2.5 h-full text-sm font-medium text-white bg-green-600 rounded-e-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500"
+                          type="submit">
+                    <svg aria-hidden="true" class="w-4 h-4" fill="none" viewBox="0 0 20 20"
+                         xmlns="http://www.w3.org/2000/svg">
+                      <path d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2"/>
                     </svg>
                   </button>
 
                 </div>
               </div>
             </div>
-            <ErrorMessage name="keyword" class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"></ErrorMessage>
+            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium" name="keyword"></ErrorMessage>
           </Form>
 
-          <table class="w-full text-sm text-left rtl:text-right text-gray-500 mt-5" v-if="presentationsLoaded">
+          <table v-if="presentationsLoaded" class="w-full text-sm text-left rtl:text-right text-gray-500 mt-5">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50">
             <tr>
-              <th scope="col" class="px-6 py-3">
+              <th class="px-6 py-3" scope="col">
                 ID
               </th>
-              <th scope="col" class="px-6 py-3">
+              <th class="px-6 py-3" scope="col">
                 NOMBRE COMPLETO
               </th>
-              <th scope="col" class="px-6 py-3 text-center">
+              <th class="px-6 py-3 text-center" scope="col">
                 SELECCIONAR
               </th>
             </tr>
             </thead>
             <tbody>
             <tr
-                class="bg-white border-b border-gray-200 hover:bg-gray-50" v-for="p in presentations" :key="p.id">
-              <th scope="row" class="px-6 py-2 whitespace-nowrap">
+                v-for="p in presentations" :key="p.id" class="bg-white border-b border-gray-200 hover:bg-gray-50">
+              <th class="px-6 py-2 whitespace-nowrap" scope="row">
                 {{ p.id }}
               </th>
               <td class="px-6 py-2 font-medium text-gray-900">
@@ -146,8 +148,8 @@ const loadPresentations = async (filters = {}) => {
               </td>
               <td class="px-6 py-3 flex justify-center items-center">
                 <div class="inline-flex rounded-md shadow-xs" role="group">
-                  <button type="button" @click="onClose(p)"
-                          class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed">
+                  <button class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed" type="button"
+                          @click="onClose(p)">
                     <i class="bi bi-check2-circle w-4 h-4"></i>
                   </button>
                 </div>
@@ -157,10 +159,10 @@ const loadPresentations = async (filters = {}) => {
             </tbody>
           </table>
 
-          <div class="container mt-5 mb-5 flex flex-col items-center" v-if="isLoading">
+          <div v-if="isLoading" class="container mt-5 mb-5 flex flex-col items-center">
             <div role="status">
               <svg aria-hidden="true" class="inline w-30 h-30 text-gray-200 animate-spin  fill-green-600"
-                   viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                   fill="none" viewBox="0 0 100 101" xmlns="http://www.w3.org/2000/svg">
                 <path
                     d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
                     fill="currentColor"/>
@@ -174,8 +176,8 @@ const loadPresentations = async (filters = {}) => {
           </div>
 
 
-          <div class="container mt-5  flex flex-col items-center"
-               v-if="!isLoading && !presentationsLoaded && loadError">
+          <div v-if="!isLoading && !presentationsLoaded && loadError"
+               class="container mt-5  flex flex-col items-center">
             <span><i class="bi bi-exclamation-triangle-fill text-8xl text-red-700"></i></span>
             <h1 class="mt-5 text-lg font-light text-center">No se encontraron presentaciones con el criterio
               ingresado.</h1>

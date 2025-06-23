@@ -3,7 +3,7 @@ import {computed, onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
 import {useAuthStore} from "@/stores/auth.js";
 import {VOUCHER_SEARCH_MODES as VSM} from "@/utils/constants.js";
-import {formatAsDate, formatAsDatetime, reloadPage} from "@/utils/helpers.js";
+import {formatAsDatetime, reloadPage} from "@/utils/helpers.js";
 import * as yup from "yup";
 import {ErrorMessage, Field, Form} from "vee-validate";
 import {VoucherService} from "@/services/voucher-service.js";
@@ -18,7 +18,8 @@ const totalItems = ref(0);
 const pageSize = ref(10);
 const router = useRouter();
 const authService = useAuthStore();
-//TODO ** Mantener filtrado al paginar! (Como en citas?)
+const activeFilters = ref({});
+
 const dynamicSchema = computed(() => {
   let keywordValidation = yup.string().required();
 
@@ -39,14 +40,19 @@ const dynamicSchema = computed(() => {
   });
 });
 
-async function loadVouchers(filters = {}) {
+async function loadVouchers(filters) {
   isLoading.value = true;
   loadError.value = false;
+
+  if (filters !== undefined) {
+    activeFilters.value = {...filters};
+    currentPage.value = 1;
+  }
+
   try {
     const pagination = {page: currentPage.value, per_page: pageSize.value}
-    const response = await VoucherService.get(filters,pagination);
+    const response = await VoucherService.get(activeFilters.value, pagination);
     vouchers.value = response.data;
-    console.log(vouchers.value)
     totalPages.value = response.last_page;
     totalItems.value = response.total;
     if (response.data.length <= 0) {
@@ -137,7 +143,7 @@ onMounted(() => {
         </div>
 
         <div v-if="!isLoading && !loadError" class="container mt-5 mb-3 flex flex-col items-end">
-          <Form v-slot="{ validate }" :validation-schema="dynamicSchema" @submit="onSubmit">
+          <Form v-slot="{ validate, meta }" :validation-schema="dynamicSchema" @submit="onSubmit">
             <div class="flex">
               <Field id="searchMode" v-model="searchMode" as="select"
                      class="shrink-0 z-10 inline-flex w-45 items-center py-2.5 px-4 text-sm font-medium text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100"
@@ -147,14 +153,15 @@ onMounted(() => {
               </Field>
               <ErrorMessage name="searchMode"></ErrorMessage>
               <div class="relative w-70">
-                <Field id="keyword" :type="searchMode === 'id' ? 'number' : 'text'"
-                       class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500"
+                <Field id="keyword" :class="{'focus:ring-red-500 focus:border-red-500 rounded-e-lg': !meta.valid}"
+                       :type="searchMode === 'id' ? 'number' : 'text'"
+                       class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500 rounded-e-lg"
                        name="keyword"
                        placeholder="Buscar..."
                        @input="validate"/>
-                <button
-                    class="absolute top-0 right-0 p-2.5 h-full text-sm font-medium text-white bg-green-600 rounded-e-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500"
-                    type="submit">
+                <button :class="{'bg-red-600 hover:bg-red-800 focus:ring-red-500': !meta.valid}"
+                        class="absolute top-0 right-0 p-2.5 h-full text-sm font-medium text-white bg-green-600 rounded-e-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500"
+                        type="submit">
                   <svg aria-hidden="true" class="w-4 h-4" fill="none" viewBox="0 0 20 20"
                        xmlns="http://www.w3.org/2000/svg">
                     <path d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" stroke="currentColor" stroke-linecap="round"

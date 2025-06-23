@@ -5,8 +5,8 @@ import {useRouter} from "vue-router";
 import * as yup from "yup";
 import {PatientService} from "@/services/patient-service.js";
 import Swal from "sweetalert2";
-import {SUCCESS_MESSAGES as SM, ERROR_MESSAGES as EM} from "@/utils/constants.js";
-import {reloadPage} from "@/utils/helpers.js";
+import {reloadOnDismiss, reloadPage} from "@/utils/helpers.js";
+import {ERROR_MESSAGES as EM} from "@/utils/constants.js";
 
 const isLoading = ref(false);
 const emit = defineEmits(['buyerInfo']);
@@ -22,34 +22,36 @@ const schema = yup.object({
       .min(8, 'El DNI debe tener entre 8 y 15 cifras.')
       .max(15, 'El DNI debe tener entre 8 y 15 cifras.'),
 });
-//TODO: CONTINUE ** 19/06/2025 ??? Seems to be OK.
+
 async function onSubmit(values) {
   isLoading.value = true;
-  try{
+  try {
     loadingMessage.value = 'Buscando paciente...';
     const response = await PatientService.getByDni(values.dni.trim());
-    emit('buyerInfo',response);
-  }
-  catch(err){
-    //** TODO: IF RESPONSE ISNT 404 THROW SERVER ERROR.
-    Swal.fire({
-      title: 'Información',
-      html: `<p class="font-light">Paciente con DNI: ${values.dni.trim()} no encontrado.
+    emit('buyerInfo', response);
+  } catch (err) {
+    if (err.code === 404) {
+      Swal.fire({
+        title: 'Información',
+        html: `<p class="font-light">Paciente con DNI: ${values.dni.trim()} no encontrado.
     <br> <span class="font-bold">¿Desea registrarlo?</span> <br>
     <strong class="text-red-600">Recuerde que puede realizar ventas ingresando DNI 0 siempre y cuando el valor de venta no supere los 700 soles.</strong></p>`,
-      icon: 'question',
-      showCancelButton: true,
-      cancelButtonText: 'NO',
-      confirmButtonText: 'SI',
-      confirmButtonColor: '#008236',
-      cancelButtonColor: '#e7000b',
-    }).then((op) => {
-      if (op.isConfirmed) {
-        router.push({name: 'new-patient', query: {dni: values.dni}});
-      } else {
-        reloadPage();
-      }
-    });
+        icon: 'question',
+        showCancelButton: true,
+        cancelButtonText: 'NO',
+        confirmButtonText: 'SI',
+        confirmButtonColor: '#008236',
+        cancelButtonColor: '#e7000b',
+      }).then((op) => {
+        if (op.isConfirmed) {
+          router.push({name: 'new-patient', query: {dni: values.dni}});
+        } else {
+          reloadPage();
+        }
+      });
+    } else {
+      Swal.fire(EM.ERROR_TAG, EM.SERVER_ERROR, 'error').then(reloadOnDismiss);
+    }
   }
 }
 </script>
@@ -75,7 +77,8 @@ async function onSubmit(values) {
       <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
         <svg aria-hidden="true" class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none"
              viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-          <path d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+          <path d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" stroke="currentColor" stroke-linecap="round"
+                stroke-linejoin="round"
                 stroke-width="2"/>
         </svg>
       </div>
@@ -88,7 +91,8 @@ async function onSubmit(values) {
       />
       <div class="absolute flex gap-2 end-2.5 bottom-2.5">
         <button
-            :disabled="isLoading" class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2"
+            :disabled="isLoading"
+            class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2"
             type="submit"
         >
           Buscar
