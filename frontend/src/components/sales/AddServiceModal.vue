@@ -92,7 +92,7 @@ async function loadTreatments(filters = {}) {
       </div>
       <div class="p-6 space-y-6 items-center flex flex-col">
         <div class="container mt-3 mb-3">
-          <Form @submit="onSubmit" :validation-schema="dynamicSchema" v-slot="{ validate }" v-if="!isLoading"
+          <Form @submit="onSubmit" :validation-schema="dynamicSchema" v-slot="{ validate, meta }" v-if="!isLoading"
                 class="text-center">
             <div class="flex items-center justify-between w-full">
 
@@ -105,9 +105,11 @@ async function loadTreatments(filters = {}) {
                 <div class="relative w-full">
                   <Field :type="searchMode === 'id' ? 'number' : 'text'" id="keyword"
                          name="keyword" @input="validate"
-                         class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500"
+                         :class="{'focus:ring-red-500 focus:border-red-500 rounded-e-lg': !meta.valid}"
+                         class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500 rounded-e-lg"
                          placeholder="Buscar..."/>
                   <button type="submit"
+                          :class="{'bg-red-600 hover:bg-red-800 focus:ring-red-500': !meta.valid}"
                           class="absolute top-0 right-0 p-2.5 h-full text-sm font-medium text-white bg-green-600 rounded-e-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500">
                     <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                          viewBox="0 0 20 20">

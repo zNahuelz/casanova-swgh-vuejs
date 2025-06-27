@@ -198,7 +198,7 @@ onMounted(() => {
           </div>
 
           <div>
-            <button :disabled="patient?.appointments?.length <= 0"
+            <button :disabled="patient?.appointments?.length <= 0 || patient.dni === '00000000'"
                     class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-purple-700 focus:z-10 focus:ring-2 focus:ring-purple-700 focus:text-purple-700 disabled:bg-gray-200 disabled:cursor-not-allowed w-full"
                     type="button"
                     @click="handleAppointmentsModal"
@@ -226,6 +226,7 @@ onMounted(() => {
               class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed w-full"
               type="button"
               @click="goToNotes(patient?.dni)"
+              :disabled="patient.dni === '00000000'"
           >
             <i class="bi bi-journal-medical w-3 h-3 me-2 flex items-center justify-center"></i>
             HISTORIAL MÉDICO

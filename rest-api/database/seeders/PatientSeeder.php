@@ -20,7 +20,8 @@ class PatientSeeder extends Seeder
                 'maternal_surname' => '-----',
                 'birth_date' => '2000-01-01',
                 'dni' => '00000000',
-                'address' => '-----'
+                'address' => '-----',
+                'email' => 'CLIORD@ALTERNATIVAC.COM',
             ],
             [
                 'name' => 'JAVIER',
@@ -29,6 +30,7 @@ class PatientSeeder extends Seeder
                 'birth_date' => '1997-06-10',
                 'dni' => '08544102',
                 'address' => 'Av. El Trebol 102',
+                'email' => 'JJFRENTON@OUTLOOK.COM',
             ],
             [
                 'name' => 'FERNANDA',
@@ -37,6 +39,7 @@ class PatientSeeder extends Seeder
                 'birth_date' => '2000-10-12',
                 'dni' => '08535143',
                 'address' => 'Calle Ricardo Palma 201',
+                'email' => 'FERNFRIEREN@GMAIL.COM',
             ],
             [
                 'name' => 'MARIA',
@@ -45,6 +48,7 @@ class PatientSeeder extends Seeder
                 'birth_date' => '2003-12-07',
                 'dni' => '08712345',
                 'address' => 'Calle Las Brisas 107',
+                'email' => 'MARYALIMT@HOTMAIL.COM',
             ],
             [
                 'name' => 'JAVIER',
@@ -53,6 +57,7 @@ class PatientSeeder extends Seeder
                 'birth_date' => '1995-04-03',
                 'dni' => '07866123',
                 'address' => 'Av. Mariscal Castilla 304',
+                'email' => 'JAVIORTIZ@PROTONMAIL.COM',
             ],
             [
                 'name' => 'ALEJANDRO',
@@ -61,6 +66,7 @@ class PatientSeeder extends Seeder
                 'birth_date' => '1993-02-01',
                 'dni' => '01233765',
                 'address' => 'Jiron Arica 404',
+                'email' => 'ALEJORAMTRES@GMAIL.COM',
             ],
             [
                 'name' => 'ALVARO',
@@ -69,6 +75,7 @@ class PatientSeeder extends Seeder
                 'birth_date' => '1995-04-03',
                 'dni' => '06530125',
                 'address' => 'Pasaje San Ramon 101',
+                'email' => 'VENTAS.BLAMEP@GMAIL.COM',
             ],
             [
                 'name' => 'ORIANA',
@@ -77,6 +84,7 @@ class PatientSeeder extends Seeder
                 'birth_date' => '2004-07-13',
                 'dni' => '91545773',
                 'address' => 'Calle Berlin 506',
+                'email' => 'ESTOYPROBANDO@HOTMAIL.COM',
             ],
             [
                 'name' => 'TOMAS',
@@ -85,6 +93,7 @@ class PatientSeeder extends Seeder
                 'birth_date' => '1999-02-10',
                 'dni' => '73422108',
                 'address' => 'Calle Enrique Palacios 102',
+                'email' => 'MONSTERENERGY@PROTONMAIL.COM',
             ],
             [
                 'name' => 'JESUS',
@@ -93,6 +102,7 @@ class PatientSeeder extends Seeder
                 'birth_date' => '2003-01-07',
                 'dni' => '95677094',
                 'address' => 'Calle Los Nogales 271',
+                'email' => 'REACTNOFUNCIONA@GMAIL.COM',
             ],
             [
                 'name' => 'FRANCISCO',
@@ -101,6 +111,7 @@ class PatientSeeder extends Seeder
                 'birth_date' => '2000-01-29',
                 'dni' => '76799056',
                 'address' => 'Av. Antonio Jose de Sucre 108',
+                'email' => 'PCM.PERU@GMAIL.COM',
             ],
             [
                 'name' => 'JOSE',
@@ -109,6 +120,7 @@ class PatientSeeder extends Seeder
                 'birth_date' => '1995-04-03',
                 'dni' => '01233297',
                 'address' => 'Av. Los Pinos 103',
+                'email' => 'VIVACHILE@GMAIL.COM',
             ],
             [
                 'name' => 'DYLAN',
@@ -117,11 +129,20 @@ class PatientSeeder extends Seeder
                 'birth_date' => '1990-07-14',
                 'dni' => '07611063',
                 'address' => 'ASENTAMIENTO HUMANO SAN JUDAS TADEO',
+                'email' => 'CAJAMARCA@HOTMAIL.COM',
+            ],
+            [
+                'name' => 'DANIEL',
+                'paternal_surname' => 'OCHOA',
+                'maternal_surname' => 'REYES',
+                'birth_date' => '2003-06-25',
+                'dni' => '08670368',
+                'address' => 'CALLE MORALES 312, COMAS',
+                'email' => 'EMAIL@DOMINIO.COM',
             ]
         ];
 
-        foreach($patients as $p)
-        {
+        foreach ($patients as $p) {
             Patient::create([
                 'name' => $p['name'],
                 'paternal_surname' => $p['paternal_surname'],
@@ -129,8 +150,8 @@ class PatientSeeder extends Seeder
                 'birth_date' => $p['birth_date'],
                 'dni' => $p['dni'],
                 'address' => $p['address'],
+                'email' => $p['email'],
             ]);
         }
-
     }
 }

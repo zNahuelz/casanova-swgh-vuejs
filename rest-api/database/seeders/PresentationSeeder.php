@@ -66,5 +66,29 @@ class PresentationSeeder extends Seeder
             'numeric_value' => 5,
             'aux' => 'ML.'
         ]);
+
+        Presentation::create([
+            'name' => 'FRASCO',
+            'numeric_value' => 370,
+            'aux' => 'GR.'
+        ]);
+
+        Presentation::create([
+            'name' => 'BOTELLA',
+            'numeric_value' => 290,
+            'aux' => 'ML.'
+        ]);
+
+        Presentation::create([
+            'name' => 'BOTELLA',
+            'numeric_value' => 200,
+            'aux' => 'ML.'
+        ]);
+
+        Presentation::create([
+            'name' => 'SACHET',
+            'numeric_value' => 5,
+            'aux' => 'GR. - x15 UND.'
+        ]);
     }
 }

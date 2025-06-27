@@ -46,6 +46,16 @@ onMounted(() => {
             <span class="ms-3">Nueva venta</span>
           </router-link>
         </li>
+        <li v-if="authStore.getTokenDetails().role === 'ADMINISTRADOR' || authStore.getTokenDetails().role === 'SECRETARIA' || authStore.getTokenDetails().role === 'ENFERMERA'">
+          <router-link :to="{name: 'new-appointment'}"
+                       class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-green-500 group">
+            <svg aria-hidden="true" class="w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"
+                 fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m11.5 11.5 2.071 1.994M4 10h5m11 0h-1.5M12 7V4M7 7V4m10 3V4m-7 13H8v-2l5.227-5.292a1.46 1.46 0 0 1 2.065 2.065L10 17Zm-5 3h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z"/>
+            </svg>
+            <span class="ms-3">Nueva cita</span>
+          </router-link>
+        </li>
         <li>
           <button aria-controls="appointments-dropdown"
                   class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-green-500"

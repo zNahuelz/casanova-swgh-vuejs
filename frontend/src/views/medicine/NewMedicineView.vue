@@ -61,18 +61,22 @@ const medicineSchema = yup.object({
       .required('Debe ingresar una descripción')
       .matches(/^.*\S.*$/, 'La descripción no puede ser solo espacios en blanco.')
       .matches(/^\S.*$/, 'La descripción no debe comenzar con espacios.'),
-  buy_price: yup.number().positive('El precio de compra debe ser positivo.').test(
+  buy_price: yup.number()
+      .typeError('Debe ingresar un precio de compra válido.')
+      .positive('El precio de compra debe ser positivo.').test(
       "is-decimal",
       "Máximo dos decimales permitidos.",
       (value) => /^\d+(\.\d{1,2})?$/.test(String(value))
   ).required('Debe ingresar un precio de compra.'),
-  sell_price: yup.number().positive('El precio de venta debe ser positivo.').test(
+  sell_price: yup.number()
+      .typeError('Debe ingresar un precio de venta válido.')
+      .positive('El precio de venta debe ser positivo.').test(
       "is-decimal",
       "Máximo dos decimales permitidos.",
       (value) => /^\d+(\.\d{1,2})?$/.test(String(value))
   ).min(yup.ref('buy_price'), 'El precio de venta debe ser igual o superior al de compra.').required('Debe ingresar un precio de venta.'),
-  igv: yup.number().required('El IGV es requerido.'),
-  profit: yup.number().required('El IGV es requerido.'),
+  igv: yup.number().typeError('Los valores de precio de compra-venta deben ser válidos.').required('El IGV es requerido.'),
+  profit: yup.number().typeError('Los valores de precio de compra-venta deben ser válidos.').required('La ganancia es requerida.'),
   stock: yup.number().moreThan(0, 'El valor de stock debe ser superior a 0.').positive('El stock debe ser positivo.').required('Debe ingresar el stock.'),
   presentation: yup.number().positive('Debe seleccionar una presentación.').required('Debe seleccionar una presentación.'),
   supplier: yup.number().positive('Debe seleccionar un proveedor.').required('Debe seleccionar un proveedor.'),
