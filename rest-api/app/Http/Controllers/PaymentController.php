@@ -13,11 +13,21 @@ use Illuminate\Support\Facades\Validator;
 
 class PaymentController extends Controller
 {
+    /**
+     * Retorna listado general de pagos pendientes.
+     * @return \Illuminate\Http\Response
+     */
     public function getPendingPayments()
     {
         $payments = PendingPayment::query()->orderBy('created_at', 'asc')->paginate(20);
         return response($payments, 200);
     }
+
+    /**
+     * Retorna listado de pagos pendientes por DNI de paciente.
+     * @param mixed $dni
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getPendingPaymentsByDni($dni)
     {
         $pendingPayments = PendingPayment::where(function ($query) use ($dni) {
@@ -36,12 +46,21 @@ class PaymentController extends Controller
         return response()->json($pendingPayments);
     }
 
+    /**
+     * Retorna listado de reembolsos pendientes.
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getPendingRefunds()
     {
         $refunds = PendingPayment::where('notes', 'like', '%REEMBOLSO%')->with(['appointment', 'treatment'])->orderBy('created_at', 'desc')->get();
         return response()->json($refunds, sizeof($refunds) <= 0 ? 404 : 200);
     }
 
+    /**
+     * Elimina permanentemente un reembolso pendiente.
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function deleteRefund($id)
     {
         $refund = PendingPayment::find($id);
@@ -62,6 +81,11 @@ class PaymentController extends Controller
         }
     }
 
+    /**
+     * Retorna detalle de pago segun ID de cita.
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getInfoByAppointmentId($id)
     {
         $pendingPayment = PendingPayment::where('appointment_id', $id)->first();
@@ -84,6 +108,10 @@ class PaymentController extends Controller
         ], 200);
     }
 
+    /**
+     * Retorna todos los tipos de pagos. (Efectivo, yape, plin, tarjeta)
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getPaymentTypes()
     {
         $paymentTypes = PaymentType::all();
@@ -95,6 +123,12 @@ class PaymentController extends Controller
         return response()->json($paymentTypes, 200);
     }
 
+    /**
+     * Verifica el contenido del carrito de compra para la posterior generacion de voucher.
+     * Retorna listado de elementos a remover del carrito.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function verifyShoppingCart(Request $request)
     {
         $validator = Validator::make($request->all(), [

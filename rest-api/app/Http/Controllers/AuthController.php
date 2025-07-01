@@ -20,6 +20,11 @@ use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
 {
+    /**
+     * Autentica al usuario, retorna token JWT y datos personales del usuario (si es doctor, secretaria, enfermera.)
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function login(Request $request) 
     {
         $request->validate([
@@ -81,6 +86,10 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Retorna datos personales y de cuenta del usuario.
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function profile()
     {
         $user = auth()->user();
@@ -111,6 +120,11 @@ class AuthController extends Controller
         return response()->json($response, 200);
     }
 
+    /**
+     * Envía un email para recuperación de cuenta con un token de un solo uso.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function sendRecoveryMail(Request $request)
     {
         $request->validate([
@@ -136,12 +150,17 @@ class AuthController extends Controller
             'expiration' => Carbon::now()->addMinutes(10),
         ]);
 
-        SendForgotPasswordToken::dispatch($user,$recoveryLink)->delay(now()->addMinutes(2)); //TODO: Ver 
+        SendForgotPasswordToken::dispatch($user,$recoveryLink)->delay(now()->addSeconds(25)); //TODO: Ver 
         return response()->json([
             'message' => 'Operación completada correctamente. Si el e-mail ingresado pertenece a un usuario las instrucciones para recuperar su cuenta seran enviadas.'
         ],200);
     }
 
+    /**
+     * Verifica si el token recibido es valido y no esta vencido. 
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function verifyRecoveryToken(Request $request)
     {
         $request->validate([
@@ -166,6 +185,11 @@ class AuthController extends Controller
         ],200);
     }
 
+    /**
+     * Cambia la contraseña de un usuario utilizando un token de un solo uso (recuperacion de cuenta)
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function changePasswordWithToken(Request $request)
     {
         $request->validate([
@@ -209,6 +233,11 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Actualiza la información (password-email) de un usuario autenticado luego de validar su contraseña.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function changePasswordAndEmail(Request $request)
     {
         $user = auth()->user();
@@ -282,6 +311,11 @@ class AuthController extends Controller
         ],200);
     }
 
+    /**
+     * Cambia el nombre de usuario posterior a la autenticación.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function changeUsername(Request $request)
     {
         $user = auth()->user();
@@ -318,6 +352,11 @@ class AuthController extends Controller
         ],200);
     }
 
+    /**
+     * Actualiza la direccion y telefono del usuario autenticado (solo doctor, secretaria, enfermera).
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function changeAddressAndPhone(Request $request)
     {
         $user = auth()->user();

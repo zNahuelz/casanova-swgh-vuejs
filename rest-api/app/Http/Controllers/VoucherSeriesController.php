@@ -12,6 +12,10 @@ use Illuminate\Validation\Rule;
 
 class VoucherSeriesController extends Controller
 {
+    /**
+     * Retorna un listado de series de vouchers agrupado por tipo de voucher.
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getVoucherSeries()
     {
         $types = VoucherType::all();
@@ -23,6 +27,11 @@ class VoucherSeriesController extends Controller
         return response()->json($types);
     }
 
+    /**
+     * Permite registrar una serie para vouchers, en base a serie, proximo correlativo y tipo de comprobante previa validacion.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function createVoucherSerie(Request $request)
     {
         $request->validate([
@@ -62,6 +71,11 @@ class VoucherSeriesController extends Controller
         }
     }
 
+    /**
+     * Permite actualizar una serie de voucher (Modificar el proximo correlativo)
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function updateVoucherSerie(Request $request)
     {
         $request->validate([
@@ -85,6 +99,11 @@ class VoucherSeriesController extends Controller
         ],200);
     }
 
+    /**
+     * Permite habilitar el uso de una serie de vouchers por ID.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function enableVoucherSerie(Request $request)
     {
         $request->validate([

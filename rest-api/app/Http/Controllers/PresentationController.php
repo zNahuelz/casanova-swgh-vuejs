@@ -10,6 +10,11 @@ use Illuminate\Validation\Rule;
 
 class PresentationController extends Controller
 {
+    /**
+     * Permite el registro de una presentacion de producto posterior a validación.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function createPresentation(Request $request)
     {
         $request->validate([
@@ -44,6 +49,12 @@ class PresentationController extends Controller
         }
     }
 
+    /**
+     * Permite la actualización de una presentacion de producto previa validacion.
+     * @param \Illuminate\Http\Request $request
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function updatePresentation(Request $request, $id)
     {
         $oldPresentation = Presentation::find($id);
@@ -84,6 +95,11 @@ class PresentationController extends Controller
         }
     }
 
+    /**
+     * Retorna listado de presentaciones de productos, incluye paginado, filtrado, ordenado y cantidad de elementos per pagina.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getPresentations(Request $request)
     {
         $query = Presentation::query();
@@ -110,12 +126,21 @@ class PresentationController extends Controller
         return response()->json($presentations,200);
     }
 
+    /**
+     * Retorna todas las presentaciones.
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getAllPresentations()
     {
         $presentations = Presentation::all();
         return response()->json($presentations,200);
     }
 
+    /**
+     * Retorna una presentacion por ID.
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getPresentation($id)
     {
         $presentation = Presentation::find($id);

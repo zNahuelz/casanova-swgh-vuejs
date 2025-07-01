@@ -26,6 +26,11 @@ use Illuminate\Validation\Rules\Enum;
 
 class AppointmentController extends Controller
 {
+    /**
+     * Valida la solicitud, prepara un listado de espacios disponibles para reserva de citas para un doctor y paciente.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function prepareAppointment(Request $request)
     {
         $data = $this->validatePrepareAppointmentRequest($request);
@@ -68,6 +73,11 @@ class AppointmentController extends Controller
         return response()->json($schedule);
     }
 
+    /**
+     * Valida el payload para la preparación de una cita.
+     * @param \Illuminate\Http\Request $request
+     * @return array{days_ahead: int, doctor_id: mixed, is_treatment: mixed, on_date: mixed, patient_id: mixed, show_unavailabilities: mixed, slot_length: int}
+     */
     private function validatePrepareAppointmentRequest(Request $request): array
     {
         //sometimes ==> Valida si esta presente. (no es requerido...)
@@ -97,6 +107,11 @@ class AppointmentController extends Controller
         ];
     }
 
+    /**
+     * Cargas las disponibilidades de un doctor segun ID.
+     * @param int $doctorId
+     * @return \Illuminate\Database\Eloquent\Collection<int|string, DoctorAvailability>
+     */
     private function loadWeeklyAvailability(int $doctorId)
     {
         return DoctorAvailability::where('doctor_id', $doctorId)
@@ -105,6 +120,11 @@ class AppointmentController extends Controller
             ->keyBy('weekday'); // ==>> Asignar DÍA de la semana a CLAVE:valor.
     }
 
+    /**
+     * Cargas las indisponibilidades de un doctor segun ID.
+     * @param int $doctorId
+     * @return \Illuminate\Database\Eloquent\Collection<int, DoctorUnavailability>
+     */
     private function loadUnavailabilities(int $doctorId)
     {
         return DoctorUnavailability::where('doctor_id', $doctorId)
@@ -112,6 +132,12 @@ class AppointmentController extends Controller
             ->get();
     }
 
+    /**
+     * Carga las citas reservadas de un doctor y paciente segun un rango temporal.
+     * @param array $data
+     * @param int $doctorId
+     * @return array<\Illuminate\Database\Eloquent\Collection<int, Appointment>|\Illuminate\Database\Eloquent\Collection<int, Carbon>|\Illuminate\Support\Collection<int, Carbon>>
+     */
     private function loadAppointments(array $data, int $doctorId): array
     {
         $startDate = $data['on_date'] ?? Carbon::today()->toDateString();
@@ -134,11 +160,25 @@ class AppointmentController extends Controller
         return [$doctorAppts, $patientAppts];
     }
 
+    /**
+     * Carga todos los feriados.
+     * @return \Illuminate\Database\Eloquent\Collection<int, Holiday>
+     */
     private function loadHolidays()
     {
         return Holiday::all();
     }
 
+    /**
+     * Genera un listado de espacios disponibles para reserva de citas (multiples días).
+     * @param mixed $weekly
+     * @param mixed $unavs
+     * @param mixed $doctorAppts
+     * @param mixed $patientAppts
+     * @param mixed $holidays
+     * @param array $data
+     * @return array<array|array{is_available: bool, reason: mixed, slots: array|array{is_available: bool, reason: string, slots: array}>}
+     */
     private function buildSchedule($weekly, $unavs, $doctorAppts, $patientAppts, $holidays, array $data)
     {
         $response = [];
@@ -150,6 +190,17 @@ class AppointmentController extends Controller
         return $response;
     }
 
+    /**
+     * Genera los espacios disponibles para reserva de citas (día especifico)
+     * @param \Carbon\Carbon $day
+     * @param mixed $weekly
+     * @param mixed $unavs
+     * @param mixed $doctorAppts
+     * @param mixed $patientAppts
+     * @param mixed $holidays
+     * @param array $data
+     * @return array<array|array{is_available: bool, reason: mixed, slots: array|array{is_available: bool, reason: string, slots: array}>}
+     */
     private function buildSingleDateSchedule(Carbon $day, $weekly, $unavs, $doctorAppts, $patientAppts, $holidays, array $data)
     {
         return [
@@ -157,6 +208,17 @@ class AppointmentController extends Controller
         ];
     }
 
+    /**
+     * Hijo de buildSingleDateSchedule.
+     * @param \Carbon\Carbon $day
+     * @param mixed $weekly
+     * @param mixed $unavs
+     * @param mixed $doctorAppts
+     * @param mixed $patientAppts
+     * @param mixed $holidays
+     * @param array $data
+     * @return array|array{is_available: bool, reason: mixed, slots: array|array{is_available: bool, reason: string, slots: array}}
+     */
     private function buildDayEntry(Carbon $day, $weekly, $unavs, $doctorAppts, $patientAppts, $holidays, array $data)
     {
         $dateKey     = $day->toDateString();
@@ -212,6 +274,16 @@ class AppointmentController extends Controller
         ];
     }
 
+    /**
+     * Genera espacios de tiempo para un dia especifico basado en disponibilidad, descansos y citas existentes.
+     * @param \Carbon\Carbon $day
+     * @param mixed $availability
+     * @param mixed $unavs
+     * @param mixed $doctorAppts
+     * @param mixed $patientAppts
+     * @param array $data
+     * @return array
+     */
     private function generateSlotsForDay(Carbon $day, $availability, $unavs, $doctorAppts, $patientAppts, array $data)
     {
         $workStart  = Carbon::parse($availability->start_time);
@@ -293,6 +365,11 @@ class AppointmentController extends Controller
         return $slots;
     }
 
+    /**
+     * Guarda la reserva de cita posterior a la validación de las reglas del negocio, envia email de notificación.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function createAppointment(Request $request)
     {
         $request->validate([
@@ -431,7 +508,11 @@ class AppointmentController extends Controller
         }
     }
 
-    //TODO: TEST...!!
+    /**
+     * Reprograma una cita existente posterior a validacion y envia notificación via email.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function rescheduleAppointment(Request $request)
     {
         $request->validate([
@@ -541,9 +622,13 @@ class AppointmentController extends Controller
         }
     }
 
+    /**
+     * Cancela una cita, gestiona reembolsos y envia notificación via email.
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function cancelAppointment($id)
     {
-        //TODO: SEND EMAIL NOTIFICATION.
         $appointment = Appointment::find($id);
         if (!$appointment) {
             return response()->json([
@@ -588,6 +673,11 @@ class AppointmentController extends Controller
         }
     }
 
+    /**
+     * Retorna lista de citas con filtros, paginacion y citas eliminadas.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getAppointments(Request $request)
     {
         $query = Appointment::withTrashed()->with(['doctor', 'patient']);
@@ -650,6 +740,11 @@ class AppointmentController extends Controller
         return response()->json($paginated);
     }
 
+    /**
+     * Retorna cita especifica por ID. Incluye citas eliminadas.
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getAppointmentById($id)
     {
         $appointment = Appointment::withTrashed()
@@ -665,6 +760,11 @@ class AppointmentController extends Controller
         return response()->json($appointment, 200);
     }
 
+    /**
+     * Actualizar notas y estado de cita.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function fillAppointmentNotes(Request $request)
     {
         $request->validate([
@@ -699,6 +799,11 @@ class AppointmentController extends Controller
         }
     }
 
+    /**
+     * Editar notas de cita.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function editAppointmentNotes(Request $request)
     {
         $request->validate([
@@ -734,6 +839,11 @@ class AppointmentController extends Controller
         }
     }
 
+    /**
+     * Retorna listado de citas por DNI de paciente.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getAppointmentNotesByDni(Request $request)
     {
         $request->validate([

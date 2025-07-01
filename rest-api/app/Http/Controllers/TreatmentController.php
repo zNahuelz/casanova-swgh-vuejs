@@ -9,6 +9,11 @@ use Illuminate\Validation\Rule;
 
 class TreatmentController extends Controller
 {
+    /**
+     * Permite crear un tratamiento previa validacion.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function createTreatment(Request $request)
     {
         $request->validate([
@@ -37,6 +42,12 @@ class TreatmentController extends Controller
         ],201);
     }
 
+    /**
+     * Permite actualizar un tratamiento por ID previa validacion.
+     * @param \Illuminate\Http\Request $request
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function updateTreatment(Request $request,$id)
     {
         $oldTreatment = Treatment::find($id);
@@ -72,6 +83,11 @@ class TreatmentController extends Controller
         ],200);
     }
 
+    /**
+     * Retorna un listado de tratamientos con filtrado, paginado, ordenado y cantidad de elementos.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getTreatments(Request $request)
     {
         $query = Treatment::query();
@@ -101,6 +117,11 @@ class TreatmentController extends Controller
         return response()->json($treatments,200);
     }
 
+    /**
+     * Retorna un tratamiento por ID, incluye informacion de auditoria.
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getTreatment($id)
     {
         $treatment = Treatment::with([
@@ -133,6 +154,10 @@ class TreatmentController extends Controller
         ], 200);
     }
 
+    /**
+     * Auxiliar de auditoria.
+     * @param mixed $user
+     */
     private function getUserDisplayName($user)
     {
         if (!$user) 

@@ -9,6 +9,11 @@ use Illuminate\Validation\Rule;
 
 class SupplierController extends Controller
 {
+    /**
+     * Permite registrar un proveedor previa validacion.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function createSupplier(Request $request)
     {
         $request->validate([
@@ -37,6 +42,12 @@ class SupplierController extends Controller
         ], 201);
     }
 
+    /**
+     * Permite actualizar la informacion de un proveedor por ID previa validacion.
+     * @param \Illuminate\Http\Request $request
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function updateSupplier(Request $request, $id)
     {
         $oldSupplier = Supplier::withTrashed()->find($id);
@@ -67,6 +78,11 @@ class SupplierController extends Controller
         return response()->json(['message' => 'Proveedor de ID: ' . $id . ' actualizado correctamente.'], 200);
     }
 
+    /**
+     * Retorna un listado de proveedores con paginacion y filtrado. Incluye eliminados.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getSuppliers(Request $request)
     {
         $query = Supplier::query();
@@ -101,12 +117,21 @@ class SupplierController extends Controller
         return response()->json($suppliers, 200);
     }
 
+    /**
+     * Retorna listado de todos los proveedores.
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getAllSuppliers()
     {
         $suppliers = Supplier::all();
         return response()->json($suppliers, 200);
     }
 
+    /**
+     * Retorna proveedor por ID. Incluye info. de auditoria.
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getSupplier($id)
     {
         $supplier = Supplier::withTrashed()->with([
@@ -138,6 +163,11 @@ class SupplierController extends Controller
         ], 200);
     }
 
+    /**
+     * Retorna proveedor en base a RUC.
+     * @param mixed $ruc
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getSupplierByRUC($ruc)
     {
         $supplier = Supplier::where('ruc', $ruc)->first();
@@ -147,6 +177,11 @@ class SupplierController extends Controller
         return response()->json($supplier, 200);
     }
 
+    /**
+     * Elimina un proveedor por ID.
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function deleteSupplier($id)
     {
         $supplier = Supplier::find($id);
@@ -157,6 +192,11 @@ class SupplierController extends Controller
         return response()->json(['message' => 'Proveedor de ID: ' . $id . ' eliminado correctamente.'], 200);
     }
 
+    /**
+     * Restaura un proveedor por ID.
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function restoreSupplier($id)
     {
         $supplier = Supplier::onlyTrashed()->find($id);
@@ -167,6 +207,10 @@ class SupplierController extends Controller
         return response()->json(['message' => "Proveedor de ID: $id restaurado correctamente."]);
     }
 
+    /**
+     * Auxiliar para informacion de auditoria.
+     * @param mixed $user
+     */
     private function getUserDisplayName($user)
     {
         if (!$user) {

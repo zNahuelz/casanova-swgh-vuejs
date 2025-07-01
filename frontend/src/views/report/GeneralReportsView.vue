@@ -299,7 +299,9 @@ onMounted(() => {
               <h1 class="text-lg font-light">Atendidas (%): {{ appointmentsReport.attending_percentage }}%</h1>
               <h1 class="text-lg font-light">Pendientes (%): {{ appointmentsReport.pending_percentage }}%</h1>
               <h1 class="text-lg font-light">Total (%):
-                {{ appointmentsReport.attending_percentage + appointmentsReport.pending_percentage }}%</h1>
+                {{
+                  appointmentsReport.attending_percentage + appointmentsReport.pending_percentage + appointmentsReport.canceled_percentage + appointmentsReport.rescheduling_percentage
+                }}%</h1>
               <h1 class="text-lg font-light">Modalidad - Presencial (%):
                 {{ 100 - appointmentsReport.remote_percentage }}%</h1>
               <h1 class="text-lg font-light">Modalidad - Remoto (%): {{ appointmentsReport.remote_percentage }}%</h1>

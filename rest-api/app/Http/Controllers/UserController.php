@@ -12,6 +12,11 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
+    /**
+     * Permite registrar una cuenta de administrador en base a nombre de usuario y email, previa validacion.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function createAdmin(Request $request)
     {
         $request->validate([
@@ -41,6 +46,11 @@ class UserController extends Controller
         ],201);
     }
 
+    /**
+     * Retorna un listado de usuarios del sistema, incluye paginacion, filtrado y usuarios deshabilitados.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getUsers(Request $request)
     {
         $query = User::withTrashed()->with('role','doctor','worker');
@@ -87,6 +97,11 @@ class UserController extends Controller
         return response()->json($users,200);
     }
 
+    /**
+     * Permite resetear la contraseña de un usuario por ID (La nueva contraseña sera el año actual + nombre de usuario.)
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function resetPassword(Request $request)
     {
         $request->validate([
@@ -111,6 +126,11 @@ class UserController extends Controller
         
     }
 
+    /**
+     * Permite deshabilitar una cuenta de usuario por ID.
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function deleteUser($id)
     {
         $user = User::find($id);
@@ -126,6 +146,11 @@ class UserController extends Controller
         ],200);
     }
 
+    /**
+     * Permite restaurar una cuenta de usuario por ID.
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function restoreUser($id)
     {
         $user = User::withTrashed()->where('id',$id);

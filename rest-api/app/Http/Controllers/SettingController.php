@@ -14,6 +14,11 @@ use Illuminate\Validation\Rule;
 
 class SettingController extends Controller
 {
+    /**
+     * Registra un variable para la configuracion del sistema previa validacion.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function createSetting(Request $request)
     {
         $request->validate([
@@ -34,6 +39,12 @@ class SettingController extends Controller
         ], 201);
     }
 
+    /**
+     * Actualiza una variable de configuracion del sistema existente por ID.
+     * @param \Illuminate\Http\Request $request
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function updateSetting(Request $request, $id)
     {
         $oldSetting = Setting::find($id);
@@ -60,6 +71,11 @@ class SettingController extends Controller
         ], 200);
     }
 
+    /**
+     * Actualiza la configuracion del IGV de sistema previa validacion, posteriormente actualiza el valor de IGV de todos los productos y servicios automaticamente.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function updateIgvConfig(Request $request)
     {
         $request->validate([
@@ -146,6 +162,11 @@ class SettingController extends Controller
         }
     }
 
+    /**
+     * Actualiza el precio de una cita, previa validacion.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function updateAppointmentPrice(Request $request)
     {
         $request->validate([
@@ -178,6 +199,11 @@ class SettingController extends Controller
         ], 200);
     }
 
+    /**
+     * Gestiona la posibilidad o no de trabajar los fines de semana (afecta reserva de citas, horario de doctores, habilita disponibilidades en findes de existir).
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function manageJobOnWeekends(Request $request)
     {
         $request->validate([
@@ -229,6 +255,11 @@ class SettingController extends Controller
         ]);
     }
 
+    /**
+     * Actualiza la informacion de los vouchers emitidos por el sistema (DIRECCION Y RUC DE LA EMPRESA)
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function updateVoucherInfo(Request $request)
     {
         if ($request->type === 'ADDRESS_CHANGE') {
@@ -266,6 +297,11 @@ class SettingController extends Controller
         ], 400);
     }
 
+    /**
+     * Retorna objeto Setting en base a su clave.
+     * @param mixed $key
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getSettingByKey($key)
     {
         $setting = Setting::where('key', $key)->first();
@@ -277,6 +313,11 @@ class SettingController extends Controller
         return response()->json($setting, 200);
     }
 
+    /**
+     * Retorna el listado de todas las variables de configuracion del sistema, incluye filtrado.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getSettings(Request $request)
     {
         $query = Setting::query();

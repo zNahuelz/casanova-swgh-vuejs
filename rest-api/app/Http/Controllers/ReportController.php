@@ -15,6 +15,11 @@ use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
+    /**
+     * Retorna un reporte de citas por mes o año.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function generateAppointmentsReport(Request $request)
     {
         $request->validate([
@@ -24,7 +29,7 @@ class ReportController extends Controller
         $date = Carbon::parse($request->date);
 
         if ($request->type === 'by_month') {
-            $appointments = Appointment::whereMonth('date', $date->month)
+            $appointments = Appointment::withTrashed()->whereMonth('date', $date->month)
                 ->whereYear('date', $date->year)
                 ->get();
         } else {
@@ -32,8 +37,8 @@ class ReportController extends Controller
         }
 
         $total = $appointments->count();
-        $totalRescheduled = $appointments->where('rescheduling_date' !== null)->count();
-        $totalCanceled = $appointments->where('status', AppointmentStatus::Canceled)->count();
+        $totalRescheduled = $appointments->where('rescheduling_date','!==',null)->count();
+        $totalCanceled = $appointments->where('status',AppointmentStatus::Canceled)->count();
         $attended = $appointments->where('status', AppointmentStatus::Attended)->count();
         $pending = $appointments->where('status', AppointmentStatus::Pending)->count();
         $remote = $appointments->where('is_remote', true)->count();
@@ -70,6 +75,11 @@ class ReportController extends Controller
         return response()->json($response, 200);
     }
 
+    /**
+     * Retorna un reporte de ventas por mes o año.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function generateSalesReport(Request $request)
     {
         $request->validate([

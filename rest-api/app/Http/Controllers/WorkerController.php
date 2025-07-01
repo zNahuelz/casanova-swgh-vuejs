@@ -16,6 +16,11 @@ use Illuminate\Validation\Rules\Enum;
 
 class WorkerController extends Controller
 {
+    /**
+     * Permite el registro de un trabajador y su creacion automatica de cuenta de usuario previa validacion.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function createWorker(Request $request)
     {
         $request->validate([
@@ -94,6 +99,12 @@ class WorkerController extends Controller
         }
     }
 
+    /**
+     * Permite actualizar la informacion de un trabajador por ID previa validacion.
+     * @param \Illuminate\Http\Request $request
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function updateWorker(Request $request, $id)
     {
         $oldWorker = Worker::find($id);
@@ -173,6 +184,11 @@ class WorkerController extends Controller
         }
     }
 
+    /**
+     * Retorna un listado de trabajadores, incluye filtrado y paginacion.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getWorkers(Request $request)
     {
         $query = Worker::query();
@@ -205,6 +221,11 @@ class WorkerController extends Controller
         return response()->json($workers, 200);
     }
 
+    /**
+     * Retorna un trabajador por ID, incluye usuario asociado e info. de auditoria.
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getWorker($id)
     {
         $worker = Worker::find($id);

@@ -24,6 +24,11 @@ class VoucherController extends Controller
 {
     //TODO: Check that a set-correlative cant be duplicated.
     //But a correlative with a differnt set can be duplicated.
+    /**
+     * Permite el registro de un voucher en base a carrito de compra y datos de la misma.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function createVoucher(Request $request)
     {
         $request->validate([
@@ -205,6 +210,12 @@ class VoucherController extends Controller
         }
     }
 
+    /**
+     * Retorna un listado de vouchers incluyendo detalle de los mismos, de sus medicinas, citas, tratamientos, tipo de pago y comprador.
+     * Incluye paginacion, filtrado, orden y cantidad de elementos.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getVouchers(Request $request)
     {
         $query = Voucher::with(['voucherDetails', 'voucherDetails.medicine', 'voucherDetails.appointment', 'voucherDetails.treatment', 'paymentType', 'patient']);
@@ -242,6 +253,11 @@ class VoucherController extends Controller
         return response()->json($vouchers, 200);
     }
 
+    /**
+     * Retorna un voucher por ID. Incluye detalles, info. de medicina, cita, tratamiento, tipo de pago, comprador y detalle de voucher.
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getVoucherById($id)
     {
         $voucher = Voucher::with(['voucherDetails', 'voucherDetails.medicine', 'voucherDetails.appointment', 'voucherDetails.treatment','paymentType','patient', 'voucherDetails.medicine.presentation'])->find($id);
@@ -253,6 +269,12 @@ class VoucherController extends Controller
         return response()->json($voucher);
     }
 
+    /**
+     * Retorna PDF de voucher por ID.
+     * @param \Illuminate\Http\Request $request
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+     */
     public function getVoucherPdfById(Request $request, $id)
     {
         $voucher = Voucher::find($id);

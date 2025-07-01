@@ -19,7 +19,11 @@ use Illuminate\Validation\Validator as ValidationValidator;
 
 class DoctorController extends Controller
 {
-
+    /**
+     * Guarda los datos de un nuevo doctor y genera cuenta de usuario automaticamente posterior a validacion.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function createDoctor(Request $request)
     {
         $validator =  Validator::make($request->all(), [
@@ -137,6 +141,12 @@ class DoctorController extends Controller
         }
     }
 
+    /**
+     * Actualiza la información del doctor previa validacion.
+     * @param \Illuminate\Http\Request $request
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function updateDoctorInfo(Request $request, $id)
     {
         $oldDoctor = Doctor::find($id);
@@ -196,6 +206,12 @@ class DoctorController extends Controller
         }
     }
 
+    /**
+     * Actualiza el horario de doctor especifico (id), previa validacion.
+     * @param \Illuminate\Http\Request $request
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function updateDoctorAvailabilities(Request $request, $id)
     {
         $oldDoctor = Doctor::find($id);
@@ -283,6 +299,11 @@ class DoctorController extends Controller
         }
     }
 
+    /**
+     * Retorna un listado de doctores con filtros y paginacion. Incluye disponibilidades e indisponibilidades.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getDoctors(Request $request)
     {
         $query = Doctor::with(['availabilities', 'unavailabilities']);
@@ -311,6 +332,11 @@ class DoctorController extends Controller
         return response()->json($doctors, 200);
     }
 
+    /**
+     * Retorna un doctor especifico por ID. Incluye disponibilidades, indisponibilidades, auditoria y usuario asociado.
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getDoctor($id)
     {
         $doctor = Doctor::where('id', $id)->with(['availabilities', 'unavailabilities', 'createdBy', 'updatedBy', 'user'])->first();
@@ -323,6 +349,11 @@ class DoctorController extends Controller
         return response()->json($doctor, 200);
     }
 
+    /**
+     * Retorna listado de doctores disponibles para reserva de citas. Incluye cantidad APROXIMADA de espacios disponibles para reserva.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getAvailableDoctors(Request $request)
     {
         $slotLength = 30;
@@ -360,12 +391,21 @@ class DoctorController extends Controller
         return response()->json($doctors);
     }
 
+    /**
+     * Retorna todos los doctores, sin paginación. No incluye doctores eliminados.
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getAllDoctors()
     {
         $doctors = Doctor::all();
         return response()->json($doctors, 200);
     }
 
+    /**
+     * Crea una indisponibilidad para doctor en base a rango temporal, razon e ID. Impide la reserva de citas en el rango especificado.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function createUnavailability(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -414,6 +454,11 @@ class DoctorController extends Controller
         ], 201);
     }
 
+    /**
+     * Deshabilita una indisponibilidad, permite volver a reservar citas en el periodo "eliminado".
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function removeUnavailability($id)
     {
         $unav = DoctorUnavailability::find($id);

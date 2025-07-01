@@ -13,6 +13,11 @@ use Illuminate\Validation\Rule;
 
 class MedicineController extends Controller
 {
+    /**
+     * Permite registrar una medicina posterior a la validación.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function createMedicine(Request $request)
     {
         $request->validate([
@@ -72,6 +77,12 @@ class MedicineController extends Controller
         }
     }
 
+    /**
+     * Permite actualizar una medicina especifica posterior a validación.
+     * @param \Illuminate\Http\Request $request
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function updateMedicine(Request $request, $id)
     {
         $oldMedicine = Medicine::find($id);
@@ -134,6 +145,11 @@ class MedicineController extends Controller
         }
     }
 
+    /**
+     * Permite actualizar el estado de vendible de una medicina especifica. (Puede funcionar como eliminación o cambio a uso interno)
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function manageSaleStatus($id)
     {
         $medicine = Medicine::find($id);
@@ -151,6 +167,11 @@ class MedicineController extends Controller
         ],200);
     }
 
+    /**
+     * Retorna listado de medicinas con paginacion, filtros, ordenado y cantidad por pagina.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getMedicines(Request $request)
     {
         $query = Medicine::with(['presentation', 'suppliers']);
@@ -191,6 +212,11 @@ class MedicineController extends Controller
         return response()->json($medicines, 200);
     }
 
+    /**
+     * Retorna medicina especifica por ID incluyendo presentacion, proveedores y auditoria.
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getMedicineById($id)
     {
         $medicine = Medicine::with([
@@ -232,6 +258,11 @@ class MedicineController extends Controller
         ], 200);
     }
 
+    /**
+     * Retorna medicina con presentacion en base a codigo de barras.
+     * @param mixed $barcode
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getMedicineByBarcode($barcode)
     {
         $medicine = Medicine::where('barcode', $barcode)->with(['presentation'])->first();
@@ -244,6 +275,10 @@ class MedicineController extends Controller
         return response()->json($medicine, 200);
     }
 
+    /**
+     * Genera un codigo de barras aleatorio (violando el standar EAN-13)
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function generateRandomBarcode()
     {
         $validBarcode = false;
@@ -260,6 +295,11 @@ class MedicineController extends Controller
         ]);
     }
 
+    /**
+     * Retorna un PDF con un codigo de barras repetido multiples veces para impresion.
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+     */
     public function getBarcodesToPrint($id)
     {
         $medicine = Medicine::find($id);
@@ -270,6 +310,10 @@ class MedicineController extends Controller
         return $pdf->stream("$medicine->barcode.pdf");
     }
 
+    /**
+     * Fabrica de codigos de barras.
+     * @return string
+     */
     private function barcodeFactory()
     {
         $value = rand(1, 99999);
@@ -277,6 +321,10 @@ class MedicineController extends Controller
         return $barcode;
     }
 
+    /**
+     * Auxiliar para adjuntar datos de auditoria en Medicine.
+     * @param mixed $user
+     */
     private function getUserDisplayName($user)
     {
         if (!$user) {

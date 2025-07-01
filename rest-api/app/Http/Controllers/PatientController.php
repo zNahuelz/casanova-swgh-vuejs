@@ -9,6 +9,11 @@ use Illuminate\Validation\Rule;
 
 class PatientController extends Controller
 {
+    /**
+     * Permite el registro de un paciente previa validación.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function createPatient(Request $request)
     {
         $request->validate([
@@ -41,6 +46,12 @@ class PatientController extends Controller
         ], 201);
     }
 
+    /**
+     * Permite actualizar un paciente por ID previa validación.
+     * @param \Illuminate\Http\Request $request
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function updatePatient(Request $request, $id)
     {
         $oldPatient = Patient::find($id);
@@ -77,6 +88,11 @@ class PatientController extends Controller
         ], 200);
     }
 
+    /**
+     * Retorna un listado de pacientes con citas, incluye paginacion y filtrado.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getPatients(Request $request)
     {
         $query = Patient::with('appointments');
@@ -105,6 +121,11 @@ class PatientController extends Controller
         return response()->json($patients, 200);
     }
 
+    /**
+     * Retorna un paciente por ID incluyendo sus ultimas 5 citas, info. de auditoria y vouchers.
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getPatient($id)
     {
         $patient = Patient::with(['appointments' => function ($query) {
@@ -113,6 +134,12 @@ class PatientController extends Controller
 
         return response()->json($patient);
     }
+
+    /**
+     * Retorna un paciente por DNI, incluyendo sus ultimas 5 citas.
+     * @param mixed $dni
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getPatientByDni($dni)
     {
         $patient = Patient::with(['appointments' => function ($query) {

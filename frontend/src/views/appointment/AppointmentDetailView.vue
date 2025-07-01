@@ -218,8 +218,8 @@ onMounted(() => {
             <div class="mb-3">
               <label class="block mb-1 text-sm font-medium text-gray-900">Estado</label>
               <input
-                  :class="{'text-yellow-500 font-bold': appointment.status === 'PENDIENTE', 'text-green-600 font-bold': appointment.status === 'ATENDIDO', 'text-rose-600 font-bold': appointment.status === 'REPROGRAMADO', 'text-red-800 font-bold': appointment.status === 'CANCELADO'}"
-                  :value="appointment.status"
+                  :class="{'text-yellow-500 font-bold': appointment.status === 'PENDIENTE', 'text-green-600 font-bold': appointment.status === 'ATENDIDO', 'text-rose-600 font-bold': appointment.status === 'REPROGRAMADO', 'text-red-800 font-bold': appointment.status === 'CANCELADO', 'text-stone-800 font-bold': appointment.status === 'NO_ASISTIO'}"
+                  :value="appointment.status === 'NO_ASISTIO' ? 'NO ASISTIÓ' : appointment.status"
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"
                   disabled
                   type="text"/>

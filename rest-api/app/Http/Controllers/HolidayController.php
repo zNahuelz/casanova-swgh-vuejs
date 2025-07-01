@@ -12,6 +12,11 @@ use Illuminate\Validation\Rule;
 
 class HolidayController extends Controller
 {
+    /**
+     * Retorna listado de feriados, incluye filtrado.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getHolidays(Request $request)
     {
         $query = Holiday::query();
@@ -30,6 +35,11 @@ class HolidayController extends Controller
         return response()->json($holidays, 200);
     }
 
+    /**
+     * Permite registrar un feriado posterior a validaciones.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function createHoliday(Request $request)
     {
         $payloadDate = Carbon::parse($request->input('date'));
@@ -83,6 +93,11 @@ class HolidayController extends Controller
         }
     }
 
+    /**
+     * Permite actualizar un feriado existente posterior a validaciones.
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function updateHoliday(Request $request)
     {
         $request->validate([
@@ -135,6 +150,11 @@ class HolidayController extends Controller
         }
     }
 
+    /**
+     * Permite eliminar un feriado (permanentemente) segun ID.
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function deleteHoliday($id)
     {
         $holiday = Holiday::find($id);
