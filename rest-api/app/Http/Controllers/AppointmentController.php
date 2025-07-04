@@ -680,7 +680,8 @@ class AppointmentController extends Controller
      */
     public function getAppointments(Request $request)
     {
-        $query = Appointment::withTrashed()->with(['doctor', 'patient']);
+        $query = Appointment::withTrashed()
+            ->with(['doctor', 'patient']);
 
         if ($request->has('id')) {
             $query->where('id', $request->input('id'));
@@ -725,18 +726,17 @@ class AppointmentController extends Controller
             $query->whereDate('date', '>=', $from);
         }
 
-        if ($usingDateFrom) {
-            $query->orderBy('date', 'asc')
-                ->orderBy('time', 'asc')
-                ->orderBy('doctor_id', 'asc');
-        } else {
-            $query->orderBy('doctor_id', 'asc')
-                ->orderByDesc('date')
-                ->orderByDesc('time');
-        }
+        $query->orderBy('doctor_id', 'asc');
 
-        $perPage = (int) $request->input('per_page', 15);
+        $direction = $usingDateFrom ? 'asc' : 'desc';
+
+        // ** Si existe rescheduling_date /time usarlo, caso contrario usar date y time.
+        $query->orderByRaw("COALESCE(rescheduling_date, date) {$direction}")
+            ->orderByRaw("COALESCE(rescheduling_time, time) {$direction}");
+
+        $perPage   = (int) $request->input('per_page', 15);
         $paginated = $query->paginate($perPage);
+
         return response()->json($paginated);
     }
 
@@ -818,21 +818,19 @@ class AppointmentController extends Controller
             ], 404);
         }
 
-        try{
+        try {
             DB::beginTransaction();
             $appointment->update([
                 'notes' => trim(strtoupper($request->notes)),
                 'updated_by' => $request->updated_by,
             ]);
             DB::commit();
-                        return response()->json([
+            return response()->json([
                 'message' => "Notas de la cita de ID: $request->appointment_id actualizadas correctamente."
             ], 200);
-        }
-        catch(Exception $e)
-        {
+        } catch (Exception $e) {
             DB::rollBack();
-                        return response()->json([
+            return response()->json([
                 'message' => "Actualización de notas de la cita de ID: $request->appointment_id fallida. Vuelva a intentarlo.",
                 'ex' => $e,
             ], 500);

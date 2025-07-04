@@ -80,10 +80,13 @@ const loadPresentations = async (filters = {}) => {
         <h3 class="text-lg font-semibold text-gray-900">
           Buscar presentación
         </h3>
-        <button :disabled="submitting || isLoading" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" type="button"
+        <button :disabled="submitting || isLoading"
+                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
+                type="button"
                 @click="onClose(null)">
           <svg aria-hidden="true" class="w-3 h-3" fill="none" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
-            <path d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+            <path d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" stroke="currentColor" stroke-linecap="round"
+                  stroke-linejoin="round"
                   stroke-width="2"/>
           </svg>
           <span class="sr-only">Close modal</span>
@@ -96,14 +99,17 @@ const loadPresentations = async (filters = {}) => {
             <div class="flex items-center justify-between w-full">
 
               <div class="flex items-center">
-                <Field id="searchMode" v-model="searchMode" as="select" class="shrink-0 z-10 inline-flex w-45 items-center py-2.5 px-4 text-sm font-medium text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100" name="searchMode"
+                <Field id="searchMode" v-model="searchMode" as="select"
+                       class="shrink-0 z-10 inline-flex w-45 items-center py-2.5 px-4 text-sm font-medium text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100"
+                       name="searchMode"
                        @change="validate">
                   <option v-for="sm in PSM" :key="sm.value" :value="sm.value">{{ sm.label }}</option>
                 </Field>
 
                 <div class="relative w-full">
                   <Field id="keyword" :class="{'focus:ring-red-500 focus:border-red-500 rounded-e-lg': !meta.valid}"
-                         :type="searchMode === 'id' ? 'number' : 'text'" class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500 rounded-e-lg"
+                         :type="searchMode === 'id' ? 'number' : 'text'"
+                         class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border-l-0 border border-gray-300 focus:ring-green-500 focus:border-green-500 rounded-e-lg"
                          name="keyword"
                          placeholder="Buscar..."
                          @input="validate"/>
@@ -112,7 +118,8 @@ const loadPresentations = async (filters = {}) => {
                           type="submit">
                     <svg aria-hidden="true" class="w-4 h-4" fill="none" viewBox="0 0 20 20"
                          xmlns="http://www.w3.org/2000/svg">
-                      <path d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                      <path d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" stroke="currentColor"
+                            stroke-linecap="round" stroke-linejoin="round"
                             stroke-width="2"/>
                     </svg>
                   </button>
@@ -123,42 +130,46 @@ const loadPresentations = async (filters = {}) => {
             <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium" name="keyword"></ErrorMessage>
           </Form>
 
-          <table v-if="presentationsLoaded" class="w-full text-sm text-left rtl:text-right text-gray-500 mt-5">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
-            <tr>
-              <th class="px-6 py-3" scope="col">
-                ID
-              </th>
-              <th class="px-6 py-3" scope="col">
-                NOMBRE COMPLETO
-              </th>
-              <th class="px-6 py-3 text-center" scope="col">
-                SELECCIONAR
-              </th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr
-                v-for="p in presentations" :key="p.id" class="bg-white border-b border-gray-200 hover:bg-gray-50">
-              <th class="px-6 py-2 whitespace-nowrap" scope="row">
-                {{ p.id }}
-              </th>
-              <td class="px-6 py-2 font-medium text-gray-900">
-                {{ p.name + ' ' + p.numeric_value + ' ' + p.aux }}
-              </td>
-              <td class="px-6 py-3 flex justify-center items-center">
-                <div class="inline-flex rounded-md shadow-xs" role="group">
-                  <button class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed" type="button"
-                          @click="onClose(p)">
-                    <i class="bi bi-check2-circle w-4 h-4"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
+          <div class="max-h-60 overflow-y-auto w-full">
+            <table v-if="presentationsLoaded" class="w-full text-sm text-left rtl:text-right text-gray-500 mt-5">
+              <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+              <tr>
+                <th class="px-6 py-3" scope="col">
+                  ID
+                </th>
+                <th class="px-6 py-3" scope="col">
+                  NOMBRE COMPLETO
+                </th>
+                <th class="px-6 py-3 text-center" scope="col">
+                  SELECCIONAR
+                </th>
+              </tr>
+              </thead>
 
-            </tbody>
-          </table>
+              <tbody>
+              <tr
+                  v-for="p in presentations" :key="p.id" class="bg-white border-b border-gray-200 hover:bg-gray-50">
+                <th class="px-6 py-2 whitespace-nowrap" scope="row">
+                  {{ p.id }}
+                </th>
+                <td class="px-6 py-2 font-medium text-gray-900">
+                  {{ p.name + ' ' + p.numeric_value + ' ' + p.aux }}
+                </td>
+                <td class="px-6 py-3 flex justify-center items-center">
+                  <div class="inline-flex rounded-md shadow-xs" role="group">
+                    <button
+                        class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-2 focus:ring-green-700 focus:text-green-700 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                        type="button"
+                        @click="onClose(p)">
+                      <i class="bi bi-check2-circle w-4 h-4"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
 
+              </tbody>
+            </table>
+          </div>
           <div v-if="isLoading" class="container mt-5 mb-5 flex flex-col items-center">
             <div role="status">
               <svg aria-hidden="true" class="inline w-30 h-30 text-gray-200 animate-spin  fill-green-600"

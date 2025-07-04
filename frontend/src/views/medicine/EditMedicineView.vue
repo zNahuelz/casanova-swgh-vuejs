@@ -27,6 +27,7 @@ const profitValue = ref(0);
 const igvValue = ref(0);
 const igvStatus = ref(true);
 const salable = ref(true);
+const originalBarcode = ref('');
 
 const presentationName = ref('NO SELECCIONADA');
 const supplierName = ref('NO SELECCIONADO');
@@ -37,13 +38,13 @@ const selectedSupplier = ref({});
 
 const showSearchPresentationModal = ref(false);
 const showSearchSupplierModal = ref(false);
-const editMedicineForm = ref({});
+const editMedicineForm = ref();
 const authService = useAuthStore();
 
 const medicineSchema = yup.object({
   name: yup.string()
-      .min(5,'El nombre debe tener entre 5 y 100 carácteres.')
-      .max(100,'El nombre debe tener entre 5 y 100 carácteres.')
+      .min(5, 'El nombre debe tener entre 5 y 100 carácteres.')
+      .max(100, 'El nombre debe tener entre 5 y 100 carácteres.')
       .matches(/^.*\S.*$/, 'El nombre no puede ser solo espacios en blanco.')
       .matches(/^\S.*$/, 'El nombre no debe comenzar con espacios.')
       .required('Debe ingresar un nombre.'),
@@ -62,15 +63,15 @@ const medicineSchema = yup.object({
   buy_price: yup.number()
       .typeError('Debe ingresar un precio de compra válido.')
       .positive().test(
-      "is-decimal", "Máximo dos decimales permitidos.",
-      (value) => /^\d+(\.\d{1,2})?$/.test(String(value))
-  ).required('Debe ingresar un precio de compra.'),
+          "is-decimal", "Máximo dos decimales permitidos.",
+          (value) => /^\d+(\.\d{1,2})?$/.test(String(value))
+      ).required('Debe ingresar un precio de compra.'),
   sell_price: yup.number()
       .typeError('Debe ingresar un precio de venta válido.')
       .positive().test(
-      "is-decimal", "Máximo dos decimales permitidos.",
-      (value) => /^\d+(\.\d{1,2})?$/.test(String(value))
-  ).min(yup.ref('buy_price')).required('Debe ingresar un precio de venta.'),
+          "is-decimal", "Máximo dos decimales permitidos.",
+          (value) => /^\d+(\.\d{1,2})?$/.test(String(value))
+      ).min(yup.ref('buy_price'),'El precio de venta debe ser igual o superior al de compra.').required('Debe ingresar un precio de venta.'),
   igv: yup.number()
       .typeError('Los valores de precio de compra-venta deben ser válidos.')
       .required('El IGV es requerido.'),
@@ -78,8 +79,14 @@ const medicineSchema = yup.object({
       .typeError('Los valores de precio de compra-venta deben ser válidos.')
       .required('La ganancia es requerida.'),
   stock: yup.number().moreThan(0).positive().required('Debe ingresar el stock.'),
-  presentation: yup.number().positive().required('Debe seleccionar una presentación.'),
-  supplier: yup.number().positive().required('Debe seleccionar un proveedor.'),
+  presentation: yup.number().positive('Debe seleccionar una presentación válida.').required('Debe seleccionar una presentación.'),
+  supplier: yup.number().positive('Debe seleccionar una presentación válida.').required('Debe seleccionar un proveedor.'),
+  barcode: yup
+      .string()
+      .min(8, 'El código de barras debe tener entre 8 y 30 carácteres.')
+      .max(30, 'El código de barras debe tener entre 8 y 30 carácteres.')
+      .matches(/^[A-Za-z0-9]{8,30}$/, 'El código de barras debe contener solo números y letras.')
+      .required('Debe ingresar un código de barras.'),
 });
 
 
@@ -93,6 +100,7 @@ async function loadMedicine(id) {
     profitValue.value = medicine.value.profit;
     salable.value = medicine.value.salable;
     igvStatus.value = medicine.value.igv >= 1;
+    originalBarcode.value = medicine.value.barcode;
     onPricesChanges();
     await loadSupplier();
     await loadPresentation();
@@ -188,7 +196,9 @@ async function onSubmit(values) {
     Swal.fire(SM.SUCCESS_TAG, response.message, 'success').then((r) => reloadOnDismiss(r));
   } catch (err) {
     if (err.errors?.barcode) {
-      Swal.fire(EM.ERROR_TAG, EM.BARCODE_TAKEN, 'warning').then((r) => reloadOnDismiss(r));
+      Swal.fire(EM.ERROR_TAG, EM.BARCODE_TAKEN, 'warning').then((r) => {
+        onBarcodeInput('');
+      });
     } else {
       Swal.fire(EM.ERROR_TAG, EM.SERVER_ERROR, 'error').then((r) => reloadOnDismiss(r));
     }
@@ -225,6 +235,21 @@ function handleSearchSupplierModal(s) {
 
 function goToMedicineList() {
   router.push({name: 'medicine-list'});
+}
+
+async function loadRandomBarcode() {
+  isLoading.value = true;
+  try {
+    const response = await MedicineService.generateRandomBarcode();
+    isLoading.value = false;
+    medicine.value.barcode = response.barcode;
+  } catch (err) {
+    Swal.fire(EM.ERROR_TAG, EM.BARCODE_GENERATION_ERROR, 'error').then((r) => reloadOnDismiss(r))
+  }
+}
+
+function onBarcodeInput(newVal) {
+  medicine.value.barcode = newVal;
 }
 
 onMounted(() => {
@@ -267,7 +292,7 @@ onMounted(() => {
         </svg>
         <span class="sr-only">Info</span>
         <div>
-          Código de barras actual: <span class="font-medium">{{ medicine?.barcode }}</span> - ID: <span
+          Código de barras actual: <span class="font-medium">{{ originalBarcode }}</span> - ID: <span
             class="font-medium">{{ medicine?.id }}</span> <br>
           Valor del IGV: <span class="font-medium">{{ IGV_VALUE * 100 }}%</span>
         </div>
@@ -277,57 +302,59 @@ onMounted(() => {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Nombre</label>
-            <Field id="name" :model-value="medicine?.name" :validate-on-input="true"
+            <Field id="name" :disabled="submitting" :model-value="medicine?.name" :validate-on-input="true"
                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"
                    name="name"
                    type="text"/>
-            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium" name="name"></ErrorMessage>
+            <ErrorMessage class="mt-1 text-sm text-red-600 font-medium" name="name"></ErrorMessage>
           </div>
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Composición</label>
-            <Field id="composition" :model-value="medicine?.composition" :validate-on-input="true"
+            <Field id="composition" :disabled="submitting" :model-value="medicine?.composition"
+                   :validate-on-input="true"
                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"
                    name="composition"
                    type="text"/>
-            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
+            <ErrorMessage class="mt-1 text-sm text-red-600 font-medium"
                           name="composition"></ErrorMessage>
           </div>
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Descripción</label>
-            <Field id="description" :model-value="medicine?.description" :validate-on-input="true"
+            <Field id="description" :disabled="submitting" :model-value="medicine?.description"
+                   :validate-on-input="true"
                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"
                    name="description"
                    type="text"/>
-            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
+            <ErrorMessage class="mt-1 text-sm text-red-600 font-medium"
                           name="description"></ErrorMessage>
           </div>
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Stock</label>
-            <Field id="stock" :model-value="medicine?.stock" :validate-on-input="true"
+            <Field id="stock" :disabled="submitting" :model-value="medicine?.stock" :validate-on-input="true"
                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"
                    name="stock"
                    type="number"/>
-            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
+            <ErrorMessage class="mt-1 text-sm text-red-600 font-medium"
                           name="stock"></ErrorMessage>
           </div>
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Precio de Compra</label>
-            <Field id="buy_price" v-model="buyPriceValue" :validate-on-input="true"
+            <Field id="buy_price" v-model="buyPriceValue" :disabled="submitting" :validate-on-input="true"
                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"
                    name="buy_price"
                    type="number"
                    @change="onPricesChanges"/>
-            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
+            <ErrorMessage class="mt-1 text-sm text-red-600 font-medium"
                           name="buy_price"></ErrorMessage>
           </div>
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Precio de Venta</label>
-            <Field id="sell_price" v-model="sellPriceValue" :validate-on-input="true"
+            <Field id="sell_price" v-model="sellPriceValue" :disabled="submitting" :validate-on-input="true"
                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-800 focus:border-green-800 w-full"
                    name="sell_price"
                    type="number"
                    @change="onPricesChanges"/>
-            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
+            <ErrorMessage class="mt-1 text-sm text-red-600 font-medium"
                           name="sell_price"></ErrorMessage>
           </div>
           <div>
@@ -337,7 +364,7 @@ onMounted(() => {
                    disabled
                    name="igv"
                    type="number"/>
-            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium" name="igv"></ErrorMessage>
+            <ErrorMessage class="mt-1 text-sm text-red-600 font-medium" name="igv"></ErrorMessage>
           </div>
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Ganancia</label>
@@ -347,7 +374,7 @@ onMounted(() => {
                    disabled
                    name="profit"
                    type="number"/>
-            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium" name="profit"></ErrorMessage>
+            <ErrorMessage class="mt-1 text-sm text-red-600 font-medium" name="profit"></ErrorMessage>
           </div>
           <div>
             <label class="block mb-1 text-sm font-medium text-gray-900">Vendible</label>
@@ -393,7 +420,7 @@ onMounted(() => {
                 </svg>
               </button>
             </div>
-            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
+            <ErrorMessage class="mt-1 text-sm text-red-600 font-medium"
                           name="presentation"></ErrorMessage>
           </div>
           <div>
@@ -417,12 +444,32 @@ onMounted(() => {
                 </svg>
               </button>
             </div>
-            <ErrorMessage class="mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
+            <ErrorMessage class="mt-1 text-sm text-red-600 font-medium"
                           name="supplier"></ErrorMessage>
           </div>
         </div>
         <Field id="presentation" v-model="selectedPresentationId" name="presentation" type="hidden"/>
         <Field id="supplier" v-model="selectedSupplierId" name="supplier" type="hidden"/>
+        <div class="relative">
+          <label class="block mb-1 text-sm font-medium text-gray-900">Código de Barras</label>
+          <Field id="barcode" :disabled="submitting" :model-value="medicine?.barcode"
+                 class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-green-500 focus:border-green-500"
+                 name="barcode"
+                 type="text"
+                 @update:model-value="onBarcodeInput"/>
+          <div class="absolute flex gap-2 end-2.5 bottom-2.5">
+            <button
+                :disabled="isLoading || submitting"
+                class="text-gray-700 bg-yellow-400 hover:bg-yellow-200 focus:ring-4 focus:outline-none focus:ring-yellow-400 font-medium rounded-lg text-sm px-4 py-2"
+                type="button"
+                @click="loadRandomBarcode"
+            >
+              Aleatorio
+            </button>
+          </div>
+
+        </div>
+        <ErrorMessage class="mt-1 text-sm text-red-600 font-medium" name="barcode"></ErrorMessage>
 
         <div v-if="!isLoading" class="flex justify-center mt-5">
           <div class="inline-flex rounded-md shadow-xs" role="group">

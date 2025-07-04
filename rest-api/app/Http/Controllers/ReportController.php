@@ -24,54 +24,68 @@ class ReportController extends Controller
     {
         $request->validate([
             'type' => ['required', 'string', 'in:by_month,by_year'],
-            'date' => ['required', 'date_format:Y-m-d']
+            'date' => ['required', 'date_format:Y-m-d'],
         ]);
-        $date = Carbon::parse($request->date);
 
-        if ($request->type === 'by_month') {
-            $appointments = Appointment::withTrashed()->whereMonth('date', $date->month)
-                ->whereYear('date', $date->year)
-                ->get();
+        $date = Carbon::parse($request->input('date'));
+        $base = Appointment::withTrashed();
+
+        if ($request->input('type') === 'by_month') {
+            $base->whereMonth('date', $date->month)
+                ->whereYear('date',  $date->year);
         } else {
-            $appointments = Appointment::whereYear('date', $date->year)->get();
+            $base->whereYear('date',  $date->year);
         }
 
-        $total = $appointments->count();
-        $totalRescheduled = $appointments->where('rescheduling_date','!==',null)->count();
-        $totalCanceled = $appointments->where('status',AppointmentStatus::Canceled)->count();
-        $attended = $appointments->where('status', AppointmentStatus::Attended)->count();
-        $pending = $appointments->where('status', AppointmentStatus::Pending)->count();
-        $remote = $appointments->where('is_remote', true)->count();
-        $mostPopularDoctorId = $appointments->groupBy('doctor_id')
-            ->sortByDesc(fn($group) => count($group))
-            ->keys()
-            ->first();
-        $mostPopularDoctor = null;
-        if ($mostPopularDoctorId) {
-            $mostPopularDoctor = Doctor::find($mostPopularDoctorId);
-        }
+        $total            = (clone $base)->count();
+        $totalCanceled    = (clone $base)
+            ->where('status', AppointmentStatus::Canceled)
+            ->count();
+        $totalRescheduled = (clone $base)
+            ->whereNotNull('rescheduling_date')
+            ->count();
+        $attended         = (clone $base)
+            ->where('status', AppointmentStatus::Attended)
+            ->count();
+        $pending          = (clone $base)
+            ->where('status', AppointmentStatus::Pending)
+            ->count();
+        $remote           = (clone $base)
+            ->where('is_remote', true)
+            ->count();
 
-        $response = [
-            'report_type' => $request->type,
-            'total_reservations' => $total,
-            'total_rescheduled' => $totalRescheduled,
-            'total_canceled' => $totalCanceled,
-            'attended_appointments' => $attended,
-            'pending_appointments' => $pending,
-            'total_remote' => $remote,
-            'most_popular_doctor' => $mostPopularDoctor,
-            'rescheduling_percentage' => $total > 0 ? round($totalRescheduled * 100 / $total, 2) : 0,
-            'canceled_percentage' => $totalCanceled > 0 ? round($totalCanceled * 100 / $total, 2) : 0,
-            'attending_percentage' => $attended > 0 ? round($attended * 100 / $total, 2) : 0,
-            'pending_percentage' => $pending > 0 ? round($pending * 100 / $total, 2) : 0,
-            'remote_percentage' => $remote > 0 ? round($remote * 100 / $total, 2) : 0,
-        ];
-
-        if ($total <= 0) {
+        if ($total === 0) {
             return response()->json([
-                'message' => 'No se encontraron citas registradas durante el período ingresado. Vuelva a intentarlo seleccionando un período distinto o reserve algunas citas.'
+                'message' => 'No se encontraron citas reservadas en el periodo ingresado. Intente nuevamente o reserve algunas citas.'
             ], 404);
         }
+
+        $mostPopularDoctorId = (clone $base)
+            ->select('doctor_id', DB::raw('COUNT(*) as cnt'))
+            ->groupBy('doctor_id')
+            ->orderByDesc('cnt')
+            ->value('doctor_id');
+
+        $mostPopularDoctor = $mostPopularDoctorId
+            ? Doctor::find($mostPopularDoctorId)
+            : null;
+
+        $response = [
+            'report_type'             => $request->input('type'),
+            'total_reservations'      => $total,
+            'total_rescheduled'       => $totalRescheduled,
+            'total_canceled'          => $totalCanceled,
+            'attended_appointments'   => $attended,
+            'pending_appointments'    => $pending,
+            'total_remote'            => $remote,
+            'most_popular_doctor'     => $mostPopularDoctor,
+            'rescheduling_percentage' => round($totalRescheduled * 100 / $total, 2),
+            'canceled_percentage'     => round($totalCanceled   * 100 / $total, 2),
+            'attending_percentage'    => round($attended        * 100 / $total, 2),
+            'pending_percentage'      => round($pending         * 100 / $total, 2),
+            'remote_percentage'       => round($remote          * 100 / $total, 2),
+        ];
+
         return response()->json($response, 200);
     }
 
