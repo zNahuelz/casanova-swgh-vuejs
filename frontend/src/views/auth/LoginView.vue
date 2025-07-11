@@ -99,7 +99,7 @@ onMounted(() => {
           <div class="flex items-start">
             <div class="flex items-center h-5">
               <input id="rememberMe" v-model="rememberMe"
-                     class="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300"
+                     class="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-green-500 text-green-600"
                      name="rememberMe"
                      type="checkbox"
               />

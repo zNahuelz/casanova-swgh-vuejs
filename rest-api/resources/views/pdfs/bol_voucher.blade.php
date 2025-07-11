@@ -189,8 +189,8 @@
           <th>Cantidad</th>
           <th>Presentación</th>
           <th>Descripción</th>
-          <th>Precio</th>
-          <th>Subtotal (Inc. IGV)</th>
+          <th>Precio (Inc. IGV)</th>
+          <th>Subtotal</th>
         </tr>
       </thead>
       <tbody>
