@@ -178,8 +178,8 @@
           SOLES
         </h1>
         <h1>
-          <span class="inline-block w-32">Observación:</span>
-          ---
+          <span class="inline-block w-32">Método de Pago:</span>
+          {{ $data->paymentType->name }}
         </h1>
       </div>
     </div>
